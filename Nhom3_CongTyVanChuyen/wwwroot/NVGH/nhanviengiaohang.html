@@ -1,0 +1,69 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Trang Quản Trị nvgh</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #eef2f3;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            background-color: #007bff;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .content {
+            margin: 40px auto;
+            max-width: 800px;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+
+        button {
+            background-color: #dc3545;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+            button:hover {
+                background-color: #c82333;
+            }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Chào mừng đến trang nvgh!</h1>
+    </div>
+
+    <div class="content">
+        <h2>Xin chào, nvgh!</h2>
+        <p>Chúc bạn một ngày tốt lành 🌟</p>
+
+        <button onclick="logout()">Đăng xuất</button>
+    </div>
+
+    <script>
+        function logout() {
+            // Clear localStorage nếu có lưu token (ở đây không dùng, nhưng setup sẵn)
+            // localStorage.removeItem('token');
+
+            // Quay về trang login
+            window.location.href = '/login.html';
+        }
+    </script>
+
+</body>
+</html>

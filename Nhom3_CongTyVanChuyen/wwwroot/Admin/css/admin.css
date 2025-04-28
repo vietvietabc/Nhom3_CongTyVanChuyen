@@ -1,0 +1,210 @@
+﻿/* admin.css */
+
+/* Sidebar */
+.bg-light {
+    background-color: #f8f9fa !important;
+    border-right: 1px solid #dee2e6;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+/* Sidebar link */
+.nav-link {
+    color: #495057;
+    font-weight: 500;
+    padding: 12px 18px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    position: relative;
+    font-size: 16px; /* Slightly larger font for readability */
+}
+
+    /* Hover */
+    .nav-link:hover {
+        background-color: #d0ebff; /* Light blue */
+        color: #0d6efd; /* Deep blue */
+        box-shadow: 0 4px 8px rgba(13, 110, 253, 0.2); /* Soft glow */
+        transform: translateX(5px); /* Subtle movement */
+    }
+
+    /* Active state */
+    .nav-link.active {
+        background-color: #0d6efd; /* Deep blue background */
+        color: white;
+        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.4); /* Stronger glow */
+        transform: translateX(0); /* Reset movement */
+    }
+
+/* Main content */
+#mainContent {
+    background-color: #f1f3f5;
+    min-height: 100vh;
+    padding: 20px;
+    font-family: 'Arial', sans-serif; /* Clean font */
+    color: #343a40; /* Dark gray for text */
+}
+
+/* Table styling */
+table {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    width: 100%; /* Full width */
+    border-collapse: collapse; /* Remove gaps */
+}
+
+thead {
+    background-color: #0d6efd;
+    color: white;
+    text-transform: uppercase; /* Capitalized headers */
+    font-size: 14px;
+}
+
+table th, table td {
+    vertical-align: middle;
+    padding: 12px 15px; /* Add padding for better spacing */
+    text-align: left; /* Align text to the left */
+    border-bottom: 1px solid #dee2e6; /* Add row separators */
+}
+
+table tr:hover {
+    background-color: #f8f9fa; /* Highlight row on hover */
+}
+
+/* Add employee button */
+.btn-custom {
+    margin-bottom: 10px;
+    background-color: #0d6efd;
+    color: white;
+    border-radius: 6px;
+    padding: 10px 20px; /* Add padding for better appearance */
+    font-size: 14px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+    .btn-custom:hover {
+        background-color: #084298;
+        transform: scale(1.05); /* Slight zoom effect */
+    }
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .nav-link {
+        font-size: 14px; /* Adjust font size for smaller screens */
+        padding: 10px 12px;
+    }
+
+    table th, table td {
+        font-size: 12px; /* Smaller text for compact view */
+    }
+
+    .btn-custom {
+        font-size: 12px;
+        padding: 8px 16px;
+    }
+}
+/* admin.css */
+
+/* Sidebar */
+.bg-light {
+    background-color: #f8f9fa !important;
+    border-right: 1px solid #dee2e6;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+/* Sidebar link */
+.nav-link {
+    color: #495057;
+    font-weight: 500;
+    padding: 12px 18px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    position: relative;
+    font-size: 16px; /* Slightly larger font for readability */
+}
+
+    /* Hover */
+    .nav-link:hover {
+        background-color: #d0ebff; /* Light blue */
+        color: #0d6efd; /* Deep blue */
+        box-shadow: 0 4px 8px rgba(13, 110, 253, 0.2); /* Soft glow */
+        transform: translateX(5px); /* Subtle movement */
+    }
+
+    /* Active state */
+    .nav-link.active {
+        background-color: #0d6efd; /* Deep blue background */
+        color: white;
+        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.4); /* Stronger glow */
+        transform: translateX(0); /* Reset movement */
+    }
+
+/* Main content */
+#mainContent {
+    background-color: #f1f3f5;
+    min-height: 100vh;
+    padding: 20px;
+    font-family: 'Arial', sans-serif; /* Clean font */
+    color: #343a40; /* Dark gray for text */
+}
+
+/* Table styling */
+table {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    width: 100%; /* Full width */
+    border-collapse: collapse; /* Remove gaps */
+}
+
+thead {
+    background-color: #0d6efd;
+    color: white;
+    text-transform: uppercase; /* Capitalized headers */
+    font-size: 14px;
+}
+
+table th, table td {
+    vertical-align: middle;
+    padding: 12px 15px; /* Add padding for better spacing */
+    text-align: left; /* Align text to the left */
+    border-bottom: 1px solid #dee2e6; /* Add row separators */
+}
+
+table tr:hover {
+    background-color: #f8f9fa; /* Highlight row on hover */
+}
+
+/* Add employee button */
+.btn-custom {
+    margin-bottom: 10px;
+    background-color: #0d6efd;
+    color: white;
+    border-radius: 6px;
+    padding: 10px 20px; /* Add padding for better appearance */
+    font-size: 14px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+    .btn-custom:hover {
+        background-color: #084298;
+        transform: scale(1.05); /* Slight zoom effect */
+    }
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .nav-link {
+        font-size: 14px; /* Adjust font size for smaller screens */
+        padding: 10px 12px;
+    }
+
+    table th, table td {
+        font-size: 12px; /* Smaller text for compact view */
+    }
+
+    .btn-custom {
+        font-size: 12px;
+        padding: 8px 16px;
+    }
+}

@@ -1,0 +1,226 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tạo tài khoản nhân viên</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        .form-container {
+            max-width: 600px;
+            margin: 50px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0 20px 0;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        button {
+            width: 100%;
+            background-color: #28a745;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+            button:hover {
+                background-color: #218838;
+            }
+
+        .error {
+            color: red;
+            font-size: 12px;
+            margin-top: -15px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="form-container">
+        <h2>Tạo tài khoản nhân viên</h2>
+
+        <form id="createForm">
+            <label for="tenNhanVien">Tên nhân viên:</label>
+            <input type="text" id="tenNhanVien" required>
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" required>
+
+            <label for="matKhau">Mật khẩu:</label>
+            <input type="password" id="matKhau" required>
+
+            <label for="sdt">SĐT:</label>
+            <input type="text" id="sdt" required>
+
+            <label for="cccd">CCCD:</label>
+            <input type="text" id="cccd" required>
+
+            <label for="maVaiTro">Vai trò:</label>
+            <select id="maVaiTro" required>
+                <option value="">--Chọn vai trò--</option>
+                <option value="KT">Kế Toán</option>
+                <option value="NVDP">Nhân viên điều phối</option>
+                <option value="NVGH">Nhân viên giao hàng</option>
+            </select>
+
+            <label for="tinh">Tỉnh/Thành phố:</label>
+            <select id="tinh" required>
+                <option value="">--Chọn tỉnh--</option>
+            </select>
+
+            <label for="quan">Quận/Huyện:</label>
+            <select id="quan" required>
+                <option value="">--Chọn quận/huyện--</option>
+            </select>
+
+            <label for="xa">Xã/Phường:</label>
+            <select id="xa" required>
+                <option value="">--Chọn xã/phường--</option>
+            </select>
+
+            <label for="maSoNha">Mã số nhà:</label>
+            <input type="text" id="maSoNha" placeholder="Tự nhập hoặc chọn xã để gợi ý" required>
+
+            <button type="submit">Tạo tài khoản</button>
+        </form>
+    </div>
+
+    <script>
+        async function loadTinhThanhPho() {
+            try {
+                const res = await fetch('/api/TinhThanhPho');
+                if (res.ok) {
+                    const data = await res.json();
+                    const tinhSelect = document.getElementById('tinh');
+                    tinhSelect.innerHTML = '<option value="">--Chọn tỉnh--</option>';
+                    data.forEach(tinh => {
+                        tinhSelect.innerHTML += `<option value="${tinh.maTinhTP}">${tinh.tenTinhTP}</option>`;
+                    });
+                } else {
+                    alert('Không thể tải danh sách Tỉnh/Thành phố!');
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                alert('Lỗi khi tải danh sách Tỉnh/Thành phố!');
+            }
+        }
+
+        document.getElementById('tinh').addEventListener('change', async function () {
+            const tinh = this.value;
+            const quanSelect = document.getElementById('quan');
+            quanSelect.innerHTML = '<option value="">--Chọn quận/huyện--</option>';
+            document.getElementById('xa').innerHTML = '<option value="">--Chọn xã/phường--</option>';
+            if (tinh) {
+                try {
+                    const res = await fetch(`/api/QuanHuyen/${tinh}`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        data.forEach(quan => {
+                            quanSelect.innerHTML += `<option value="${quan.maQuanHuyen}">${quan.tenQuanHuyen}</option>`;
+                        });
+                    } else {
+                        alert('Không thể tải danh sách Quận/Huyện!');
+                    }
+                } catch (err) {
+                    console.error('Error:', err);
+                    alert('Lỗi khi tải danh sách Quận/Huyện!');
+                }
+            }
+        });
+
+        document.getElementById('quan').addEventListener('change', async function () {
+            const quan = this.value;
+            const xaSelect = document.getElementById('xa');
+            xaSelect.innerHTML = '<option value="">--Chọn xã/phường--</option>';
+            if (quan) {
+                try {
+                    const res = await fetch(`/api/PhuongXa/${quan}`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        data.forEach(xa => {
+                            xaSelect.innerHTML += `<option value="${xa.maPhuongXa}">${xa.tenPhuongXa}</option>`;
+                        });
+                    } else {
+                        alert('Không thể tải danh sách Xã/Phường!');
+                    }
+                } catch (err) {
+                    console.error('Error:', err);
+                    alert('Lỗi khi tải danh sách Xã/Phường!');
+                }
+            }
+        });
+
+        document.getElementById('createForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const payload = {
+                tenNhanVien: document.getElementById('tenNhanVien').value,
+                email: document.getElementById('email').value,
+                matKhau: document.getElementById('matKhau').value,
+                sdt: document.getElementById('sdt').value,
+                cccd: document.getElementById('cccd').value,
+                maVaiTro: document.getElementById('maVaiTro').value,
+                diaChi: {
+                    maTinhTP: document.getElementById('tinh').value,
+                    maQuanHuyen: document.getElementById('quan').value,
+                    maPhuongXa: document.getElementById('xa').value,
+                    soNha: document.getElementById('maSoNha').value
+                }
+            };
+
+            try {
+                const res = await fetch('/api/NhanVien', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    alert('Tạo tài khoản thành công!');
+                    window.location.reload();
+                } else {
+                    const errorData = await res.json();
+                    alert(errorData.message || 'Lỗi tạo tài khoản!');
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                alert('Server lỗi!');
+            }
+        });
+
+        loadTinhThanhPho();
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,118 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Đăng nhập</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 30px;
+        }
+
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+
+        input[type="email"], input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0 20px 0;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        button {
+            width: 100%;
+            background-color: #007bff;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+            button:hover {
+                background-color: #0056b3;
+            }
+
+        .error {
+            color: red;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <h2>Đăng nhập</h2>
+        <form id="loginForm">
+            <label>Email:</label><br>
+            <input type="email" id="email" required><br>
+
+            <label>Mật khẩu:</label><br>
+            <input type="password" id="password" required><br>
+
+            <button type="submit">Đăng nhập</button>
+            <div class="error" id="errorMsg"></div>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const matKhau = document.getElementById('password').value;
+
+            try {
+                const response = await fetch('https://localhost:7113/api/Login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, matKhau })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('Login success:', data);
+
+                    // Chuyển trang theo vai trò
+                    switch (data.maVaiTro) {
+                        case 'ADMIN':
+                            window.location.href = '/Admin/admin.html';
+                            break;
+                        case 'KT':
+                            window.location.href = '/KeToan/ketoan.html';
+                            break;
+                        case 'NVGH':
+                            window.location.href = '/NVGH/nhanviengiaohang.html';
+                            break;
+                        case 'NVDP':
+                            window.location.href = '/NVDP/nhanviendieuphoi.html';
+                            break;
+                        default:
+                            alert('Không xác định vai trò!');
+                            break;
+                    }
+                } else {
+                    const err = await response.json();
+                    document.getElementById('errorMsg').textContent = err.message || 'Sai email hoặc mật khẩu!';
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                document.getElementById('errorMsg').textContent = 'Lỗi server!';
+            }
+        });
+    </script>
+
+</body>
+</html>
