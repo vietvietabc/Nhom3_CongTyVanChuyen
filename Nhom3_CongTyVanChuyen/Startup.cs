@@ -9,6 +9,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Nhom3_CongTyVanChuyen.Data;
+using Nhom3_CongTyVanChuyen.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,6 +32,7 @@ namespace MyWebApiApp
             services.AddDbContext<MyDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddAuthentication();
+            services.AddScoped<Nhom3_CongTyVanChuyen.Services.AuditService>();
 
             // Add Swagger/OpenAPI support
             services.AddSwaggerGen(c =>

@@ -22,7 +22,7 @@ namespace Nhom3_CongTyVanChuyen.Data
         [ForeignKey("MaNhanVien")]
         public NhanVien NhanVien { get; set; }
 
-        public double TienDonHang { get; set; }
+        public string TenDonHang { get; set; }
         public double PhiGiaoHang { get; set; }
         public double TienThuHo { get; set; }
         public DateTime NgayGui { get; set; }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Nhom3_CongTyVanChuyen.Data;
 
@@ -11,9 +12,11 @@ using Nhom3_CongTyVanChuyen.Data;
 namespace Nhom3_CongTyVanChuyen.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250430112340_suahanghoasuadonhang")]
+    partial class suahanghoasuadonhang
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -254,20 +257,6 @@ namespace Nhom3_CongTyVanChuyen.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("MatKhau")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("NgayCapNhat")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("NgayTao")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("NguoiCapNhat")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NguoiTao")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 

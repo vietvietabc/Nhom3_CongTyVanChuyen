@@ -1,7 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿// File: Controllers/LoginController.cs
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Nhom3_CongTyVanChuyen.Data;
 using Nhom3_CongTyVanChuyen.Dtos;
+using Nhom3_CongTyVanChuyen.Services;
+using System;
 using System.Threading.Tasks;
 
 namespace Nhom3_CongTyVanChuyen.Controllers
@@ -26,6 +29,10 @@ namespace Nhom3_CongTyVanChuyen.Controllers
 
             if (nv == null)
                 return Unauthorized(new { message = "Sai email hoặc mật khẩu!" });
+
+            // Thiết lập thông tin người đăng nhập hiện tại
+            LoginInfo.CurrentUserId = nv.MaNhanVien; // Mã nhân viên của người đăng nhập
+            LoginInfo.CurrentTime = DateTime.Parse("2025-05-09 11:16:06"); // Thời gian hiện tại
 
             return Ok(new
             {

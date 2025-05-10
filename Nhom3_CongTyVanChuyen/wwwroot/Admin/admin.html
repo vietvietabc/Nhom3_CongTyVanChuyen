@@ -2,37 +2,2063 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Admin - Quản lý nhân viên</title>
+    <title>Admin - Công ty Vận Chuyển</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="css/admin.css"> <!-- Nếu có CSS thêm -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --sidebar-width: 280px;
+            --header-height: 60px;
+            --primary-color: #4e73df;
+            --secondary-color: #6c757d;
+            --success-color: #1cc88a;
+            --danger-color: #e74a3b;
+            --warning-color: #f6c23e;
+            --info-color: #36b9cc;
+        }
+
+        body {
+            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f8f9fc;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar Styles */
+        #sidebar {
+            position: fixed;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: linear-gradient(180deg, #4e73df 10%, #224abe 100%);
+            color: white;
+            transition: all 0.3s;
+            z-index: 999;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            overflow-y: auto;
+        }
+
+            #sidebar .sidebar-header {
+                padding: 15px 20px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            #sidebar ul.components {
+                padding: 0;
+            }
+
+            #sidebar ul li a {
+                padding: 15px 20px;
+                display: block;
+                color: rgba(255, 255, 255, 0.8);
+                border-left: 3px solid transparent;
+                text-decoration: none;
+                font-weight: 500;
+                transition: all 0.3s;
+            }
+
+                #sidebar ul li a:hover {
+                    color: white;
+                    background: rgba(255, 255, 255, 0.1);
+                    border-left-color: white;
+                }
+
+            #sidebar ul li.active > a {
+                color: white;
+                background: rgba(255, 255, 255, 0.1);
+                border-left-color: white;
+            }
+
+            #sidebar ul ul a {
+                padding-left: 40px;
+                background: rgba(0, 0, 0, 0.1);
+            }
+
+        /* Content Styles */
+        #content {
+            margin-left: var(--sidebar-width);
+            transition: all 0.3s;
+        }
+
+        /* Header Styles */
+        .navbar {
+            padding: 15px 30px;
+            background: white;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            border: none;
+            height: var(--header-height);
+        }
+
+        .page-content {
+            padding: 25px;
+            min-height: calc(100vh - var(--header-height));
+        }
+
+        /* Card Styles */
+        .card {
+            border: none;
+            border-radius: 0.35rem;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            margin-bottom: 25px;
+        }
+
+        .card-header {
+            background-color: #f8f9fc;
+            border-bottom: 1px solid #e3e6f0;
+            padding: 0.75rem 1.25rem;
+        }
+
+        .card-title {
+            margin-bottom: 0;
+            color: #5a5c69;
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        /* Dashboard Cards */
+        .stat-card {
+            border-left: 4px solid;
+            transition: all 0.3s;
+        }
+
+            .stat-card:hover {
+                transform: translateY(-3px);
+            }
+
+        .stat-card-primary {
+            border-left-color: var(--primary-color);
+        }
+
+        .stat-card-success {
+            border-left-color: var(--success-color);
+        }
+
+        .stat-card-warning {
+            border-left-color: var(--warning-color);
+        }
+
+        .stat-card-info {
+            border-left-color: var(--info-color);
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            opacity: 0.4;
+        }
+
+        /* Table styles */
+        .table-responsive {
+            margin-bottom: 1rem;
+        }
+
+        .table th {
+            background-color: #f8f9fc;
+            color: #5a5c69;
+            font-weight: 600;
+        }
+
+        .btn-circle {
+            border-radius: 100%;
+            width: 2.5rem;
+            height: 2.5rem;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        /* Custom Checkbox */
+        .custom-checkbox {
+            position: relative;
+            display: block;
+            min-height: 1.5rem;
+            padding-left: 1.5rem;
+        }
+
+        .custom-control-input {
+            position: absolute;
+            z-index: -1;
+            opacity: 0;
+        }
+
+        .custom-control-label {
+            position: relative;
+            margin-bottom: 0;
+            vertical-align: top;
+        }
+
+            .custom-control-label::before {
+                position: absolute;
+                top: 0.25rem;
+                left: -1.5rem;
+                display: block;
+                width: 1rem;
+                height: 1rem;
+                content: "";
+                background-color: #fff;
+                border: #b7b9cc solid 1px;
+                border-radius: 0.25rem;
+            }
+
+        .custom-checkbox .custom-control-input:checked ~ .custom-control-label::after {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3e%3cpath fill='%23fff' d='M6.564.75l-3.59 3.612-1.538-1.55L0 4.26l2.974 2.99L8 2.193z'/%3e%3c/svg%3e");
+            background-color: #4e73df;
+            border-color: #4e73df;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-control-sm {
+            height: calc(1.5em + 0.5rem + 2px);
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+            border-radius: 0.2rem;
+        }
+    </style>
 </head>
 <body>
 
-    <div class="d-flex" style="min-height: 100vh;">
-        <!-- Sidebar -->
-        <div class="bg-light p-3" style="width: 250px;">
-            <h4>Admin Panel</h4>
-            <ul class="nav flex-column mt-4">
-                <li class="nav-item mb-2">
-                    <a class="nav-link" href="#" onclick="loadQuanLyNhanVien()">Quản lý nhân viên</a>
-                </li>
-                <li class="nav-item mb-2">
-                    <a class="nav-link" href="#">Quản lý vận đơn</a>
-                </li>
-                <li class="nav-item mb-2">
-                    <a class="nav-link" href="#">Báo cáo</a>
-                </li>
-            </ul>
+    <!-- Sidebar -->
+    <nav id="sidebar">
+        <div class="sidebar-header">
+            <h3 class="m-0">
+                <i class="fas fa-shipping-fast me-2"></i>
+                Admin Panel
+            </h3>
         </div>
 
-        <!-- Nội dung chính -->
-        <div class="flex-grow-1 p-4" id="mainContent">
-            <h2>Chào mừng tới trang Admin!</h2>
-            <p>Chọn mục trong sidebar để thao tác.</p>
+        <ul class="components list-unstyled">
+            <li class="active">
+                <a href="#" onclick="loadDashboard()">
+                    <i class="fas fa-fw fa-tachometer-alt me-2"></i>
+                    Dashboard
+                </a>
+            </li>
+            <li>
+                <a href="#danhMucSubmenu" data-bs-toggle="collapse" aria-expanded="false">
+                    <i class="fas fa-fw fa-folder me-2"></i>
+                    Quản lý danh mục
+                </a>
+                <ul class="collapse list-unstyled" id="danhMucSubmenu">
+                    <li>
+                        <a href="#" onclick="loadQuanLyDanhMuc()">
+                            <i class="fas fa-list me-2"></i>
+                            Danh sách
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="showModal('themDanhMucModal')">
+                            <i class="fas fa-plus me-2"></i>
+                            Thêm mới
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <a href="#hangHoaSubmenu" data-bs-toggle="collapse" aria-expanded="false">
+                    <i class="fas fa-fw fa-box me-2"></i>
+                    Quản lý sản phẩm
+                </a>
+                <ul class="collapse list-unstyled" id="hangHoaSubmenu">
+                    <li>
+                        <a href="#" onclick="loadQuanLyHangHoa()">
+                            <i class="fas fa-list me-2"></i>
+                            Danh sách
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="showModal('themHangHoaModal')">
+                            <i class="fas fa-plus me-2"></i>
+                            Thêm mới
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <a href="#" onclick="loadQuanLyNhanVien()">
+                    <i class="fas fa-fw fa-users me-2"></i>
+                    Quản lý nhân viên
+                </a>
+            </li>
+            <li>
+                <a href="#" onclick="loadQuanLyKhachHang()">
+                    <i class="fas fa-fw fa-user-friends me-2"></i>
+                    Quản lý khách hàng
+                </a>
+            </li>
+            <li>
+                <a href="#" onclick="loadQuanLyDonHang()">
+                    <i class="fas fa-fw fa-file-invoice me-2"></i>
+                    Quản lý đơn hàng
+                </a>
+            </li>
+            <li>
+                <a href="#" onclick="loadThongKe()">
+                    <i class="fas fa-fw fa-chart-bar me-2"></i>
+                    Thống kê báo cáo
+                </a>
+            </li>
+            <li>
+                <a href="#" onclick="logout()">
+                    <i class="fas fa-fw fa-sign-out-alt me-2"></i>
+                    Đăng xuất
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Page Content -->
+    <div id="content">
+        <!-- Top Navigation Bar -->
+        <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+            <button id="sidebarToggleTop" class="btn btn-link rounded-circle mr-3">
+                <i class="fa fa-bars"></i>
+            </button>
+
+            <!-- Title -->
+            <h1 class="h3 mb-0 text-gray-800" id="pageTitle">Dashboard</h1>
+
+            <div class="ms-auto"></div>
+
+            <!-- Profile Info -->
+            <ul class="navbar-nav">
+                <li class="nav-item dropdown no-arrow">
+                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="me-2 d-none d-lg-inline text-gray-600 small">Admin</span>
+                        <img class="img-profile rounded-circle" width="32" height="32" src="https://ui-avatars.com/api/?name=Admin&background=4e73df&color=fff">
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow animated--grow-in" aria-labelledby="userDropdown">
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-user fa-sm fa-fw me-2 text-gray-400"></i> Thông tin cá nhân</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-cogs fa-sm fa-fw me-2 text-gray-400"></i> Cài đặt</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#" onclick="logout()"><i class="fas fa-sign-out-alt fa-sm fa-fw me-2 text-gray-400"></i> Đăng xuất</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content Area -->
+        <div class="container-fluid page-content" id="mainContent">
+            <!-- Dashboard content will load here -->
         </div>
     </div>
 
+    <!-- Modals -->
+    <!-- Add Category Modal -->
+    <div class="modal fade" id="themDanhMucModal" tabindex="-1" aria-labelledby="themDanhMucModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="themDanhMucModalLabel">Thêm danh mục mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="themDanhMucForm">
+                        <div class="mb-3">
+                            <label for="tenDanhMuc" class="form-label">Tên danh mục</label>
+                            <input type="text" class="form-control" id="tenDanhMuc" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="moTaDanhMuc" class="form-label">Mô tả</label>
+                            <textarea class="form-control" id="moTaDanhMuc" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" onclick="themDanhMuc()">Thêm danh mục</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Category Modal -->
+    <div class="modal fade" id="suaDanhMucModal" tabindex="-1" aria-labelledby="suaDanhMucModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="suaDanhMucModalLabel">Chỉnh sửa danh mục</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="suaDanhMucForm">
+                        <input type="hidden" id="maDanhMucEdit" />
+                        <div class="mb-3">
+                            <label for="tenDanhMucEdit" class="form-label">Tên danh mục</label>
+                            <input type="text" class="form-control" id="tenDanhMucEdit" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="moTaDanhMucEdit" class="form-label">Mô tả</label>
+                            <textarea class="form-control" id="moTaDanhMucEdit" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" onclick="capNhatDanhMuc()">Lưu thay đổi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Product Modal -->
+    <div class="modal fade" id="themHangHoaModal" tabindex="-1" aria-labelledby="themHangHoaModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="themHangHoaModalLabel">Thêm sản phẩm mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="themHangHoaForm">
+                        <div class="mb-3">
+                            <label for="tenHangHoa" class="form-label">Tên sản phẩm</label>
+                            <input type="text" class="form-control" id="tenHangHoa" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="danhMucHangHoa" class="form-label">Danh mục</label>
+                            <select class="form-control" id="danhMucHangHoa" required>
+                                <option value="">-- Chọn danh mục --</option>
+                                <!-- Loaded dynamically -->
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="tinhChatHangHoa" class="form-label">Tính chất hàng hóa</label>
+                            <input type="text" class="form-control" id="tinhChatHangHoa" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="donGiaHangHoa" class="form-label">Đơn giá</label>
+                            <input type="number" class="form-control" id="donGiaHangHoa" required min="0" step="1000">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" onclick="themHangHoa()">Thêm sản phẩm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Product Modal -->
+    <div class="modal fade" id="suaHangHoaModal" tabindex="-1" aria-labelledby="suaHangHoaModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="suaHangHoaModalLabel">Chỉnh sửa sản phẩm</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="suaHangHoaForm">
+                        <input type="hidden" id="maHangHoaEdit" />
+                        <div class="mb-3">
+                            <label for="tinhChatHangHoaEdit" class="form-label">Tính chất hàng hóa</label>
+                            <input type="text" class="form-control" id="tinhChatHangHoaEdit" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="danhMucHangHoaEdit" class="form-label">Danh mục</label>
+                            <select class="form-control" id="danhMucHangHoaEdit" required>
+                                <option value="">-- Chọn danh mục --</option>
+                                <!-- Loaded dynamically -->
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="donGiaHangHoaEdit" class="form-label">Đơn giá</label>
+                            <input type="number" class="form-control" id="donGiaHangHoaEdit" required min="0" step="1000">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" onclick="capNhatHangHoa()">Lưu thay đổi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Employee Modal -->
+    <div class="modal fade" id="themNhanVienModal" tabindex="-1" aria-labelledby="themNhanVienModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="themNhanVienModalLabel">Thêm nhân viên mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="themNhanVienForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="tenNhanVien" class="form-label">Họ tên nhân viên <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="tenNhanVien" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="matKhauNhanVien" class="form-label">Mật khẩu <span class="text-danger">*</span></label>
+                                <input type="password" class="form-control" id="matKhauNhanVien" required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="vaiTroNhanVien" class="form-label">Vai trò <span class="text-danger">*</span></label>
+                                <select class="form-select" id="vaiTroNhanVien" required>
+                                    <option value="">-- Chọn vai trò --</option>
+                                    <option value="ADMIN">Quản trị viên</option>
+                                    <option value="KT">Kế toán</option>
+                                    <option value="NVDP">Nhân viên điều phối</option>
+                                    <option value="NVGH">Nhân viên giao hàng</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="cccdNhanVien" class="form-label">CCCD</label>
+                                <input type="text" class="form-control" id="cccdNhanVien">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="emailNhanVien" class="form-label">Email <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="emailNhanVien" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="sdtNhanVien" class="form-label">Số điện thoại <span class="text-danger">*</span></label>
+                                <input type="tel" class="form-control" id="sdtNhanVien" required>
+                            </div>
+                        </div>
+
+                        <hr>
+                        <h6 class="mb-3">Địa chỉ</h6>
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="tinhTPNhanVien" class="form-label">Tỉnh/Thành phố <span class="text-danger">*</span></label>
+                                <select class="form-select" id="tinhTPNhanVien" required onchange="loadQuanHuyen()">
+                                    <option value="">-- Chọn Tỉnh/TP --</option>
+                                    <!-- Loaded dynamically -->
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="quanHuyenNhanVien" class="form-label">Quận/Huyện <span class="text-danger">*</span></label>
+                                <select class="form-select" id="quanHuyenNhanVien" required onchange="loadPhuongXa()" disabled>
+                                    <option value="">-- Chọn Quận/Huyện --</option>
+                                    <!-- Loaded dynamically -->
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="phuongXaNhanVien" class="form-label">Phường/Xã <span class="text-danger">*</span></label>
+                                <select class="form-select" id="phuongXaNhanVien" required disabled>
+                                    <option value="">-- Chọn Phường/Xã --</option>
+                                    <!-- Loaded dynamically -->
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="diaChiNhanVien" class="form-label">Số nhà, đường <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="diaChiNhanVien" required placeholder="Số nhà, tên đường...">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" onclick="themNhanVien()">Thêm nhân viên</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Employee Modal -->
+    <div class="modal fade" id="suaNhanVienModal" tabindex="-1" aria-labelledby="suaNhanVienModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="suaNhanVienModalLabel">Chỉnh sửa thông tin nhân viên</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="suaNhanVienForm">
+                        <input type="hidden" id="maNhanVienEdit">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="tenNhanVienEdit" class="form-label">Họ tên nhân viên <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="tenNhanVienEdit" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="vaiTroNhanVienEdit" class="form-label">Vai trò <span class="text-danger">*</span></label>
+                                <select class="form-select" id="vaiTroNhanVienEdit" required>
+                                    <option value="">-- Chọn vai trò --</option>
+                                    <option value="ADMIN">Quản trị viên</option>
+                                    <option value="KT">Kế toán</option>
+                                    <option value="NVDP">Nhân viên điều phối</option>
+                                    <option value="NVGH">Nhân viên giao hàng</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="emailNhanVienEdit" class="form-label">Email <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="emailNhanVienEdit" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="sdtNhanVienEdit" class="form-label">Số điện thoại <span class="text-danger">*</span></label>
+                                <input type="tel" class="form-control" id="sdtNhanVienEdit" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="cccdNhanVienEdit" class="form-label">CCCD</label>
+                            <input type="text" class="form-control" id="cccdNhanVienEdit">
+                        </div>
+
+                        <hr>
+                        <h6 class="mb-3">Địa chỉ</h6>
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="tinhTPNhanVienEdit" class="form-label">Tỉnh/Thành phố <span class="text-danger">*</span></label>
+                                <select class="form-select" id="tinhTPNhanVienEdit" required onchange="loadQuanHuyenEdit()">
+                                    <option value="">-- Chọn Tỉnh/TP --</option>
+                                    <!-- Loaded dynamically -->
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="quanHuyenNhanVienEdit" class="form-label">Quận/Huyện <span class="text-danger">*</span></label>
+                                <select class="form-select" id="quanHuyenNhanVienEdit" required onchange="loadPhuongXaEdit()" disabled>
+                                    <option value="">-- Chọn Quận/Huyện --</option>
+                                    <!-- Loaded dynamically -->
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="phuongXaNhanVienEdit" class="form-label">Phường/Xã <span class="text-danger">*</span></label>
+                                <select class="form-select" id="phuongXaNhanVienEdit" required disabled>
+                                    <option value="">-- Chọn Phường/Xã --</option>
+                                    <!-- Loaded dynamically -->
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="diaChiNhanVienEdit" class="form-label">Số nhà, đường <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="diaChiNhanVienEdit" required placeholder="Số nhà, tên đường...">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" onclick="capNhatNhanVien()">Lưu thay đổi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap & jQuery JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/quanlynhanvien.js"></script> <!-- Gọi file JS riêng -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        const apiBaseUrl = "https://localhost:7113/api"; // Update with your API URL
+
+        // Load Dashboard by default
+        document.addEventListener('DOMContentLoaded', function () {
+            loadDashboard();
+        });
+
+        function loadDashboard() {
+            document.getElementById('pageTitle').innerText = 'Dashboard';
+
+            const mainContent = document.getElementById('mainContent');
+            mainContent.innerHTML = `
+                                    <div class="row">
+                                        <div class="col-xl-3 col-md-6 mb-4">
+                                            <div class="card border-0 shadow h-100 py-2 stat-card stat-card-primary">
+                                                <div class="card-body">
+                                                    <div class="row no-gutters align-items-center">
+                                                        <div class="col mr-2">
+                                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                                Tổng đơn hàng</div>
+                                                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="tongDonHang">0</div>
+                                                        </div>
+                                                        <div class="col-auto">
+                                                            <i class="fas fa-calendar fa-2x text-gray-300 stat-icon"></i>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-xl-3 col-md-6 mb-4">
+                                            <div class="card border-0 shadow h-100 py-2 stat-card stat-card-success">
+                                                <div class="card-body">
+                                                    <div class="row no-gutters align-items-center">
+                                                        <div class="col mr-2">
+                                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                                                Tổng sản phẩm</div>
+                                                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="tongSanPham">0</div>
+                                                        </div>
+                                                        <div class="col-auto">
+                                                            <i class="fas fa-box fa-2x text-gray-300 stat-icon"></i>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-xl-3 col-md-6 mb-4">
+                                            <div class="card border-0 shadow h-100 py-2 stat-card stat-card-info">
+                                                <div class="card-body">
+                                                    <div class="row no-gutters align-items-center">
+                                                        <div class="col mr-2">
+                                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                                                Tổng nhân viên</div>
+                                                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="tongNhanVien">0</div>
+                                                        </div>
+                                                        <div class="col-auto">
+                                                            <i class="fas fa-users fa-2x text-gray-300 stat-icon"></i>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-xl-3 col-md-6 mb-4">
+                                            <div class="card border-0 shadow h-100 py-2 stat-card stat-card-warning">
+                                                <div class="card-body">
+                                                    <div class="row no-gutters align-items-center">
+                                                        <div class="col mr-2">
+                                                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                                                Tổng khách hàng</div>
+                                                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="tongKhachHang">0</div>
+                                                        </div>
+                                                        <div class="col-auto">
+                                                            <i class="fas fa-user-friends fa-2x text-gray-300 stat-icon"></i>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-lg-6">
+                                            <div class="card shadow mb-4">
+                                                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Đơn hàng mới nhất</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="table-responsive">
+                                                        <table class="table table-bordered" width="100%" cellspacing="0">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Mã đơn</th>
+                                                                    <th>Khách hàng</th>
+                                                                    <th>Ngày tạo</th>
+                                                                    <th>Trạng thái</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="donHangMoiNhat">
+                                                                <tr>
+                                                                    <td colspan="4" class="text-center">Đang tải dữ liệu...</td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-6">
+                                            <div class="card shadow mb-4">
+                                                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Sản phẩm phổ biến</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="table-responsive">
+                                                        <table class="table table-bordered" width="100%" cellspacing="0">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Mã hàng</th>
+                                                                    <th>Tính chất</th>
+                                                                    <th>Danh mục</th>
+                                                                    <th>Đơn giá</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="sanPhamPhoBien">
+                                                                <tr>
+                                                                    <td colspan="4" class="text-center">Đang tải dữ liệu...</td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+
+            // Load dashboard stats & data
+            loadDashboardStats();
+        }
+
+        async function loadDashboardStats() {
+            try {
+                // Load counts
+                const [donHangRes, sanPhamRes, nhanVienRes, khachHangRes] = await Promise.all([
+                    fetch(`${apiBaseUrl}/DonHang/Count`).then(res => res.ok ? res.json() : 0).catch(() => 0),
+                    fetch(`${apiBaseUrl}/HangHoa/Count`).then(res => res.ok ? res.json() : 0).catch(() => 0),
+                    fetch(`${apiBaseUrl}/NhanVien/Count`).then(res => res.ok ? res.json() : 0).catch(() => 0),
+                    fetch(`${apiBaseUrl}/KhachHang/Count`).then(res => res.ok ? res.json() : 0).catch(() => 0)
+                ]);
+
+                document.getElementById('tongDonHang').innerText = donHangRes || 0;
+                document.getElementById('tongSanPham').innerText = sanPhamRes || 0;
+                document.getElementById('tongNhanVien').innerText = nhanVienRes || 0;
+                document.getElementById('tongKhachHang').innerText = khachHangRes || 0;
+
+                // Load recent orders
+                const donHangRecentRes = await fetch(`${apiBaseUrl}/DonHang/Recent`).catch(() => null);
+                if (donHangRecentRes && donHangRecentRes.ok) {
+                    const donHangData = await donHangRecentRes.json();
+                    const donHangHTML = donHangData.length > 0 ?
+                        donHangData.map(dh => `
+                                                <tr>
+                                                    <td>${dh.maDonHang}</td>
+                                                    <td>${dh.tenKhachHang}</td>
+                                                    <td>${new Date(dh.ngayGui).toLocaleDateString('vi-VN')}</td>
+                                                    <td>
+                                                        <span class="badge ${getBadgeClass(dh.trangThaiDonHang)}">
+                                                            ${dh.trangThaiDonHang}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            `).join('') :
+                        '<tr><td colspan="4" class="text-center">Không có đơn hàng nào</td></tr>';
+
+                    document.getElementById('donHangMoiNhat').innerHTML = donHangHTML;
+                }
+
+                // Load popular products
+                const sanPhamPopularRes = await fetch(`${apiBaseUrl}/HangHoa/Popular`).catch(() => null);
+                if (sanPhamPopularRes && sanPhamPopularRes.ok) {
+                    const sanPhamData = await sanPhamPopularRes.json();
+                    const sanPhamHTML = sanPhamData.length > 0 ?
+                        sanPhamData.map(sp => `
+                                                <tr>
+                                                    <td>${sp.maHangHoa}</td>
+                                                    <td>${sp.tinhChatHangHoa}</td>
+                                                    <td>${sp.tenDanhMuc}</td>
+                                                    <td>${formatCurrency(sp.donGia)}</td>
+                                                </tr>
+                                            `).join('') :
+                        '<tr><td colspan="4" class="text-center">Không có sản phẩm nào</td></tr>';
+
+                    document.getElementById('sanPhamPhoBien').innerHTML = sanPhamHTML;
+                }
+            } catch (error) {
+                console.error('Lỗi tải dữ liệu dashboard:', error);
+                // Show error in the dashboard stats
+            }
+        }
+
+        /* QUẢN LÝ DANH MỤC */
+        function loadQuanLyDanhMuc() {
+            document.getElementById('pageTitle').innerText = 'Quản lý danh mục';
+
+            const mainContent = document.getElementById('mainContent');
+            mainContent.innerHTML = `
+                                    <div class="card shadow mb-4">
+                                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                                            <h6 class="m-0 font-weight-bold text-primary">Danh sách danh mục</h6>
+                                            <button class="btn btn-primary" onclick="showModal('themDanhMucModal')">
+                                                <i class="fas fa-plus fa-sm"></i> Thêm danh mục
+                                            </button>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered" width="100%" cellspacing="0">
+                                                    <thead>
+                                                        <tr>
+                                                            <th width="5%">#</th>
+                                                            <th width="15%">Mã danh mục</th>
+                                                            <th width="25%">Tên danh mục</th>
+                                                            <th width="40%">Mô tả</th>
+                                                            <th width="15%">Thao tác</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="danhMucTableBody">
+                                                        <tr>
+                                                            <td colspan="5" class="text-center">Đang tải dữ liệu...</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+
+            loadDanhSachDanhMuc();
+        }
+
+        async function loadDanhSachDanhMuc() {
+            try {
+                const response = await fetch(`${apiBaseUrl}/DanhMuc`);
+                if (!response.ok) {
+                    throw new Error('Không thể tải danh sách danh mục');
+                }
+
+                const danhMucList = await response.json();
+                const tbody = document.getElementById('danhMucTableBody');
+
+                if (danhMucList.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center">Không có danh mục nào</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = danhMucList.map((dm, index) => `
+                                        <tr>
+                                            <td>${index + 1}</td>
+                                            <td>${dm.maDanhMuc}</td>
+                                            <td>${dm.tenDanhMuc}</td>
+                                            <td>${dm.moTa || ''}</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-warning me-1" onclick="suaDanhMuc('${dm.maDanhMuc}')">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-danger" onclick="xoaDanhMuc('${dm.maDanhMuc}')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    `).join('');
+
+            } catch (error) {
+                console.error('Lỗi tải danh mục:', error);
+                const tbody = document.getElementById('danhMucTableBody');
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">Lỗi: ${error.message}</td></tr>`;
+            }
+        }
+
+        async function themDanhMuc() {
+            const tenDanhMuc = document.getElementById('tenDanhMuc').value;
+            const moTaDanhMuc = document.getElementById('moTaDanhMuc').value;
+
+            if (!tenDanhMuc) {
+                alert('Vui lòng nhập tên danh mục');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${apiBaseUrl}/DanhMuc`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        maDanhMuc: "", // Gửi giá trị rỗng để server tự tạo mã
+                        tenDanhMuc: tenDanhMuc,
+                        moTa: moTaDanhMuc
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Server response:', errorText);
+                    throw new Error('Thêm danh mục thất bại: ' + errorText);
+                }
+
+                // Reset form và đóng modal
+                document.getElementById('tenDanhMuc').value = '';
+                document.getElementById('moTaDanhMuc').value = '';
+                const modal = bootstrap.Modal.getInstance(document.getElementById('themDanhMucModal'));
+                modal.hide();
+
+                // Reload danh mục list
+                loadDanhSachDanhMuc();
+
+                alert('Thêm danh mục thành công!');
+            } catch (error) {
+                console.error('Lỗi thêm danh mục:', error);
+                alert(`Lỗi: ${error.message}`);
+            }
+        }
+
+        // Hàm mở modal sửa và load dữ liệu danh mục
+        async function suaDanhMuc(maDanhMuc) {
+            try {
+                const response = await fetch(`${apiBaseUrl}/DanhMuc/${maDanhMuc}`);
+                if (!response.ok) {
+                    throw new Error('Không thể tải thông tin danh mục');
+                }
+
+                const danhMuc = await response.json();
+
+                // Điền thông tin vào form
+                document.getElementById('maDanhMucEdit').value = danhMuc.maDanhMuc;
+                document.getElementById('tenDanhMucEdit').value = danhMuc.tenDanhMuc;
+                document.getElementById('moTaDanhMucEdit').value = danhMuc.moTa || '';
+
+                // Hiển thị modal
+                const modal = new bootstrap.Modal(document.getElementById('suaDanhMucModal'));
+                modal.show();
+
+            } catch (error) {
+                console.error('Lỗi khi tải danh mục:', error);
+                alert(`Lỗi: ${error.message}`);
+            }
+        }
+
+        // Hàm cập nhật danh mục
+        async function capNhatDanhMuc() {
+            const maDanhMuc = document.getElementById('maDanhMucEdit').value;
+            const tenDanhMuc = document.getElementById('tenDanhMucEdit').value;
+            const moTaDanhMuc = document.getElementById('moTaDanhMucEdit').value;
+
+            if (!tenDanhMuc) {
+                alert('Vui lòng nhập tên danh mục');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${apiBaseUrl}/DanhMuc/${maDanhMuc}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        maDanhMuc: maDanhMuc,
+                        tenDanhMuc: tenDanhMuc,
+                        moTa: moTaDanhMuc
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Server response:', errorText);
+                    throw new Error('Cập nhật danh mục thất bại');
+                }
+
+                // Đóng modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('suaDanhMucModal'));
+                modal.hide();
+
+                // Reload danh sách
+                loadDanhSachDanhMuc();
+
+                alert('Cập nhật danh mục thành công!');
+            } catch (error) {
+                console.error('Lỗi cập nhật danh mục:', error);
+                alert(`Lỗi: ${error.message}`);
+            }
+        }
+
+        async function xoaDanhMuc(maDanhMuc) {
+            if (!confirm('Bạn có chắc chắn muốn xóa danh mục này?')) return;
+
+            try {
+                const response = await fetch(`${apiBaseUrl}/DanhMuc/${maDanhMuc}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Server response:', errorText);
+
+                    // Kiểm tra nếu có lỗi liên quan đến sản phẩm
+                    if (errorText.includes("sản phẩm") || errorText.includes("không thể xóa")) {
+                        alert("Không thể xóa danh mục đang chứa sản phẩm! Bạn cần di chuyển hoặc xóa các sản phẩm trong danh mục này trước.");
+                        return;
+                    }
+
+                    throw new Error('Xóa danh mục thất bại: ' + errorText);
+                }
+
+                // Reload danh mục list
+                loadDanhSachDanhMuc();
+
+                alert('Xóa danh mục thành công!');
+            } catch (error) {
+                console.error('Lỗi xóa danh mục:', error);
+                alert(`Lỗi: ${error.message}`);
+            }
+        }
+
+        /* QUẢN LÝ SẢN PHẨM */
+        function loadQuanLyHangHoa() {
+            document.getElementById('pageTitle').innerText = 'Quản lý sản phẩm';
+
+            const mainContent = document.getElementById('mainContent');
+            mainContent.innerHTML = `
+                                    <div class="card shadow mb-4">
+                                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                                            <h6 class="m-0 font-weight-bold text-primary">Danh sách sản phẩm</h6>
+                                            <div>
+                                                <button class="btn btn-primary" onclick="showModal('themHangHoaModal')">
+                                                    <i class="fas fa-plus fa-sm"></i> Thêm sản phẩm
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row mb-3">
+                                                <div class="col-md-6">
+                                                    <div class="input-group">
+                                                        <input type="text" class="form-control" id="searchHangHoa" placeholder="Tìm kiếm sản phẩm...">
+                                                        <button class="btn btn-primary" type="button" id="btnSearchHangHoa">
+                                                            <i class="fas fa-search"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <select class="form-select" id="filterDanhMuc">
+                                                        <option value="">Tất cả danh mục</option>
+                                                        <!-- Load từ API -->
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered" width="100%" cellspacing="0">
+                                                    <thead>
+                                                        <tr>
+                                                            <th width="5%">#</th>
+                                                            <th width="15%">Mã hàng hóa</th>
+                                                            <th width="15%">Tính chất</th>
+                                                            <th width="15%">Danh mục</th>
+                                                            <th width="15%">Đơn giá</th>
+                                                            <th width="15%">Thao tác</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="hangHoaTableBody">
+                                                        <tr>
+                                                            <td colspan="6" class="text-center">Đang tải dữ liệu...</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+
+            // Load danh mục for filter
+            loadDanhMucForFilter();
+
+            // Load hang hoa data
+            loadDanhSachHangHoa();
+
+            // Add event listener for search
+            document.getElementById('btnSearchHangHoa').addEventListener('click', () => {
+                loadDanhSachHangHoa();
+            });
+
+            document.getElementById('filterDanhMuc').addEventListener('change', () => {
+                loadDanhSachHangHoa();
+            });
+        }
+
+        async function loadDanhMucForFilter() {
+            try {
+                const response = await fetch(`${apiBaseUrl}/DanhMuc`);
+                if (!response.ok) {
+                    throw new Error('Không thể tải danh sách danh mục');
+                }
+
+                const danhMucList = await response.json();
+                const select = document.getElementById('filterDanhMuc');
+
+                danhMucList.forEach(dm => {
+                    const option = document.createElement('option');
+                    option.value = dm.maDanhMuc;
+                    option.textContent = dm.tenDanhMuc;
+                    select.appendChild(option);
+                });
+
+                // Also populate for add product modal
+                const selectAddProduct = document.getElementById('danhMucHangHoa');
+                selectAddProduct.innerHTML = '<option value="">-- Chọn danh mục --</option>';
+
+                danhMucList.forEach(dm => {
+                    const option = document.createElement('option');
+                    option.value = dm.maDanhMuc;
+                    option.textContent = dm.tenDanhMuc;
+                    selectAddProduct.appendChild(option);
+                });
+
+            } catch (error) {
+                console.error('Lỗi tải danh mục:', error);
+            }
+        }
+
+        async function loadDanhSachHangHoa() {
+            try {
+                // Get search parameters
+                const searchQuery = document.getElementById('searchHangHoa')?.value || '';
+                const danhMucFilter = document.getElementById('filterDanhMuc')?.value || '';
+
+                // Build query parameters
+                let apiUrl = `${apiBaseUrl}/HangHoa`;
+                const params = new URLSearchParams();
+                if (searchQuery) params.append('search', searchQuery);
+                if (danhMucFilter) params.append('danhMuc', danhMucFilter);
+                if (params.toString()) apiUrl += `?${params.toString()}`;
+
+                const response = await fetch(apiUrl);
+                if (!response.ok) {
+                    throw new Error('Không thể tải danh sách hàng hóa');
+                }
+
+                const hangHoaList = await response.json();
+                const tbody = document.getElementById('hangHoaTableBody');
+
+                if (hangHoaList.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center">Không có sản phẩm nào</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = hangHoaList.map((hh, index) => `
+                                        <tr>
+                                            <td>${index + 1}</td>
+                                            <td>${hh.maHangHoa}</td>
+                                            <td>${hh.tinhChatHangHoa}</td>
+                                            <td>${hh.tenDanhMuc || hh.maDanhMuc}</td>
+                                            <td>${formatCurrency(hh.donGia)}</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-warning me-1" onclick="suaHangHoa('${hh.maHangHoa}')">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-danger" onclick="xoaHangHoa('${hh.maHangHoa}')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    `).join('');
+
+            } catch (error) {
+                console.error('Lỗi tải hàng hóa:', error);
+                const tbody = document.getElementById('hangHoaTableBody');
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Lỗi: ${error.message}</td></tr>`;
+            }
+        }
+
+        async function themHangHoa() {
+            const tinhChatHangHoa = document.getElementById('tinhChatHangHoa').value;
+            const maDanhMuc = document.getElementById('danhMucHangHoa').value;
+            const donGia = document.getElementById('donGiaHangHoa').value;
+
+            if (!tinhChatHangHoa || !maDanhMuc || !donGia) {
+                alert('Vui lòng nhập đầy đủ thông tin');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${apiBaseUrl}/HangHoa`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        tinhChatHangHoa: tinhChatHangHoa,
+                        maDanhMuc: maDanhMuc,
+                        donGia: parseFloat(donGia)
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Thêm sản phẩm thất bại');
+                }
+
+                // Hide modal and reset form
+                document.getElementById('tinhChatHangHoa').value = '';
+                document.getElementById('danhMucHangHoa').value = '';
+                document.getElementById('donGiaHangHoa').value = '';
+                const modal = bootstrap.Modal.getInstance(document.getElementById('themHangHoaModal'));
+                modal.hide();
+
+                // Reload hang hoa list
+                loadDanhSachHangHoa();
+
+                alert('Thêm sản phẩm thành công!');
+            } catch (error) {
+                console.error('Lỗi thêm sản phẩm:', error);
+                alert(`Lỗi: ${error.message}`);
+            }
+        }
+
+        async function suaHangHoa(maHangHoa) {
+            try {
+                const response = await fetch(`${apiBaseUrl}/HangHoa/${maHangHoa}`);
+                if (!response.ok) {
+                    throw new Error('Không thể tải thông tin hàng hóa');
+                }
+
+                const hangHoa = await response.json();
+
+                // Điền thông tin vào form
+                document.getElementById('maHangHoaEdit').value = hangHoa.maHangHoa;
+                document.getElementById('tinhChatHangHoaEdit').value = hangHoa.tinhChatHangHoa;
+                document.getElementById('donGiaHangHoaEdit').value = hangHoa.donGia;
+
+                // Load danh sách danh mục cho dropdown
+                const danhMucResponse = await fetch(`${apiBaseUrl}/DanhMuc`);
+                if (!danhMucResponse.ok) {
+                    throw new Error('Không thể tải danh sách danh mục');
+                }
+
+                const danhMucList = await danhMucResponse.json();
+                const selectDanhMuc = document.getElementById('danhMucHangHoaEdit');
+
+                // Xóa tất cả options hiện tại trừ option mặc định
+                while (selectDanhMuc.options.length > 1) {
+                    selectDanhMuc.remove(1);
+                }
+
+                // Thêm các options mới
+                danhMucList.forEach(dm => {
+                    const option = document.createElement('option');
+                    option.value = dm.maDanhMuc;
+                    option.textContent = dm.tenDanhMuc;
+                    selectDanhMuc.appendChild(option);
+                });
+
+                // Chọn danh mục hiện tại của sản phẩm
+                selectDanhMuc.value = hangHoa.maDanhMuc;
+
+                // Hiển thị modal
+                const modal = new bootstrap.Modal(document.getElementById('suaHangHoaModal'));
+                modal.show();
+
+            } catch (error) {
+                console.error('Lỗi khi tải hàng hóa:', error);
+                alert(`Lỗi: ${error.message}`);
+            }
+        }
+
+        async function capNhatHangHoa() {
+            const maHangHoa = document.getElementById('maHangHoaEdit').value;
+            const tinhChatHangHoa = document.getElementById('tinhChatHangHoaEdit').value;
+            const maDanhMuc = document.getElementById('danhMucHangHoaEdit').value;
+            const donGia = document.getElementById('donGiaHangHoaEdit').value;
+
+            if (!tinhChatHangHoa || !maDanhMuc || !donGia) {
+                alert('Vui lòng nhập đầy đủ thông tin');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${apiBaseUrl}/HangHoa/${maHangHoa}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        tinhChatHangHoa: tinhChatHangHoa,
+                        maDanhMuc: maDanhMuc,
+                        donGia: parseFloat(donGia)
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Server response:', errorText);
+                    throw new Error('Cập nhật sản phẩm thất bại');
+                }
+
+                // Đóng modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('suaHangHoaModal'));
+                modal.hide();
+
+                // Reload danh sách
+                loadDanhSachHangHoa();
+
+                alert('Cập nhật sản phẩm thành công!');
+            } catch (error) {
+                console.error('Lỗi cập nhật sản phẩm:', error);
+                alert(`Lỗi: ${error.message}`);
+            }
+        }
+
+        async function xoaHangHoa(maHangHoa) {
+            if (!confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) return;
+
+            try {
+                const response = await fetch(`${apiBaseUrl}/HangHoa/${maHangHoa}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Server response:', errorText);
+                    throw new Error('Xóa sản phẩm thất bại: ' + errorText);
+                }
+
+                // Reload hang hoa list
+                loadDanhSachHangHoa();
+
+                alert('Xóa sản phẩm thành công!');
+            } catch (error) {
+                console.error('Lỗi xóa sản phẩm:', error);
+                alert(`Lỗi: ${error.message}`);
+            }
+        }
+
+        /* QUẢN LÝ NHÂN VIÊN */
+        function loadQuanLyNhanVien() {
+            document.getElementById('pageTitle').innerText = 'Quản lý nhân viên';
+
+            const mainContent = document.getElementById('mainContent');
+            mainContent.innerHTML = `
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">Danh sách nhân viên</h6>
+                    <button class="btn btn-primary" onclick="showModal('themNhanVienModal')">
+                        <i class="fas fa-plus fa-sm"></i> Thêm nhân viên
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="searchNhanVien" placeholder="Tìm kiếm nhân viên...">
+                                <button class="btn btn-primary" type="button" id="btnSearchNhanVien">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-select" id="filterVaiTro">
+                                <option value="">Tất cả vai trò</option>
+                                <option value="ADMIN">Quản trị viên</option>
+                                <option value="KT">Kế toán</option>
+                                <option value="NVDP">Nhân viên điều phối</option>
+                                <option value="NVGH">Nhân viên giao hàng</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th width="5%">STT</th>
+                                    <th width="15%">Mã nhân viên</th>
+                                    <th width="20%">Họ tên</th>
+                                    <th width="15%">Vai trò</th>
+                                    <th width="15%">Điện thoại</th>
+                                    <th width="15%">Email</th>
+                                    <th width="15%">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="nhanVienTableBody">
+                                <tr>
+                                    <td colspan="7" class="text-center">Đang tải dữ liệu...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        `;
+         
+            // Load nhân viên và thiết lập sự kiện tìm kiếm
+            loadDanhSachNhanVien();
+
+            document.getElementById('btnSearchNhanVien').addEventListener('click', () => {
+                loadDanhSachNhanVien();
+            });
+
+            document.getElementById('filterVaiTro').addEventListener('change', () => {
+                loadDanhSachNhanVien();
+            });
+
+        }
+        // Load danh sách tỉnh/thành phố khi mở modal thêm nhân viên
+        document.getElementById('themNhanVienModal').addEventListener('show.bs.modal', function () {
+            loadTinhThanhPho();
+        });
+
+        // Load danh sách tỉnh/thành phố khi mở modal sửa nhân viên
+        document.getElementById('suaNhanVienModal').addEventListener('show.bs.modal', function () {
+            loadTinhThanhPho('Edit');
+        });
+
+        // Hàm load tỉnh/thành phố
+        async function loadTinhThanhPho(suffix = '') {
+            try {
+                const response = await fetch(`${apiBaseUrl}/DiaChi/TinhThanhPho`);
+                if (!response.ok) {
+                    throw new Error('Không thể tải danh sách tỉnh/thành phố');
+                }
+
+                const data = await response.json();
+                const selectElement = document.getElementById('tinhTPNhanVien' + suffix);
+
+                // Clear old options except first one
+                while (selectElement.options.length > 1) {
+                    selectElement.remove(1);
+                }
+
+                // Add new options
+                data.forEach(tinh => {
+                    const option = document.createElement('option');
+                    option.value = tinh.maTinhTP;
+                    option.textContent = tinh.tenTinhTP;
+                    selectElement.appendChild(option);
+                });
+
+            } catch (error) {
+                console.error('Lỗi tải tỉnh/thành phố:', error);
+                alert('Không thể tải danh sách tỉnh/thành phố: ' + error.message);
+            }
+        }
+
+        // Hàm load quận/huyện
+        async function loadQuanHuyen(suffix = '') {
+            try {
+                const tinhTPId = document.getElementById('tinhTPNhanVien' + suffix).value;
+                if (!tinhTPId) {
+                    // Disable quận/huyện và phường/xã nếu chưa chọn tỉnh
+                    const quanHuyenSelect = document.getElementById('quanHuyenNhanVien' + suffix);
+                    const phuongXaSelect = document.getElementById('phuongXaNhanVien' + suffix);
+
+                    quanHuyenSelect.disabled = true;
+                    quanHuyenSelect.value = '';
+
+                    phuongXaSelect.disabled = true;
+                    phuongXaSelect.value = '';
+
+                    // Clear options except first one
+                    while (quanHuyenSelect.options.length > 1) quanHuyenSelect.remove(1);
+                    while (phuongXaSelect.options.length > 1) phuongXaSelect.remove(1);
+
+                    return;
+                }
+
+                const response = await fetch(`${apiBaseUrl}/DiaChi/QuanHuyen?maTinhTP=${tinhTPId}`);
+                if (!response.ok) {
+                    throw new Error('Không thể tải danh sách quận/huyện');
+                }
+
+                const data = await response.json();
+                const selectElement = document.getElementById('quanHuyenNhanVien' + suffix);
+
+                // Enable select
+                selectElement.disabled = false;
+
+                // Clear old options except first one
+                while (selectElement.options.length > 1) {
+                    selectElement.remove(1);
+                }
+
+                // Add new options
+                data.forEach(quan => {
+                    const option = document.createElement('option');
+                    option.value = quan.maQuanHuyen;
+                    option.textContent = quan.tenQuanHuyen;
+                    selectElement.appendChild(option);
+                });
+
+            } catch (error) {
+                console.error('Lỗi tải quận/huyện:', error);
+                alert('Không thể tải danh sách quận/huyện: ' + error.message);
+            }
+        }
+
+        // Hàm load phường/xã
+        async function loadPhuongXa(suffix = '') {
+            try {
+                const quanHuyenId = document.getElementById('quanHuyenNhanVien' + suffix).value;
+                if (!quanHuyenId) {
+                    // Disable phường/xã nếu chưa chọn quận/huyện
+                    const phuongXaSelect = document.getElementById('phuongXaNhanVien' + suffix);
+
+                    phuongXaSelect.disabled = true;
+                    phuongXaSelect.value = '';
+
+                    // Clear options except first one
+                    while (phuongXaSelect.options.length > 1) phuongXaSelect.remove(1);
+
+                    return;
+                }
+
+                const response = await fetch(`${apiBaseUrl}/DiaChi/PhuongXa?maQuanHuyen=${quanHuyenId}`);
+                if (!response.ok) {
+                    throw new Error('Không thể tải danh sách phường/xã');
+                }
+
+                const data = await response.json();
+                const selectElement = document.getElementById('phuongXaNhanVien' + suffix);
+
+                // Enable select
+                selectElement.disabled = false;
+
+                // Clear old options except first one
+                while (selectElement.options.length > 1) {
+                    selectElement.remove(1);
+                }
+
+                // Add new options
+                data.forEach(phuong => {
+                    const option = document.createElement('option');
+                    option.value = phuong.maPhuongXa;
+                    option.textContent = phuong.tenPhuongXa;
+                    selectElement.appendChild(option);
+                });
+
+            } catch (error) {
+                console.error('Lỗi tải phường/xã:', error);
+                alert('Không thể tải danh sách phường/xã: ' + error.message);
+            }
+        }
+
+        // Đặt wrapper function cho các hàm sửa
+        function loadQuanHuyenEdit() {
+            loadQuanHuyen('Edit');
+        }
+
+        function loadPhuongXaEdit() {
+            loadPhuongXa('Edit');
+        }
+
+        // Hàm tải danh sách nhân viên
+        async function loadDanhSachNhanVien() {
+            try {
+                // Get search parameters
+                const searchQuery = document.getElementById('searchNhanVien')?.value || '';
+                const vaiTroFilter = document.getElementById('filterVaiTro')?.value || '';
+
+                // Build query parameters
+                let apiUrl = `${apiBaseUrl}/NhanVien`;
+                const params = new URLSearchParams();
+                if (searchQuery) params.append('search', searchQuery);
+                if (vaiTroFilter) params.append('vaiTro', vaiTroFilter);
+                if (params.toString()) apiUrl += `?${params.toString()}`;
+
+                const response = await fetch(apiUrl);
+                if (!response.ok) {
+                    throw new Error('Không thể tải danh sách nhân viên');
+                }
+
+                const nhanVienList = await response.json();
+                const tbody = document.getElementById('nhanVienTableBody');
+
+                if (nhanVienList.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" class="text-center">Không có nhân viên nào</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = nhanVienList.map((nv, index) => `
+            <tr>
+                <td>${index + 1}</td>
+                <td>${nv.maNhanVien}</td>
+                <td>${nv.tenNhanVien}</td>
+                <td>${getTenVaiTro(nv.maVaiTro)}</td>
+                <td>${nv.sdt || ''}</td>
+                <td>${nv.email || ''}</td>
+                <td>
+                    <button class="btn btn-sm btn-warning me-1" onclick="suaNhanVien('${nv.maNhanVien}')">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="xoaNhanVien('${nv.maNhanVien}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+
+            } catch (error) {
+                console.error('Lỗi tải nhân viên:', error);
+                const tbody = document.getElementById('nhanVienTableBody');
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">Lỗi: ${error.message}</td></tr>`;
+            }
+        }
+
+        // Hàm lấy tên vai trò từ mã
+        function getTenVaiTro(maVaiTro) {
+            const vaiTroMap = {
+                'ADMIN': 'Quản trị viên',
+                'KT': 'Kế toán',
+                'NVDP': 'Nhân viên điều phối',
+                'NVGH': 'Nhân viên giao hàng'
+            };
+            return vaiTroMap[maVaiTro] || maVaiTro;
+        }
+
+        // Hàm thêm nhân viên mới
+        async function themNhanVien() {
+            // Lấy dữ liệu từ form
+            const tenNhanVien = document.getElementById('tenNhanVien').value;
+            const matKhau = document.getElementById('matKhauNhanVien').value;
+            const maVaiTro = document.getElementById('vaiTroNhanVien').value;
+            const email = document.getElementById('emailNhanVien').value;
+            const sdt = document.getElementById('sdtNhanVien').value;
+            const cccd = document.getElementById('cccdNhanVien').value;
+
+            // Thông tin địa chỉ
+            const maPhuongXa = document.getElementById('phuongXaNhanVien').value;
+            const diaChiSoNha = document.getElementById('diaChiNhanVien').value;
+
+            // Kiểm tra dữ liệu bắt buộc
+            if (!tenNhanVien || !matKhau || !maVaiTro || !email || !sdt || !maPhuongXa || !diaChiSoNha) {
+                alert('Vui lòng nhập đầy đủ thông tin bắt buộc');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${apiBaseUrl}/NhanVien`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        tenNhanVien: tenNhanVien,
+                        matKhau: matKhau,
+                        maVaiTro: maVaiTro,
+                        email: email,
+                        sdt: sdt,
+                        maPhuongXa: maPhuongXa,
+                        diaChiSoNha: diaChiSoNha,
+                        cccd: cccd || null
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error('Thêm nhân viên thất bại: ' + errorText);
+                }
+
+                // Reset form và đóng modal
+                document.getElementById('themNhanVienForm').reset();
+                const modal = bootstrap.Modal.getInstance(document.getElementById('themNhanVienModal'));
+                modal.hide();
+
+                // Refresh danh sách nhân viên
+                loadDanhSachNhanVien();
+
+                alert('Thêm nhân viên thành công!');
+            } catch (error) {
+                console.error('Lỗi:', error);
+                alert(error.message);
+            }
+        }
+
+        // Hàm load thông tin nhân viên để chỉnh sửa
+        async function suaNhanVien(maNhanVien) {
+            try {
+                const response = await fetch(`${apiBaseUrl}/NhanVien/${maNhanVien}`);
+                if (!response.ok) {
+                    throw new Error('Không thể tải thông tin nhân viên');
+                }
+
+                const nhanVien = await response.json();
+
+                // Điền thông tin vào form
+                document.getElementById('maNhanVienEdit').value = nhanVien.maNhanVien;
+                document.getElementById('tenNhanVienEdit').value = nhanVien.tenNhanVien;
+                document.getElementById('vaiTroNhanVienEdit').value = nhanVien.maVaiTro;
+                document.getElementById('emailNhanVienEdit').value = nhanVien.email || '';
+                document.getElementById('sdtNhanVienEdit').value = nhanVien.sdt || '';
+                document.getElementById('diaChiNhanVienEdit').value = nhanVien.diaChiSoNha || '';
+                document.getElementById('cccdNhanVienEdit').value = nhanVien.cccd || '';
+
+                // Load địa chỉ từ API
+                await loadTinhThanhPho('Edit');
+                document.getElementById('tinhTPNhanVienEdit').value = nhanVien.maTinhTP;
+
+                await loadQuanHuyenEdit();
+                document.getElementById('quanHuyenNhanVienEdit').value = nhanVien.maQuanHuyen;
+
+                await loadPhuongXaEdit();
+                document.getElementById('phuongXaNhanVienEdit').value = nhanVien.maPhuongXa;
+
+                // Hiển thị modal
+                const modal = new bootstrap.Modal(document.getElementById('suaNhanVienModal'));
+                modal.show();
+            } catch (error) {
+                console.error('Lỗi:', error);
+                alert(error.message);
+            }
+        }
+
+        // Hàm cập nhật thông tin nhân viên
+        async function capNhatNhanVien() {
+            // Lấy dữ liệu từ form
+            const maNhanVien = document.getElementById('maNhanVienEdit').value;
+            const tenNhanVien = document.getElementById('tenNhanVienEdit').value;
+            const maVaiTro = document.getElementById('vaiTroNhanVienEdit').value;
+            const email = document.getElementById('emailNhanVienEdit').value;
+            const sdt = document.getElementById('sdtNhanVienEdit').value;
+            const cccd = document.getElementById('cccdNhanVienEdit').value;
+
+            // Thông tin địa chỉ
+            const maPhuongXa = document.getElementById('phuongXaNhanVienEdit').value;
+            const diaChiSoNha = document.getElementById('diaChiNhanVienEdit').value;
+
+            // Kiểm tra dữ liệu bắt buộc
+            if (!tenNhanVien || !maVaiTro || !email || !sdt || !maPhuongXa || !diaChiSoNha) {
+                alert('Vui lòng nhập đầy đủ thông tin bắt buộc');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${apiBaseUrl}/NhanVien/${maNhanVien}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        maNhanVien: maNhanVien,
+                        tenNhanVien: tenNhanVien,
+                        maVaiTro: maVaiTro,
+                        email: email,
+                        sdt: sdt,
+                        maPhuongXa: maPhuongXa,
+                        diaChiSoNha: diaChiSoNha,
+                        cccd: cccd || null
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error('Cập nhật nhân viên thất bại: ' + errorText);
+                }
+
+                // Đóng modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('suaNhanVienModal'));
+                modal.hide();
+
+                // Refresh danh sách nhân viên
+                loadDanhSachNhanVien();
+
+                alert('Cập nhật thông tin nhân viên thành công!');
+            } catch (error) {
+                console.error('Lỗi:', error);
+                alert(error.message);
+            }
+        }
+
+        // Hàm xóa nhân viên
+        async function xoaNhanVien(maNhanVien) {
+            if (!confirm('Bạn có chắc chắn muốn xóa nhân viên này?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${apiBaseUrl}/NhanVien/${maNhanVien}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error('Xóa nhân viên thất bại: ' + errorText);
+                }
+
+                // Refresh danh sách nhân viên
+                loadDanhSachNhanVien();
+
+                alert('Xóa nhân viên thành công!');
+            } catch (error) {
+                console.error('Lỗi:', error);
+                alert(error.message);
+            }
+        }
+
+        /* QUẢN LÝ KHÁCH HÀNG */
+        function loadQuanLyKhachHang() {
+            document.getElementById('pageTitle').innerText = 'Quản lý khách hàng';
+
+            const mainContent = document.getElementById('mainContent');
+            mainContent.innerHTML = `
+                                    <div class="card shadow mb-4">
+                                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                                            <h6 class="m-0 font-weight-bold text-primary">Danh sách khách hàng</h6>
+                                            <button class="btn btn-primary">
+                                                <i class="fas fa-plus fa-sm"></i> Thêm khách hàng
+                                            </button>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row mb-3">
+                                                <div class="col-md-6">
+                                                    <div class="input-group">
+                                                        <input type="text" class="form-control" id="searchKhachHang" placeholder="Tìm kiếm khách hàng...">
+                                                        <button class="btn btn-primary" type="button" id="btnSearchKhachHang">
+                                                            <i class="fas fa-search"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered" width="100%" cellspacing="0">
+                                                    <thead>
+                                                        <tr>
+                                                            <th width="5%">#</th>
+                                                            <th width="15%">Mã KH</th>
+                                                            <th width="20%">Họ tên</th>
+                                                            <th width="15%">Điện thoại</th>
+                                                            <th width="20%">Email</th>
+                                                            <th width="15%">Địa chỉ</th>
+                                                            <th width="10%">Thao tác</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="khachHangTableBody">
+                                                        <tr>
+                                                            <td colspan="7" class="text-center">Đang tải dữ liệu...</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+
+            loadDanhSachKhachHang();
+        }
+
+        async function loadDanhSachKhachHang() {
+            try {
+                const response = await fetch(`${apiBaseUrl}/KhachHang`);
+                if (!response.ok) {
+                    throw new Error('Không thể tải danh sách khách hàng');
+                }
+
+                const khachHangList = await response.json();
+                const tbody = document.getElementById('khachHangTableBody');
+
+                if (khachHangList.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" class="text-center">Không có khách hàng nào</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = khachHangList.map((kh, index) => `
+                                        <tr>
+                                            <td>${index + 1}</td>
+                                            <td>${kh.maKhachHang}</td>
+                                            <td>${kh.tenKhachHang}</td>
+                                            <td>${kh.sdt}</td>
+                                            <td>${kh.email}</td>
+                                            <td>${kh.diaChiSoNha || 'Chưa có'}</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-warning me-1" onclick="suaKhachHang('${kh.maKhachHang}')">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-danger" onclick="xoaKhachHang('${kh.maKhachHang}')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    `).join('');
+
+            } catch (error) {
+                console.error('Lỗi tải khách hàng:', error);
+                const tbody = document.getElementById('khachHangTableBody');
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">Lỗi: ${error.message}</td></tr>`;
+            }
+        }
+
+        /* QUẢN LÝ ĐƠN HÀNG */
+        function loadQuanLyDonHang() {
+            document.getElementById('pageTitle').innerText = 'Quản lý đơn hàng';
+
+            const mainContent = document.getElementById('mainContent');
+            mainContent.innerHTML = `
+                                    <div class="card shadow mb-4">
+                                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                                            <h6 class="m-0 font-weight-bold text-primary">Danh sách đơn hàng</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row mb-3">
+                                                <div class="col-md-4">
+                                                    <div class="input-group">
+                                                        <input type="text" class="form-control" id="searchDonHang" placeholder="Tìm kiếm đơn hàng...">
+                                                        <button class="btn btn-primary" type="button" id="btnSearchDonHang">
+                                                            <i class="fas fa-search"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <select class="form-select" id="filterTrangThai">
+                                                        <option value="">Tất cả trạng thái</option>
+                                                        <option value="Mới">Mới</option>
+                                                        <option value="Đang vận chuyển">Đang vận chuyển</option>
+                                                        <option value="Đã giao">Đã giao</option>
+                                                        <option value="Đã hủy">Đã hủy</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered" width="100%" cellspacing="0">
+                                                    <thead>
+                                                        <tr>
+                                                            <th width="5%">#</th>
+                                                            <th width="15%">Mã đơn hàng</th>
+                                                            <th width="15%">Mã vận đơn</th>
+                                                            <th width="15%">Khách hàng</th>
+                                                            <th width="10%">Ngày gửi</th>
+                                                            <th width="10%">Trạng thái</th>
+                                                            <th width="15%">Thao tác</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="donHangTableBody">
+                                                        <tr>
+                                                            <td colspan="7" class="text-center">Đang tải dữ liệu...</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+
+            loadDanhSachDonHang();
+        }
+
+        /* THỐNG KÊ BÁO CÁO */
+        function loadThongKe() {
+            document.getElementById('pageTitle').innerText = 'Thống kê báo cáo';
+
+            const mainContent = document.getElementById('mainContent');
+            mainContent.innerHTML = `
+                                    <div class="card shadow mb-4">
+                                        <div class="card-header py-3">
+                                            <h6 class="m-0 font-weight-bold text-primary">Thống kê doanh thu</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <p>Chức năng đang được phát triển...</p>
+                                        </div>
+                                    </div>
+                                `;
+        }
+
+        /* HELPER FUNCTIONS */
+        function showModal(modalId) {
+            const modalElement = document.getElementById(modalId);
+            const modal = new bootstrap.Modal(modalElement);
+            modal.show();
+        }
+
+        function getBadgeClass(status) {
+            switch (status?.toLowerCase()) {
+                case 'mới':
+                    return 'bg-primary';
+                case 'đang vận chuyển':
+                    return 'bg-warning text-dark';
+                case 'đã giao':
+                    return 'bg-success';
+                case 'đã hủy':
+                    return 'bg-danger';
+                default:
+                    return 'bg-secondary';
+            }
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+        }
+
+        function logout() {
+            if (confirm('Bạn có chắc chắn muốn đăng xuất?')) {
+                window.location.href = '/login.html';
+            }
+        }
+    </script>
 </body>
 </html>

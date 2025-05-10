@@ -10,7 +10,7 @@ namespace Nhom3_CongTyVanChuyen.Data
         public string MaHangHoa { get; set; }
 
         public string MaDanhMuc { get; set; }
-        public string TenHangHoa { get; set; }
+        public string TinhChatHangHoa { get; set; }
         public double DonGia { get; set; }
 
         [ForeignKey("MaDanhMuc")]

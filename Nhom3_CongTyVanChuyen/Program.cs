@@ -7,6 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<Nhom3_CongTyVanChuyen.Services.AuditService>();
 
 
 // Add DbContext with connection string from appsettings.json
