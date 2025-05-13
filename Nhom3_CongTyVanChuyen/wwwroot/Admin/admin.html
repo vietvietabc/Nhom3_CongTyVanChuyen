@@ -78,6 +78,17 @@
             transition: all 0.3s;
         }
 
+        #sidebar.collapsed {
+            margin-left: -280px; /* Ẩn sidebar bằng cách đẩy nó ra ngoài khung nhìn */
+            transition: margin-left 0.3s;
+        }
+
+        #content.expanded {
+            margin-left: 0; /* Mở rộng nội dung khi sidebar bị ẩn */
+            transition: margin-left 0.3s;
+        }
+
+
         /* Header Styles */
         .navbar {
             padding: 15px 30px;
@@ -237,7 +248,7 @@
             <li class="active">
                 <a href="#" onclick="loadDashboard()">
                     <i class="fas fa-fw fa-tachometer-alt me-2"></i>
-                    Dashboard
+                    Trang chủ
                 </a>
             </li>
             <li>
@@ -263,7 +274,7 @@
             <li>
                 <a href="#hangHoaSubmenu" data-bs-toggle="collapse" aria-expanded="false">
                     <i class="fas fa-fw fa-box me-2"></i>
-                    Quản lý sản phẩm
+                    Quản lý hàng hóa
                 </a>
                 <ul class="collapse list-unstyled" id="hangHoaSubmenu">
                     <li>
@@ -322,7 +333,7 @@
             </button>
 
             <!-- Title -->
-            <h1 class="h3 mb-0 text-gray-800" id="pageTitle">Dashboard</h1>
+            <h1 class="h3 mb-0 text-gray-800" id="pageTitle">Trang chủ</h1>
 
             <div class="ms-auto"></div>
 
@@ -417,10 +428,6 @@
                 </div>
                 <div class="modal-body">
                     <form id="themHangHoaForm">
-                        <div class="mb-3">
-                            <label for="tenHangHoa" class="form-label">Tên sản phẩm</label>
-                            <input type="text" class="form-control" id="tenHangHoa" required>
-                        </div>
                         <div class="mb-3">
                             <label for="danhMucHangHoa" class="form-label">Danh mục</label>
                             <select class="form-control" id="danhMucHangHoa" required>
@@ -668,137 +675,147 @@
             loadDashboard();
         });
 
+        document.getElementById('sidebarToggleTop').addEventListener('click', function () {
+            const sidebar = document.getElementById('sidebar');
+            const content = document.getElementById('content');
+
+            // Toggle class to hide/show sidebar
+            sidebar.classList.toggle('collapsed');
+            content.classList.toggle('expanded');
+        });
+
+
         function loadDashboard() {
             document.getElementById('pageTitle').innerText = 'Dashboard';
 
             const mainContent = document.getElementById('mainContent');
             mainContent.innerHTML = `
-                                    <div class="row">
-                                        <div class="col-xl-3 col-md-6 mb-4">
-                                            <div class="card border-0 shadow h-100 py-2 stat-card stat-card-primary">
-                                                <div class="card-body">
-                                                    <div class="row no-gutters align-items-center">
-                                                        <div class="col mr-2">
-                                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                                                Tổng đơn hàng</div>
-                                                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="tongDonHang">0</div>
+                                                    <div class="row">
+                                                        <div class="col-xl-3 col-md-6 mb-4">
+                                                            <div class="card border-0 shadow h-100 py-2 stat-card stat-card-primary">
+                                                                <div class="card-body">
+                                                                    <div class="row no-gutters align-items-center">
+                                                                        <div class="col mr-2">
+                                                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                                                Tổng đơn hàng</div>
+                                                                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="tongDonHang">0</div>
+                                                                        </div>
+                                                                        <div class="col-auto">
+                                                                            <i class="fas fa-calendar fa-2x text-gray-300 stat-icon"></i>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
                                                         </div>
-                                                        <div class="col-auto">
-                                                            <i class="fas fa-calendar fa-2x text-gray-300 stat-icon"></i>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
 
-                                        <div class="col-xl-3 col-md-6 mb-4">
-                                            <div class="card border-0 shadow h-100 py-2 stat-card stat-card-success">
-                                                <div class="card-body">
-                                                    <div class="row no-gutters align-items-center">
-                                                        <div class="col mr-2">
-                                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                                                Tổng sản phẩm</div>
-                                                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="tongSanPham">0</div>
+                                                        <div class="col-xl-3 col-md-6 mb-4">
+                                                            <div class="card border-0 shadow h-100 py-2 stat-card stat-card-success">
+                                                                <div class="card-body">
+                                                                    <div class="row no-gutters align-items-center">
+                                                                        <div class="col mr-2">
+                                                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                                                                Tổng hàng hóa</div>
+                                                                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="tongSanPham">0</div>
+                                                                        </div>
+                                                                        <div class="col-auto">
+                                                                            <i class="fas fa-box fa-2x text-gray-300 stat-icon"></i>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
                                                         </div>
-                                                        <div class="col-auto">
-                                                            <i class="fas fa-box fa-2x text-gray-300 stat-icon"></i>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
 
-                                        <div class="col-xl-3 col-md-6 mb-4">
-                                            <div class="card border-0 shadow h-100 py-2 stat-card stat-card-info">
-                                                <div class="card-body">
-                                                    <div class="row no-gutters align-items-center">
-                                                        <div class="col mr-2">
-                                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                                                Tổng nhân viên</div>
-                                                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="tongNhanVien">0</div>
+                                                        <div class="col-xl-3 col-md-6 mb-4">
+                                                            <div class="card border-0 shadow h-100 py-2 stat-card stat-card-info">
+                                                                <div class="card-body">
+                                                                    <div class="row no-gutters align-items-center">
+                                                                        <div class="col mr-2">
+                                                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                                                                Tổng nhân viên</div>
+                                                                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="tongNhanVien">0</div>
+                                                                        </div>
+                                                                        <div class="col-auto">
+                                                                            <i class="fas fa-users fa-2x text-gray-300 stat-icon"></i>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
                                                         </div>
-                                                        <div class="col-auto">
-                                                            <i class="fas fa-users fa-2x text-gray-300 stat-icon"></i>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
 
-                                        <div class="col-xl-3 col-md-6 mb-4">
-                                            <div class="card border-0 shadow h-100 py-2 stat-card stat-card-warning">
-                                                <div class="card-body">
-                                                    <div class="row no-gutters align-items-center">
-                                                        <div class="col mr-2">
-                                                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                                                Tổng khách hàng</div>
-                                                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="tongKhachHang">0</div>
+                                                        <div class="col-xl-3 col-md-6 mb-4">
+                                                            <div class="card border-0 shadow h-100 py-2 stat-card stat-card-warning">
+                                                                <div class="card-body">
+                                                                    <div class="row no-gutters align-items-center">
+                                                                        <div class="col mr-2">
+                                                                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                                                                Tổng khách hàng</div>
+                                                                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="tongKhachHang">0</div>
+                                                                        </div>
+                                                                        <div class="col-auto">
+                                                                            <i class="fas fa-user-friends fa-2x text-gray-300 stat-icon"></i>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
                                                         </div>
-                                                        <div class="col-auto">
-                                                            <i class="fas fa-user-friends fa-2x text-gray-300 stat-icon"></i>
+                                                    </div>
+
+                                                    <div class="row">
+                                                        <div class="col-lg-6">
+                                                            <div class="card shadow mb-4">
+                                                                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                                                    <h6 class="m-0 font-weight-bold text-primary">Đơn hàng mới nhất</h6>
+                                                                </div>
+                                                                <div class="card-body">
+                                                                    <div class="table-responsive">
+                                                                        <table class="table table-bordered" width="100%" cellspacing="0">
+                                                                            <thead>
+                                                                                <tr>
+                                                                                    <th>Mã đơn</th>
+                                                                                    <th>Khách hàng</th>
+                                                                                    <th>Ngày tạo</th>
+                                                                                    <th>Trạng thái</th>
+                                                                                </tr>
+                                                                            </thead>
+                                                                            <tbody id="donHangMoiNhat">
+                                                                                <tr>
+                                                                                    <td colspan="4" class="text-center">Đang tải dữ liệu...</td>
+                                                                                </tr>
+                                                                            </tbody>
+                                                                        </table>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-lg-6">
+                                                            <div class="card shadow mb-4">
+                                                                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                                                    <h6 class="m-0 font-weight-bold text-primary">Sản phẩm phổ biến</h6>
+                                                                </div>
+                                                                <div class="card-body">
+                                                                    <div class="table-responsive">
+                                                                        <table class="table table-bordered" width="100%" cellspacing="0">
+                                                                            <thead>
+                                                                                <tr>
+                                                                                    <th>Mã hàng</th>
+                                                                                    <th>Tính chất</th>
+                                                                                    <th>Danh mục</th>
+                                                                                    <th>Đơn giá</th>
+                                                                                </tr>
+                                                                            </thead>
+                                                                            <tbody id="sanPhamPhoBien">
+                                                                                <tr>
+                                                                                    <td colspan="4" class="text-center">Đang tải dữ liệu...</td>
+                                                                                </tr>
+                                                                            </tbody>
+                                                                        </table>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-lg-6">
-                                            <div class="card shadow mb-4">
-                                                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                                                    <h6 class="m-0 font-weight-bold text-primary">Đơn hàng mới nhất</h6>
-                                                </div>
-                                                <div class="card-body">
-                                                    <div class="table-responsive">
-                                                        <table class="table table-bordered" width="100%" cellspacing="0">
-                                                            <thead>
-                                                                <tr>
-                                                                    <th>Mã đơn</th>
-                                                                    <th>Khách hàng</th>
-                                                                    <th>Ngày tạo</th>
-                                                                    <th>Trạng thái</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody id="donHangMoiNhat">
-                                                                <tr>
-                                                                    <td colspan="4" class="text-center">Đang tải dữ liệu...</td>
-                                                                </tr>
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-lg-6">
-                                            <div class="card shadow mb-4">
-                                                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                                                    <h6 class="m-0 font-weight-bold text-primary">Sản phẩm phổ biến</h6>
-                                                </div>
-                                                <div class="card-body">
-                                                    <div class="table-responsive">
-                                                        <table class="table table-bordered" width="100%" cellspacing="0">
-                                                            <thead>
-                                                                <tr>
-                                                                    <th>Mã hàng</th>
-                                                                    <th>Tính chất</th>
-                                                                    <th>Danh mục</th>
-                                                                    <th>Đơn giá</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody id="sanPhamPhoBien">
-                                                                <tr>
-                                                                    <td colspan="4" class="text-center">Đang tải dữ liệu...</td>
-                                                                </tr>
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                `;
+                                                `;
 
             // Load dashboard stats & data
             loadDashboardStats();
@@ -825,17 +842,17 @@
                     const donHangData = await donHangRecentRes.json();
                     const donHangHTML = donHangData.length > 0 ?
                         donHangData.map(dh => `
-                                                <tr>
-                                                    <td>${dh.maDonHang}</td>
-                                                    <td>${dh.tenKhachHang}</td>
-                                                    <td>${new Date(dh.ngayGui).toLocaleDateString('vi-VN')}</td>
-                                                    <td>
-                                                        <span class="badge ${getBadgeClass(dh.trangThaiDonHang)}">
-                                                            ${dh.trangThaiDonHang}
-                                                        </span>
-                                                    </td>
-                                                </tr>
-                                            `).join('') :
+                                                                <tr>
+                                                                    <td>${dh.maDonHang}</td>
+                                                                    <td>${dh.tenKhachHang}</td>
+                                                                    <td>${new Date(dh.ngayGui).toLocaleDateString('vi-VN')}</td>
+                                                                    <td>
+                                                                        <span class="badge ${getBadgeClass(dh.trangThaiDonHang)}">
+                                                                            ${dh.trangThaiDonHang}
+                                                                        </span>
+                                                                    </td>
+                                                                </tr>
+                                                            `).join('') :
                         '<tr><td colspan="4" class="text-center">Không có đơn hàng nào</td></tr>';
 
                     document.getElementById('donHangMoiNhat').innerHTML = donHangHTML;
@@ -847,13 +864,13 @@
                     const sanPhamData = await sanPhamPopularRes.json();
                     const sanPhamHTML = sanPhamData.length > 0 ?
                         sanPhamData.map(sp => `
-                                                <tr>
-                                                    <td>${sp.maHangHoa}</td>
-                                                    <td>${sp.tinhChatHangHoa}</td>
-                                                    <td>${sp.tenDanhMuc}</td>
-                                                    <td>${formatCurrency(sp.donGia)}</td>
-                                                </tr>
-                                            `).join('') :
+                                                                <tr>
+                                                                    <td>${sp.maHangHoa}</td>
+                                                                    <td>${sp.tinhChatHangHoa}</td>
+                                                                    <td>${sp.tenDanhMuc}</td>
+                                                                    <td>${formatCurrency(sp.donGia)}</td>
+                                                                </tr>
+                                                            `).join('') :
                         '<tr><td colspan="4" class="text-center">Không có sản phẩm nào</td></tr>';
 
                     document.getElementById('sanPhamPhoBien').innerHTML = sanPhamHTML;
@@ -870,35 +887,35 @@
 
             const mainContent = document.getElementById('mainContent');
             mainContent.innerHTML = `
-                                    <div class="card shadow mb-4">
-                                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                                            <h6 class="m-0 font-weight-bold text-primary">Danh sách danh mục</h6>
-                                            <button class="btn btn-primary" onclick="showModal('themDanhMucModal')">
-                                                <i class="fas fa-plus fa-sm"></i> Thêm danh mục
-                                            </button>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="table-responsive">
-                                                <table class="table table-bordered" width="100%" cellspacing="0">
-                                                    <thead>
-                                                        <tr>
-                                                            <th width="5%">#</th>
-                                                            <th width="15%">Mã danh mục</th>
-                                                            <th width="25%">Tên danh mục</th>
-                                                            <th width="40%">Mô tả</th>
-                                                            <th width="15%">Thao tác</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody id="danhMucTableBody">
-                                                        <tr>
-                                                            <td colspan="5" class="text-center">Đang tải dữ liệu...</td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                `;
+                                                    <div class="card shadow mb-4">
+                                                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                                                            <h6 class="m-0 font-weight-bold text-primary">Danh sách danh mục</h6>
+                                                            <button class="btn btn-primary" onclick="showModal('themDanhMucModal')">
+                                                                <i class="fas fa-plus fa-sm"></i> Thêm danh mục
+                                                            </button>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <div class="table-responsive">
+                                                                <table class="table table-bordered" width="100%" cellspacing="0">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th width="5%">#</th>
+                                                                            <th width="15%">Mã danh mục</th>
+                                                                            <th width="25%">Tên danh mục</th>
+                                                                            <th width="40%">Mô tả</th>
+                                                                            <th width="15%">Thao tác</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody id="danhMucTableBody">
+                                                                        <tr>
+                                                                            <td colspan="5" class="text-center">Đang tải dữ liệu...</td>
+                                                                        </tr>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                `;
 
             loadDanhSachDanhMuc();
         }
@@ -919,21 +936,21 @@
                 }
 
                 tbody.innerHTML = danhMucList.map((dm, index) => `
-                                        <tr>
-                                            <td>${index + 1}</td>
-                                            <td>${dm.maDanhMuc}</td>
-                                            <td>${dm.tenDanhMuc}</td>
-                                            <td>${dm.moTa || ''}</td>
-                                            <td>
-                                                <button class="btn btn-sm btn-warning me-1" onclick="suaDanhMuc('${dm.maDanhMuc}')">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <button class="btn btn-sm btn-danger" onclick="xoaDanhMuc('${dm.maDanhMuc}')">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    `).join('');
+                                                        <tr>
+                                                            <td>${index + 1}</td>
+                                                            <td>${dm.maDanhMuc}</td>
+                                                            <td>${dm.tenDanhMuc}</td>
+                                                            <td>${dm.moTa || ''}</td>
+                                                            <td>
+                                                                <button class="btn btn-sm btn-warning me-1" onclick="suaDanhMuc('${dm.maDanhMuc}')">
+                                                                    <i class="fas fa-edit"></i>
+                                                                </button>
+                                                                <button class="btn btn-sm btn-danger" onclick="xoaDanhMuc('${dm.maDanhMuc}')">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    `).join('');
 
             } catch (error) {
                 console.error('Lỗi tải danh mục:', error);
@@ -1088,58 +1105,58 @@
 
         /* QUẢN LÝ SẢN PHẨM */
         function loadQuanLyHangHoa() {
-            document.getElementById('pageTitle').innerText = 'Quản lý sản phẩm';
+            document.getElementById('pageTitle').innerText = 'Quản lý hàng hóa';
 
             const mainContent = document.getElementById('mainContent');
             mainContent.innerHTML = `
-                                    <div class="card shadow mb-4">
-                                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                                            <h6 class="m-0 font-weight-bold text-primary">Danh sách sản phẩm</h6>
-                                            <div>
-                                                <button class="btn btn-primary" onclick="showModal('themHangHoaModal')">
-                                                    <i class="fas fa-plus fa-sm"></i> Thêm sản phẩm
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="row mb-3">
-                                                <div class="col-md-6">
-                                                    <div class="input-group">
-                                                        <input type="text" class="form-control" id="searchHangHoa" placeholder="Tìm kiếm sản phẩm...">
-                                                        <button class="btn btn-primary" type="button" id="btnSearchHangHoa">
-                                                            <i class="fas fa-search"></i>
-                                                        </button>
+                                                    <div class="card shadow mb-4">
+                                                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                                                            <h6 class="m-0 font-weight-bold text-primary">Danh sách sản phẩm</h6>
+                                                            <div>
+                                                                <button class="btn btn-primary" onclick="showModal('themHangHoaModal')">
+                                                                    <i class="fas fa-plus fa-sm"></i> Thêm sản phẩm
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <div class="row mb-3">
+                                                                <div class="col-md-6">
+                                                                    <div class="input-group">
+                                                                        <input type="text" class="form-control" id="searchHangHoa" placeholder="Tìm kiếm sản phẩm...">
+                                                                        <button class="btn btn-primary" type="button" id="btnSearchHangHoa">
+                                                                            <i class="fas fa-search"></i>
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-4">
+                                                                    <select class="form-select" id="filterDanhMuc">
+                                                                        <option value="">Tất cả danh mục</option>
+                                                                        <!-- Load từ API -->
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                            <div class="table-responsive">
+                                                                <table class="table table-bordered" width="100%" cellspacing="0">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th width="5%">#</th>
+                                                                            <th width="15%">Mã hàng hóa</th>
+                                                                            <th width="15%">Tính chất</th>
+                                                                            <th width="15%">Danh mục</th>
+                                                                            <th width="15%">Đơn giá</th>
+                                                                            <th width="15%">Thao tác</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody id="hangHoaTableBody">
+                                                                        <tr>
+                                                                            <td colspan="6" class="text-center">Đang tải dữ liệu...</td>
+                                                                        </tr>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                                <div class="col-md-4">
-                                                    <select class="form-select" id="filterDanhMuc">
-                                                        <option value="">Tất cả danh mục</option>
-                                                        <!-- Load từ API -->
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="table-responsive">
-                                                <table class="table table-bordered" width="100%" cellspacing="0">
-                                                    <thead>
-                                                        <tr>
-                                                            <th width="5%">#</th>
-                                                            <th width="15%">Mã hàng hóa</th>
-                                                            <th width="15%">Tính chất</th>
-                                                            <th width="15%">Danh mục</th>
-                                                            <th width="15%">Đơn giá</th>
-                                                            <th width="15%">Thao tác</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody id="hangHoaTableBody">
-                                                        <tr>
-                                                            <td colspan="6" class="text-center">Đang tải dữ liệu...</td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                `;
+                                                `;
 
             // Load danh mục for filter
             loadDanhMucForFilter();
@@ -1217,22 +1234,22 @@
                 }
 
                 tbody.innerHTML = hangHoaList.map((hh, index) => `
-                                        <tr>
-                                            <td>${index + 1}</td>
-                                            <td>${hh.maHangHoa}</td>
-                                            <td>${hh.tinhChatHangHoa}</td>
-                                            <td>${hh.tenDanhMuc || hh.maDanhMuc}</td>
-                                            <td>${formatCurrency(hh.donGia)}</td>
-                                            <td>
-                                                <button class="btn btn-sm btn-warning me-1" onclick="suaHangHoa('${hh.maHangHoa}')">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <button class="btn btn-sm btn-danger" onclick="xoaHangHoa('${hh.maHangHoa}')">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    `).join('');
+                                                        <tr>
+                                                            <td>${index + 1}</td>
+                                                            <td>${hh.maHangHoa}</td>
+                                                            <td>${hh.tinhChatHangHoa}</td>
+                                                            <td>${hh.tenDanhMuc || hh.maDanhMuc}</td>
+                                                            <td>${formatCurrency(hh.donGia)}</td>
+                                                            <td>
+                                                                <button class="btn btn-sm btn-warning me-1" onclick="suaHangHoa('${hh.maHangHoa}')">
+                                                                    <i class="fas fa-edit"></i>
+                                                                </button>
+                                                                <button class="btn btn-sm btn-danger" onclick="xoaHangHoa('${hh.maHangHoa}')">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    `).join('');
 
             } catch (error) {
                 console.error('Lỗi tải hàng hóa:', error);
@@ -1408,57 +1425,57 @@
 
             const mainContent = document.getElementById('mainContent');
             mainContent.innerHTML = `
-            <div class="card shadow mb-4">
-                <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                    <h6 class="m-0 font-weight-bold text-primary">Danh sách nhân viên</h6>
-                    <button class="btn btn-primary" onclick="showModal('themNhanVienModal')">
-                        <i class="fas fa-plus fa-sm"></i> Thêm nhân viên
-                    </button>
-                </div>
-                <div class="card-body">
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <div class="input-group">
-                                <input type="text" class="form-control" id="searchNhanVien" placeholder="Tìm kiếm nhân viên...">
-                                <button class="btn btn-primary" type="button" id="btnSearchNhanVien">
-                                    <i class="fas fa-search"></i>
-                                </button>
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                                    <h6 class="m-0 font-weight-bold text-primary">Danh sách nhân viên</h6>
+                                    <button class="btn btn-primary" onclick="showModal('themNhanVienModal')">
+                                        <i class="fas fa-plus fa-sm"></i> Thêm nhân viên
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" id="searchNhanVien" placeholder="Tìm kiếm nhân viên...">
+                                                <button class="btn btn-primary" type="button" id="btnSearchNhanVien">
+                                                    <i class="fas fa-search"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <select class="form-select" id="filterVaiTro">
+                                                <option value="">Tất cả vai trò</option>
+                                                <option value="ADMIN">Quản trị viên</option>
+                                                <option value="KT">Kế toán</option>
+                                                <option value="NVDP">Nhân viên điều phối</option>
+                                                <option value="NVGH">Nhân viên giao hàng</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered" width="100%" cellspacing="0">
+                                            <thead>
+                                                <tr>
+                                                    <th width="5%">STT</th>
+                                                    <th width="15%">Mã nhân viên</th>
+                                                    <th width="20%">Họ tên</th>
+                                                    <th width="15%">Vai trò</th>
+                                                    <th width="15%">Điện thoại</th>
+                                                    <th width="15%">Email</th>
+                                                    <th width="15%">Thao tác</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="nhanVienTableBody">
+                                                <tr>
+                                                    <td colspan="7" class="text-center">Đang tải dữ liệu...</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-md-4">
-                            <select class="form-select" id="filterVaiTro">
-                                <option value="">Tất cả vai trò</option>
-                                <option value="ADMIN">Quản trị viên</option>
-                                <option value="KT">Kế toán</option>
-                                <option value="NVDP">Nhân viên điều phối</option>
-                                <option value="NVGH">Nhân viên giao hàng</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table table-bordered" width="100%" cellspacing="0">
-                            <thead>
-                                <tr>
-                                    <th width="5%">STT</th>
-                                    <th width="15%">Mã nhân viên</th>
-                                    <th width="20%">Họ tên</th>
-                                    <th width="15%">Vai trò</th>
-                                    <th width="15%">Điện thoại</th>
-                                    <th width="15%">Email</th>
-                                    <th width="15%">Thao tác</th>
-                                </tr>
-                            </thead>
-                            <tbody id="nhanVienTableBody">
-                                <tr>
-                                    <td colspan="7" class="text-center">Đang tải dữ liệu...</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        `;
-         
+                        `;
+
             // Load nhân viên và thiết lập sự kiện tìm kiếm
             loadDanhSachNhanVien();
 
@@ -1647,23 +1664,23 @@
                 }
 
                 tbody.innerHTML = nhanVienList.map((nv, index) => `
-            <tr>
-                <td>${index + 1}</td>
-                <td>${nv.maNhanVien}</td>
-                <td>${nv.tenNhanVien}</td>
-                <td>${getTenVaiTro(nv.maVaiTro)}</td>
-                <td>${nv.sdt || ''}</td>
-                <td>${nv.email || ''}</td>
-                <td>
-                    <button class="btn btn-sm btn-warning me-1" onclick="suaNhanVien('${nv.maNhanVien}')">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn btn-sm btn-danger" onclick="xoaNhanVien('${nv.maNhanVien}')">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </td>
-            </tr>
-        `).join('');
+                            <tr>
+                                <td>${index + 1}</td>
+                                <td>${nv.maNhanVien}</td>
+                                <td>${nv.tenNhanVien}</td>
+                                <td>${getTenVaiTro(nv.maVaiTro)}</td>
+                                <td>${nv.sdt || ''}</td>
+                                <td>${nv.email || ''}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-warning me-1" onclick="suaNhanVien('${nv.maNhanVien}')">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" onclick="xoaNhanVien('${nv.maNhanVien}')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `).join('');
 
             } catch (error) {
                 console.error('Lỗi tải nhân viên:', error);
@@ -1862,65 +1879,78 @@
             }
         }
 
-        /* QUẢN LÝ KHÁCH HÀNG */
+        // QUẢN LÝ KHÁCH HÀNG - Cập nhật dựa trên KhachHang.cs và controller hiện có
         function loadQuanLyKhachHang() {
             document.getElementById('pageTitle').innerText = 'Quản lý khách hàng';
 
             const mainContent = document.getElementById('mainContent');
             mainContent.innerHTML = `
-                                    <div class="card shadow mb-4">
-                                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                                            <h6 class="m-0 font-weight-bold text-primary">Danh sách khách hàng</h6>
-                                            <button class="btn btn-primary">
-                                                <i class="fas fa-plus fa-sm"></i> Thêm khách hàng
-                                            </button>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="row mb-3">
-                                                <div class="col-md-6">
-                                                    <div class="input-group">
-                                                        <input type="text" class="form-control" id="searchKhachHang" placeholder="Tìm kiếm khách hàng...">
-                                                        <button class="btn btn-primary" type="button" id="btnSearchKhachHang">
-                                                            <i class="fas fa-search"></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="table-responsive">
-                                                <table class="table table-bordered" width="100%" cellspacing="0">
-                                                    <thead>
-                                                        <tr>
-                                                            <th width="5%">#</th>
-                                                            <th width="15%">Mã KH</th>
-                                                            <th width="20%">Họ tên</th>
-                                                            <th width="15%">Điện thoại</th>
-                                                            <th width="20%">Email</th>
-                                                            <th width="15%">Địa chỉ</th>
-                                                            <th width="10%">Thao tác</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody id="khachHangTableBody">
-                                                        <tr>
-                                                            <td colspan="7" class="text-center">Đang tải dữ liệu...</td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                `;
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 font-weight-bold text-primary">Danh sách khách hàng</h6>
+                        <button class="btn btn-primary" onclick="showModal('themKhachHangModal')">
+                            <i class="fas fa-plus fa-sm"></i> Thêm khách hàng
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="searchKhachHang" placeholder="Tìm kiếm khách hàng...">
+                                    <button class="btn btn-primary" type="button" onclick="loadDanhSachKhachHang()">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-bordered" width="100%" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Mã KH</th>
+                                        <th>Họ tên</th>
+                                        <th>Điện thoại</th>
+                                        <th>Email</th>
+                                        <th>Địa chỉ</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="khachHangTableBody">
+                                    <tr>
+                                        <td colspan="7" class="text-center">Đang tải dữ liệu...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
 
             loadDanhSachKhachHang();
         }
 
+        // Tải danh sách khách hàng từ API
         async function loadDanhSachKhachHang() {
             try {
-                const response = await fetch(`${apiBaseUrl}/KhachHang`);
-                if (!response.ok) {
-                    throw new Error('Không thể tải danh sách khách hàng');
+                const searchQuery = document.getElementById('searchKhachHang')?.value || '';
+
+                let apiUrl = `${apiBaseUrl}/KhachHang`;
+                if (searchQuery) {
+                    apiUrl += `?search=${encodeURIComponent(searchQuery)}`;
                 }
 
-                const khachHangList = await response.json();
+                const response = await fetch(apiUrl);
+                if (!response.ok) {
+                    throw new Error(`Không thể tải danh sách khách hàng: ${response.status}`);
+                }
+
+                let khachHangList = await response.json();
+                // Ensure khachHangList is always an array
+                if (!Array.isArray(khachHangList)) {
+                    khachHangList = [];
+                }
+
                 const tbody = document.getElementById('khachHangTableBody');
 
                 if (khachHangList.length === 0) {
@@ -1929,30 +1959,275 @@
                 }
 
                 tbody.innerHTML = khachHangList.map((kh, index) => `
-                                        <tr>
-                                            <td>${index + 1}</td>
-                                            <td>${kh.maKhachHang}</td>
-                                            <td>${kh.tenKhachHang}</td>
-                                            <td>${kh.sdt}</td>
-                                            <td>${kh.email}</td>
-                                            <td>${kh.diaChiSoNha || 'Chưa có'}</td>
-                                            <td>
-                                                <button class="btn btn-sm btn-warning me-1" onclick="suaKhachHang('${kh.maKhachHang}')">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <button class="btn btn-sm btn-danger" onclick="xoaKhachHang('${kh.maKhachHang}')">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    `).join('');
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${kh.maKhachHang}</td>
+                    <td>${kh.tenKhachHang}</td>
+                    <td>${kh.sdt || ''}</td>
+                    <td>${kh.email || ''}</td>
+                    <td>${kh.diaChiChiTiet || ''}</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning me-1" onclick="suaKhachHang('${kh.maKhachHang}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="xoaKhachHang('${kh.maKhachHang}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
 
             } catch (error) {
                 console.error('Lỗi tải khách hàng:', error);
                 const tbody = document.getElementById('khachHangTableBody');
                 tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">Lỗi: ${error.message}</td></tr>`;
+                alert(`Lỗi: ${error.message}`);
             }
         }
+
+
+        // Load danh sách tỉnh/thành phố với xử lý lỗi cải tiến
+        async function loadTinhThanhPhoKhachHang() {
+            try {
+                const response = await fetch(`${apiBaseUrl}/DiaChi/TinhThanhPho`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error ${response.status}`);
+                }
+
+                const data = await response.json();
+                const selectElement = document.getElementById('tinhTPKhachHang');
+
+                // Xóa options cũ và giữ lại option đầu tiên
+                while (selectElement.options.length > 1) {
+                    selectElement.remove(1);
+                }
+
+                // Thêm options mới
+                data.forEach(tinh => {
+                    const option = document.createElement('option');
+                    option.value = tinh.maTinhTP;
+                    option.textContent = tinh.tenTinhTP;
+                    selectElement.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Lỗi tải danh sách tỉnh/thành phố:', error);
+                // Hiển thị biểu tượng thông báo lỗi trong dropdown
+                const selectElement = document.getElementById('tinhTPKhachHang');
+                const errorOption = document.createElement('option');
+                errorOption.value = "";
+                errorOption.textContent = "Lỗi tải dữ liệu";
+                errorOption.disabled = true;
+                selectElement.innerHTML = '';
+                selectElement.appendChild(errorOption);
+                selectElement.classList.add('is-invalid');
+
+                // Hiển thị thông báo lỗi cho người dùng
+                alert(`Không thể tải danh sách tỉnh/thành phố. Vui lòng thử lại sau. Chi tiết lỗi: ${error.message}`);
+            }
+        }
+
+        // Load quận huyện
+        async function loadQuanHuyenKhachHang() {
+            try {
+                const tinhTPId = document.getElementById('tinhTPKhachHang').value;
+                const quanHuyenSelect = document.getElementById('quanHuyenKhachHang');
+                const phuongXaSelect = document.getElementById('phuongXaKhachHang');
+
+                if (!tinhTPId) {
+                    // Không có tỉnh/TP được chọn
+                    quanHuyenSelect.disabled = true;
+                    quanHuyenSelect.innerHTML = '<option value="">-- Chọn Quận/Huyện --</option>';
+
+                    phuongXaSelect.disabled = true;
+                    phuongXaSelect.innerHTML = '<option value="">-- Chọn Phường/Xã --</option>';
+                    return;
+                }
+
+                const response = await fetch(`${apiBaseUrl}/DiaChi/QuanHuyen?maTinhTP=${tinhTPId}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                // Kích hoạt select quận/huyện
+                quanHuyenSelect.disabled = false;
+
+                // Xóa options cũ giữ lại option đầu tiên
+                quanHuyenSelect.innerHTML = '<option value="">-- Chọn Quận/Huyện --</option>';
+
+                // Thêm options mới
+                data.forEach(quan => {
+                    const option = document.createElement('option');
+                    option.value = quan.maQuanHuyen;
+                    option.textContent = quan.tenQuanHuyen;
+                    quanHuyenSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Lỗi tải quận/huyện:', error);
+                const quanHuyenSelect = document.getElementById('quanHuyenKhachHang');
+                quanHuyenSelect.innerHTML = '<option value="">Lỗi tải dữ liệu</option>';
+                quanHuyenSelect.disabled = true;
+                alert(`Không thể tải danh sách quận/huyện. Vui lòng thử lại sau. Chi tiết lỗi: ${error.message}`);
+            }
+        }
+
+        // Load phường xã
+        async function loadPhuongXaKhachHang() {
+            try {
+                const quanHuyenId = document.getElementById('quanHuyenKhachHang').value;
+                const phuongXaSelect = document.getElementById('phuongXaKhachHang');
+
+                if (!quanHuyenId) {
+                    // Không có quận/huyện được chọn
+                    phuongXaSelect.disabled = true;
+                    phuongXaSelect.innerHTML = '<option value="">-- Chọn Phường/Xã --</option>';
+                    return;
+                }
+
+                const response = await fetch(`${apiBaseUrl}/DiaChi/PhuongXa?maQuanHuyen=${quanHuyenId}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                // Kích hoạt select phường/xã
+                phuongXaSelect.disabled = false;
+
+                // Xóa options cũ giữ lại option đầu tiên
+                phuongXaSelect.innerHTML = '<option value="">-- Chọn Phường/Xã --</option>';
+
+                // Thêm options mới
+                data.forEach(phuong => {
+                    const option = document.createElement('option');
+                    option.value = phuong.maPhuongXa;
+                    option.textContent = phuong.tenPhuongXa;
+                    phuongXaSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Lỗi tải phường/xã:', error);
+                const phuongXaSelect = document.getElementById('phuongXaKhachHang');
+                phuongXaSelect.innerHTML = '<option value="">Lỗi tải dữ liệu</option>';
+                phuongXaSelect.disabled = true;
+                alert(`Không thể tải danh sách phường/xã. Vui lòng thử lại sau. Chi tiết lỗi: ${error.message}`);
+            }
+        }
+
+        // Thêm khách hàng mới
+        async function themKhachHang() {
+            try {
+                const tenKhachHang = document.getElementById('tenKhachHang').value;
+                const sdtKhachHang = document.getElementById('sdtKhachHang').value;
+                const emailKhachHang = document.getElementById('emailKhachHang').value;
+                const matKhauKhachHang = document.getElementById('matKhauKhachHang')?.value || "123456"; // Mật khẩu mặc định nếu không có trường nhập
+                const ngaySinhKhachHang = document.getElementById('ngaySinhKhachHang')?.value || new Date().toISOString().split('T')[0];
+                const cccdKhachHang = document.getElementById('cccdKhachHang')?.value || "";
+
+                // Thông tin địa chỉ
+                const maPhuongXa = document.getElementById('phuongXaKhachHang')?.value || null;
+                const diaChiSoNha = document.getElementById('diaChiKhachHang').value;
+
+                if (!tenKhachHang || !sdtKhachHang || !emailKhachHang) {
+                    alert('Vui lòng nhập đầy đủ thông tin bắt buộc (Họ tên, SĐT, Email)');
+                    return;
+                }
+
+                if (!diaChiSoNha) {
+                    alert('Vui lòng nhập địa chỉ');
+                    return;
+                }
+
+                if (!maPhuongXa) {
+                    alert('Vui lòng chọn đầy đủ thông tin địa chỉ (Tỉnh/TP, Quận/Huyện, Phường/Xã)');
+                    return;
+                }
+
+                // Chuẩn bị dữ liệu theo KhachHangCreateDto
+                const khachHangData = {
+                    tenKhachHang: tenKhachHang,
+                    sdt: sdtKhachHang,
+                    email: emailKhachHang,
+                    matKhau: matKhauKhachHang,
+                    ngaySinh: ngaySinhKhachHang,
+                    cccd: cccdKhachHang,
+                    maPhuongXa: maPhuongXa,
+                    diaChiSoNha: diaChiSoNha
+                };
+
+                // Gửi request đến API
+                const response = await fetch(`${apiBaseUrl}/KhachHang`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(khachHangData)
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Lỗi thêm khách hàng: ${errorText}`);
+                }
+
+                // Đóng modal và reset form
+                const modal = bootstrap.Modal.getInstance(document.getElementById('themKhachHangModal'));
+                document.getElementById('themKhachHangForm').reset();
+                modal.hide();
+
+                // Tải lại danh sách khách hàng
+                loadDanhSachKhachHang();
+
+                alert('Thêm khách hàng thành công!');
+
+            } catch (error) {
+                console.error('Lỗi:', error);
+                alert(`Lỗi: ${error.message}`);
+            }
+        }
+
+        // Xóa khách hàng
+        async function xoaKhachHang(maKhachHang) {
+            if (!confirm('Bạn có chắc chắn muốn xóa khách hàng này?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${apiBaseUrl}/KhachHang/${maKhachHang}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(errorText || 'Không thể xóa khách hàng');
+                }
+
+                // Tải lại danh sách
+                loadDanhSachKhachHang();
+                alert('Xóa khách hàng thành công!');
+
+            } catch (error) {
+                console.error('Lỗi xóa khách hàng:', error);
+                // Hiển thị thông báo lỗi chi tiết
+                if (error.message.includes('đã có đơn hàng')) {
+                    alert('Không thể xóa khách hàng đã có đơn hàng.');
+                } else {
+                    alert(`Lỗi: ${error.message}`);
+                }
+            }
+        }
+
+        // Event listeners khi document đã sẵn sàng
+        document.addEventListener('DOMContentLoaded', function () {
+            // Thêm event listeners cho modal thêm khách hàng
+            document.getElementById('themKhachHangModal').addEventListener('show.bs.modal', function () {
+                // Reset form
+                document.getElementById('themKhachHangForm').reset();
+
+                // Load tỉnh/thành phố
+                loadTinhThanhPhoKhachHang();
+            });
+        });
+
 
         /* QUẢN LÝ ĐƠN HÀNG */
         function loadQuanLyDonHang() {
@@ -1960,53 +2235,53 @@
 
             const mainContent = document.getElementById('mainContent');
             mainContent.innerHTML = `
-                                    <div class="card shadow mb-4">
-                                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                                            <h6 class="m-0 font-weight-bold text-primary">Danh sách đơn hàng</h6>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="row mb-3">
-                                                <div class="col-md-4">
-                                                    <div class="input-group">
-                                                        <input type="text" class="form-control" id="searchDonHang" placeholder="Tìm kiếm đơn hàng...">
-                                                        <button class="btn btn-primary" type="button" id="btnSearchDonHang">
-                                                            <i class="fas fa-search"></i>
-                                                        </button>
+                                                    <div class="card shadow mb-4">
+                                                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                                                            <h6 class="m-0 font-weight-bold text-primary">Danh sách đơn hàng</h6>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <div class="row mb-3">
+                                                                <div class="col-md-4">
+                                                                    <div class="input-group">
+                                                                        <input type="text" class="form-control" id="searchDonHang" placeholder="Tìm kiếm đơn hàng...">
+                                                                        <button class="btn btn-primary" type="button" id="btnSearchDonHang">
+                                                                            <i class="fas fa-search"></i>
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-3">
+                                                                    <select class="form-select" id="filterTrangThai">
+                                                                        <option value="">Tất cả trạng thái</option>
+                                                                        <option value="Mới">Mới</option>
+                                                                        <option value="Đang vận chuyển">Đang vận chuyển</option>
+                                                                        <option value="Đã giao">Đã giao</option>
+                                                                        <option value="Đã hủy">Đã hủy</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                            <div class="table-responsive">
+                                                                <table class="table table-bordered" width="100%" cellspacing="0">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th width="5%">#</th>
+                                                                            <th width="15%">Mã đơn hàng</th>
+                                                                            <th width="15%">Mã vận đơn</th>
+                                                                            <th width="15%">Khách hàng</th>
+                                                                            <th width="10%">Ngày gửi</th>
+                                                                            <th width="10%">Trạng thái</th>
+                                                                            <th width="15%">Thao tác</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody id="donHangTableBody">
+                                                                        <tr>
+                                                                            <td colspan="7" class="text-center">Đang tải dữ liệu...</td>
+                                                                        </tr>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                                <div class="col-md-3">
-                                                    <select class="form-select" id="filterTrangThai">
-                                                        <option value="">Tất cả trạng thái</option>
-                                                        <option value="Mới">Mới</option>
-                                                        <option value="Đang vận chuyển">Đang vận chuyển</option>
-                                                        <option value="Đã giao">Đã giao</option>
-                                                        <option value="Đã hủy">Đã hủy</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="table-responsive">
-                                                <table class="table table-bordered" width="100%" cellspacing="0">
-                                                    <thead>
-                                                        <tr>
-                                                            <th width="5%">#</th>
-                                                            <th width="15%">Mã đơn hàng</th>
-                                                            <th width="15%">Mã vận đơn</th>
-                                                            <th width="15%">Khách hàng</th>
-                                                            <th width="10%">Ngày gửi</th>
-                                                            <th width="10%">Trạng thái</th>
-                                                            <th width="15%">Thao tác</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody id="donHangTableBody">
-                                                        <tr>
-                                                            <td colspan="7" class="text-center">Đang tải dữ liệu...</td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                `;
+                                                `;
 
             loadDanhSachDonHang();
         }
@@ -2017,15 +2292,15 @@
 
             const mainContent = document.getElementById('mainContent');
             mainContent.innerHTML = `
-                                    <div class="card shadow mb-4">
-                                        <div class="card-header py-3">
-                                            <h6 class="m-0 font-weight-bold text-primary">Thống kê doanh thu</h6>
-                                        </div>
-                                        <div class="card-body">
-                                            <p>Chức năng đang được phát triển...</p>
-                                        </div>
-                                    </div>
-                                `;
+                                                    <div class="card shadow mb-4">
+                                                        <div class="card-header py-3">
+                                                            <h6 class="m-0 font-weight-bold text-primary">Thống kê doanh thu</h6>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <p>Chức năng đang được phát triển...</p>
+                                                        </div>
+                                                    </div>
+                                                `;
         }
 
         /* HELPER FUNCTIONS */
@@ -2060,5 +2335,157 @@
             }
         }
     </script>
+    <!-- Modal Them Khach Hang -->
+    <div class="modal fade" id="themKhachHangModal" tabindex="-1" aria-labelledby="themKhachHangModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <!-- Thay đổi kích thước modal từ mặc định thành large -->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="themKhachHangModalLabel">Thêm khách hàng</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="themKhachHangForm">
+                        <div class="mb-3">
+                            <label for="tenKhachHang" class="form-label">Họ tên <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="tenKhachHang" required>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="sdtKhachHang" class="form-label">Số điện thoại <span class="text-danger">*</span></label>
+                                <input type="tel" class="form-control" id="sdtKhachHang" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="emailKhachHang" class="form-label">Email <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="emailKhachHang" required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="matKhauKhachHang" class="form-label">Mật khẩu</label>
+                                <input type="password" class="form-control" id="matKhauKhachHang" placeholder="Mặc định: 123456">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="cccdKhachHang" class="form-label">CCCD</label>
+                                <input type="text" class="form-control" id="cccdKhachHang">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="ngaySinhKhachHang" class="form-label">Ngày sinh</label>
+                            <input type="date" class="form-control" id="ngaySinhKhachHang">
+                        </div>
+
+                        <hr>
+                        <h6 class="mb-3">Địa chỉ <span class="text-danger">*</span></h6>
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="tinhTPKhachHang" class="form-label">Tỉnh/Thành phố <span class="text-danger">*</span></label>
+                                <select class="form-select" id="tinhTPKhachHang" required onchange="loadQuanHuyenKhachHang()">
+                                    <option value="">-- Chọn Tỉnh/TP --</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="quanHuyenKhachHang" class="form-label">Quận/Huyện <span class="text-danger">*</span></label>
+                                <select class="form-select" id="quanHuyenKhachHang" required onchange="loadPhuongXaKhachHang()" disabled>
+                                    <option value="">-- Chọn Quận/Huyện --</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="phuongXaKhachHang" class="form-label">Phường/Xã <span class="text-danger">*</span></label>
+                                <select class="form-select" id="phuongXaKhachHang" required disabled>
+                                    <option value="">-- Chọn Phường/Xã --</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="diaChiKhachHang" class="form-label">Số nhà, đường <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="diaChiKhachHang" rows="2" required placeholder="Nhập số nhà, tên đường..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" onclick="themKhachHang()">Thêm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modal Sua Khach Hang -->
+    <div class="modal fade" id="suaKhachHangModal" tabindex="-1" aria-labelledby="suaKhachHangModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="suaKhachHangModalLabel">Chỉnh sửa thông tin khách hàng</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="suaKhachHangForm">
+                        <input type="hidden" id="maKhachHangEdit">
+                        <div class="mb-3">
+                            <label for="tenKhachHangEdit" class="form-label">Họ tên <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="tenKhachHangEdit" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="sdtKhachHangEdit" class="form-label">Số điện thoại <span class="text-danger">*</span></label>
+                                <input type="tel" class="form-control" id="sdtKhachHangEdit" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="emailKhachHangEdit" class="form-label">Email <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="emailKhachHangEdit" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="ngaySinhKhachHangEdit" class="form-label">Ngày sinh</label>
+                                <input type="date" class="form-control" id="ngaySinhKhachHangEdit">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="cccdKhachHangEdit" class="form-label">CCCD</label>
+                                <input type="text" class="form-control" id="cccdKhachHangEdit">
+                            </div>
+                        </div>
+                        <hr>
+                        <h6 class="mb-3">Địa chỉ <span class="text-danger">*</span></h6>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="tinhTPKhachHangEdit" class="form-label">Tỉnh/Thành phố <span class="text-danger">*</span></label>
+                                <select class="form-select" id="tinhTPKhachHangEdit" required onchange="loadQuanHuyenKhachHangEdit()">
+                                    <option value="">-- Chọn Tỉnh/TP --</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="quanHuyenKhachHangEdit" class="form-label">Quận/Huyện <span class="text-danger">*</span></label>
+                                <select class="form-select" id="quanHuyenKhachHangEdit" required onchange="loadPhuongXaKhachHangEdit()" disabled>
+                                    <option value="">-- Chọn Quận/Huyện --</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="phuongXaKhachHangEdit" class="form-label">Phường/Xã <span class="text-danger">*</span></label>
+                                <select class="form-select" id="phuongXaKhachHangEdit" required disabled>
+                                    <option value="">-- Chọn Phường/Xã --</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="diaChiKhachHangEdit" class="form-label">Số nhà, đường <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="diaChiKhachHangEdit" rows="2" required placeholder="Nhập số nhà, tên đường..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" onclick="capNhatKhachHang()">Lưu thay đổi</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

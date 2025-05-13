@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Nhom3_CongTyVanChuyen.Data
 {
@@ -11,7 +12,6 @@ namespace Nhom3_CongTyVanChuyen.Data
         public string MaKhachHang { get; set; }
 
         public string MaSoNha { get; set; }
-
         public string TenKhachHang { get; set; }
         public string SDT { get; set; }
         public string Email { get; set; }
