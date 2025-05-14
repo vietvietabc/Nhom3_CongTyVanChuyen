@@ -85,6 +85,14 @@
                     const data = await response.json();
                     console.log('Login success:', data);
 
+                    // Lưu thông tin người dùng vào localStorage
+                    localStorage.setItem('userInfo', JSON.stringify({
+                        maNhanVien: data.maNhanVien,
+                        tenNhanVien: data.tenNhanVien,
+                        email: data.email,
+                        maVaiTro: data.maVaiTro
+                    }));
+
                     // Chuyển trang theo vai trò
                     switch (data.maVaiTro) {
                         case 'ADMIN':
@@ -102,7 +110,7 @@
                         default:
                             alert('Không xác định vai trò!');
                             break;
-                    }
+                    }   
                 } else {
                     const err = await response.json();
                     document.getElementById('errorMsg').textContent = err.message || 'Sai email hoặc mật khẩu!';

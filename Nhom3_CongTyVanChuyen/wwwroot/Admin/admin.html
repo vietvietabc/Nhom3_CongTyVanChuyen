@@ -306,7 +306,7 @@
             <li>
                 <a href="#" onclick="loadQuanLyDonHang()">
                     <i class="fas fa-fw fa-file-invoice me-2"></i>
-                    Quản lý đơn hàng
+                    Xem danh sách đơn hàng
                 </a>
             </li>
             <li>
@@ -690,73 +690,78 @@
 
             const mainContent = document.getElementById('mainContent');
             mainContent.innerHTML = `
-                                                    <div class="row">
+                                                   <div class="row">
                                                         <div class="col-xl-3 col-md-6 mb-4">
-                                                            <div class="card border-0 shadow h-100 py-2 stat-card stat-card-primary">
-                                                                <div class="card-body">
-                                                                    <div class="row no-gutters align-items-center">
-                                                                        <div class="col mr-2">
-                                                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                                                                Tổng đơn hàng</div>
-                                                                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="tongDonHang">0</div>
-                                                                        </div>
-                                                                        <div class="col-auto">
-                                                                            <i class="fas fa-calendar fa-2x text-gray-300 stat-icon"></i>
+                                                            <a href="#" onclick="loadQuanLyDonHang()" style="text-decoration:none;">
+                                                                <div class="card border-0 shadow h-100 py-2 stat-card stat-card-primary">
+                                                                    <div class="card-body">
+                                                                        <div class="row no-gutters align-items-center">
+                                                                            <div class="col mr-2">
+                                                                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                                                    Tổng đơn hàng</div>
+                                                                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="tongDonHang">0</div>
+                                                                            </div>
+                                                                            <div class="col-auto">
+                                                                                <i class="fas fa-calendar fa-2x text-gray-300 stat-icon"></i>
+                                                                            </div>
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                            </div>
+                                                            </a>
                                                         </div>
-
                                                         <div class="col-xl-3 col-md-6 mb-4">
-                                                            <div class="card border-0 shadow h-100 py-2 stat-card stat-card-success">
-                                                                <div class="card-body">
-                                                                    <div class="row no-gutters align-items-center">
-                                                                        <div class="col mr-2">
-                                                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                                                                Tổng hàng hóa</div>
-                                                                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="tongSanPham">0</div>
-                                                                        </div>
-                                                                        <div class="col-auto">
-                                                                            <i class="fas fa-box fa-2x text-gray-300 stat-icon"></i>
+                                                            <a href="#" onclick="loadQuanLyHangHoa()" style="text-decoration:none;">
+                                                                <div class="card border-0 shadow h-100 py-2 stat-card stat-card-success">
+                                                                    <div class="card-body">
+                                                                        <div class="row no-gutters align-items-center">
+                                                                            <div class="col mr-2">
+                                                                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                                                                    Tổng hàng hóa</div>
+                                                                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="tongSanPham">0</div>
+                                                                            </div>
+                                                                            <div class="col-auto">
+                                                                                <i class="fas fa-box fa-2x text-gray-300 stat-icon"></i>
+                                                                            </div>
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                            </div>
+                                                            </a>
                                                         </div>
-
                                                         <div class="col-xl-3 col-md-6 mb-4">
-                                                            <div class="card border-0 shadow h-100 py-2 stat-card stat-card-info">
-                                                                <div class="card-body">
-                                                                    <div class="row no-gutters align-items-center">
-                                                                        <div class="col mr-2">
-                                                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                                                                Tổng nhân viên</div>
-                                                                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="tongNhanVien">0</div>
-                                                                        </div>
-                                                                        <div class="col-auto">
-                                                                            <i class="fas fa-users fa-2x text-gray-300 stat-icon"></i>
+                                                            <a href="#" onclick="loadQuanLyNhanVien()" style="text-decoration:none;">
+                                                                <div class="card border-0 shadow h-100 py-2 stat-card stat-card-info">
+                                                                    <div class="card-body">
+                                                                        <div class="row no-gutters align-items-center">
+                                                                            <div class="col mr-2">
+                                                                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                                                                    Tổng nhân viên</div>
+                                                                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="tongNhanVien">0</div>
+                                                                            </div>
+                                                                            <div class="col-auto">
+                                                                                <i class="fas fa-users fa-2x text-gray-300 stat-icon"></i>
+                                                                            </div>
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                            </div>
+                                                            </a>
                                                         </div>
-
                                                         <div class="col-xl-3 col-md-6 mb-4">
-                                                            <div class="card border-0 shadow h-100 py-2 stat-card stat-card-warning">
-                                                                <div class="card-body">
-                                                                    <div class="row no-gutters align-items-center">
-                                                                        <div class="col mr-2">
-                                                                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                                                                Tổng khách hàng</div>
-                                                                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="tongKhachHang">0</div>
-                                                                        </div>
-                                                                        <div class="col-auto">
-                                                                            <i class="fas fa-user-friends fa-2x text-gray-300 stat-icon"></i>
+                                                            <a href="#" onclick="loadQuanLyKhachHang()" style="text-decoration:none;">
+                                                                <div class="card border-0 shadow h-100 py-2 stat-card stat-card-warning">
+                                                                    <div class="card-body">
+                                                                        <div class="row no-gutters align-items-center">
+                                                                            <div class="col mr-2">
+                                                                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                                                                    Tổng khách hàng</div>
+                                                                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="tongKhachHang">0</div>
+                                                                            </div>
+                                                                            <div class="col-auto">
+                                                                                <i class="fas fa-user-friends fa-2x text-gray-300 stat-icon"></i>
+                                                                            </div>
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                            </div>
+                                                            </a>
                                                         </div>
                                                     </div>
 
@@ -791,7 +796,7 @@
                                                         <div class="col-lg-6">
                                                             <div class="card shadow mb-4">
                                                                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                                                                    <h6 class="m-0 font-weight-bold text-primary">Sản phẩm phổ biến</h6>
+                                                                    <h6 class="m-0 font-weight-bold text-primary">Phí dịch vụ từng mặt hàng</h6>
                                                                 </div>
                                                                 <div class="card-body">
                                                                     <div class="table-responsive">
@@ -1122,7 +1127,7 @@
                                                             <div class="row mb-3">
                                                                 <div class="col-md-6">
                                                                     <div class="input-group">
-                                                                        <input type="text" class="form-control" id="searchHangHoa" placeholder="Tìm kiếm sản phẩm...">
+                                                                        <input type="text" class="form-control" id="searchHangHoa" placeholder="Tìm kiếm hàng hóa...">
                                                                         <button class="btn btn-primary" type="button" id="btnSearchHangHoa">
                                                                             <i class="fas fa-search"></i>
                                                                         </button>
@@ -1488,6 +1493,7 @@
             });
 
         }
+
         // Load danh sách tỉnh/thành phố khi mở modal thêm nhân viên
         document.getElementById('themNhanVienModal').addEventListener('show.bs.modal', function () {
             loadTinhThanhPho();
@@ -1777,14 +1783,16 @@
                 document.getElementById('diaChiNhanVienEdit').value = nhanVien.diaChiSoNha || '';
                 document.getElementById('cccdNhanVienEdit').value = nhanVien.cccd || '';
 
-                // Load địa chỉ từ API
+                // Load tỉnh/thành phố
                 await loadTinhThanhPho('Edit');
                 document.getElementById('tinhTPNhanVienEdit').value = nhanVien.maTinhTP;
 
-                await loadQuanHuyenEdit();
+                // Load quận/huyện theo tỉnh đã chọn, rồi set giá trị
+                await loadQuanHuyen('Edit');
                 document.getElementById('quanHuyenNhanVienEdit').value = nhanVien.maQuanHuyen;
 
-                await loadPhuongXaEdit();
+                // Load phường/xã theo quận đã chọn, rồi set giá trị
+                await loadPhuongXa('Edit');
                 document.getElementById('phuongXaNhanVienEdit').value = nhanVien.maPhuongXa;
 
                 // Hiển thị modal
@@ -1795,6 +1803,7 @@
                 alert(error.message);
             }
         }
+
 
         // Hàm cập nhật thông tin nhân viên
         async function capNhatNhanVien() {
@@ -2215,6 +2224,167 @@
                 }
             }
         }
+        // Hàm mở modal sửa khách hàng và load dữ liệu
+        async function suaKhachHang(maKhachHang) {
+            try {
+                // Lấy thông tin khách hàng từ API
+                const response = await fetch(`${apiBaseUrl}/KhachHang/${maKhachHang}`);
+                if (!response.ok) throw new Error('Không thể tải thông tin khách hàng');
+
+                const kh = await response.json();
+
+                // Điền dữ liệu vào form
+                document.getElementById('maKhachHangEdit').value = kh.maKhachHang;
+                document.getElementById('tenKhachHangEdit').value = kh.tenKhachHang || '';
+                document.getElementById('sdtKhachHangEdit').value = kh.sdt || '';
+                document.getElementById('emailKhachHangEdit').value = kh.email || '';
+                document.getElementById('ngaySinhKhachHangEdit').value = kh.ngaySinh ? kh.ngaySinh.split('T')[0] : '';
+                document.getElementById('cccdKhachHangEdit').value = kh.cccd || '';
+                document.getElementById('diaChiKhachHangEdit').value = kh.diaChiSoNha || '';
+
+                // Load tỉnh/thành phố
+                await loadTinhThanhPhoKhachHangEdit();
+                document.getElementById('tinhTPKhachHangEdit').value = kh.maTinhTP || '';
+
+                // Load quận/huyện
+                await loadQuanHuyenKhachHangEdit();
+                document.getElementById('quanHuyenKhachHangEdit').value = kh.maQuanHuyen || '';
+
+                // Load phường/xã
+                await loadPhuongXaKhachHangEdit();
+                document.getElementById('phuongXaKhachHangEdit').value = kh.maPhuongXa || '';
+
+                // Hiển thị modal
+                const modal = new bootstrap.Modal(document.getElementById('suaKhachHangModal'));
+                modal.show();
+            } catch (error) {
+                alert('Lỗi: ' + error.message);
+            }
+        }
+
+        // Các hàm load địa chỉ cho modal sửa
+        async function loadTinhThanhPhoKhachHangEdit() {
+            try {
+                const response = await fetch(`${apiBaseUrl}/DiaChi/TinhThanhPho`);
+                if (!response.ok) throw new Error('Không thể tải danh sách tỉnh/thành phố');
+                const data = await response.json();
+                const select = document.getElementById('tinhTPKhachHangEdit');
+                while (select.options.length > 1) select.remove(1);
+                data.forEach(tinh => {
+                    const option = document.createElement('option');
+                    option.value = tinh.maTinhTP;
+                    option.textContent = tinh.tenTinhTP;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                // Xử lý lỗi nếu cần
+            }
+        }
+        async function loadQuanHuyenKhachHangEdit() {
+            try {
+                const maTinhTP = document.getElementById('tinhTPKhachHangEdit').value;
+                const select = document.getElementById('quanHuyenKhachHangEdit');
+                if (!maTinhTP) {
+                    select.disabled = true;
+                    select.innerHTML = '<option value="">-- Chọn Quận/Huyện --</option>';
+                    return;
+                }
+                const response = await fetch(`${apiBaseUrl}/DiaChi/QuanHuyen?maTinhTP=${maTinhTP}`);
+                if (!response.ok) throw new Error('Không thể tải danh sách quận/huyện');
+                const data = await response.json();
+                select.disabled = false;
+                select.innerHTML = '<option value="">-- Chọn Quận/Huyện --</option>';
+                data.forEach(qh => {
+                    const option = document.createElement('option');
+                    option.value = qh.maQuanHuyen;
+                    option.textContent = qh.tenQuanHuyen;
+                    select.appendChild(option);
+                });
+            } catch (error) { }
+        }
+        async function loadPhuongXaKhachHangEdit() {
+            try {
+                const maQuanHuyen = document.getElementById('quanHuyenKhachHangEdit').value;
+                const select = document.getElementById('phuongXaKhachHangEdit');
+                if (!maQuanHuyen) {
+                    select.disabled = true;
+                    select.innerHTML = '<option value="">-- Chọn Phường/Xã --</option>';
+                    return;
+                }
+                const response = await fetch(`${apiBaseUrl}/DiaChi/PhuongXa?maQuanHuyen=${maQuanHuyen}`);
+                if (!response.ok) throw new Error('Không thể tải danh sách phường/xã');
+                const data = await response.json();
+                select.disabled = false;
+                select.innerHTML = '<option value="">-- Chọn Phường/Xã --</option>';
+                data.forEach(px => {
+                    const option = document.createElement('option');
+                    option.value = px.maPhuongXa;
+                    option.textContent = px.tenPhuongXa;
+                    select.appendChild(option);
+                });
+            } catch (error) { }
+        }
+
+        // Hàm cập nhật thông tin khách hàng
+        async function capNhatKhachHang() {
+            // Lấy dữ liệu từ form
+            const maKhachHang = document.getElementById('maKhachHangEdit').value;
+            const tenKhachHang = document.getElementById('tenKhachHangEdit').value;
+            const sdt = document.getElementById('sdtKhachHangEdit').value;
+            const email = document.getElementById('emailKhachHangEdit').value;
+            const ngaySinh = document.getElementById('ngaySinhKhachHangEdit').value;
+            const cccd = document.getElementById('cccdKhachHangEdit').value;
+            const maPhuongXa = document.getElementById('phuongXaKhachHangEdit').value;
+            const diaChiSoNha = document.getElementById('diaChiKhachHangEdit').value;
+
+            // Kiểm tra dữ liệu bắt buộc
+            if (!tenKhachHang || !sdt || !email || !maPhuongXa || !diaChiSoNha) {
+                alert('Vui lòng nhập đầy đủ thông tin bắt buộc');
+                return;
+            }
+
+            try {
+                // Chuẩn bị dữ liệu gửi lên API
+                const khachHangData = {
+                    maKhachHang: maKhachHang,
+                    tenKhachHang: tenKhachHang,
+                    sdt: sdt,
+                    email: email,
+                    ngaySinh: ngaySinh || null,
+                    cccd: cccd || null,
+                    maPhuongXa: maPhuongXa,
+                    diaChiSoNha: diaChiSoNha
+                };
+
+                // Gửi request PUT đến API
+                const response = await fetch(`${apiBaseUrl}/KhachHang/${maKhachHang}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(khachHangData)
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error('Cập nhật khách hàng thất bại: ' + errorText);
+                }
+
+                // Đóng modal và làm mới danh sách
+                const modal = bootstrap.Modal.getInstance(document.getElementById('suaKhachHangModal'));
+                modal.hide();
+                loadDanhSachKhachHang();
+                alert('Cập nhật khách hàng thành công!');
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+
+
+        // Gắn onchange cho dropdown địa chỉ trong modal sửa
+        document.getElementById('tinhTPKhachHangEdit').addEventListener('change', loadQuanHuyenKhachHangEdit);
+        document.getElementById('quanHuyenKhachHangEdit').addEventListener('change', loadPhuongXaKhachHangEdit);
+
 
         // Event listeners khi document đã sẵn sàng
         document.addEventListener('DOMContentLoaded', function () {
@@ -2229,9 +2399,9 @@
         });
 
 
-        /* QUẢN LÝ ĐƠN HÀNG */
+        /* Xem danh sách ĐƠN HÀNG */
         function loadQuanLyDonHang() {
-            document.getElementById('pageTitle').innerText = 'Quản lý đơn hàng';
+            document.getElementById('pageTitle').innerText = 'Danh sách đơn hàng';
 
             const mainContent = document.getElementById('mainContent');
             mainContent.innerHTML = `
@@ -2263,18 +2433,19 @@
                                                                 <table class="table table-bordered" width="100%" cellspacing="0">
                                                                     <thead>
                                                                         <tr>
-                                                                            <th width="5%">#</th>
-                                                                            <th width="15%">Mã đơn hàng</th>
-                                                                            <th width="15%">Mã vận đơn</th>
+                                                                            <th width="5%">STT</th>
+                                                                            <th width="10%">Mã đơn hàng</th>
+                                                                            <th width="10%">Mã vận đơn</th>
                                                                             <th width="15%">Khách hàng</th>
                                                                             <th width="10%">Ngày gửi</th>
                                                                             <th width="10%">Trạng thái</th>
-                                                                            <th width="15%">Thao tác</th>
+                                                                            <th width="15%">Nhân viên giao hàng</th>
+                                                                            <th width="15%">Nhân viên điều phối</th>
                                                                         </tr>
                                                                     </thead>
                                                                     <tbody id="donHangTableBody">
                                                                         <tr>
-                                                                            <td colspan="7" class="text-center">Đang tải dữ liệu...</td>
+                                                                            <td colspan="8" class="text-center">Đang tải dữ liệu...</td>
                                                                         </tr>
                                                                     </tbody>
                                                                 </table>

@@ -11,7 +11,7 @@ namespace Nhom3_CongTyVanChuyen.Data
         [Key]
         public string MaDonHang { get; set; }
 
-        public string MaVanDon { get; set; }
+        public string? MaVanDon { get; set; }
 
         public string MaKhachHang { get; set; }
         public string MaNhanVien { get; set; }
@@ -26,14 +26,14 @@ namespace Nhom3_CongTyVanChuyen.Data
         public double PhiGiaoHang { get; set; }
         public double TienThuHo { get; set; }
         public DateTime NgayGui { get; set; }
-        public DateTime NgayNhan { get; set; }
+        public DateTime? NgayNhan { get; set; }
         public string TrangThaiDonHang { get; set; }
         public string TrangThaiThanhToan { get; set; }
-        public DateTime NgayThanhToan { get; set; }
-        public string PhuongThucThanhToan { get; set; }
-        public DateTime HanGioiTienThuHo { get; set; }
-        public string TrangThaiThuHo { get; set; }
-        public string GhiChu { get; set; }
+        public DateTime? NgayThanhToan { get; set; }
+        public string? PhuongThucThanhToan { get; set; }
+        public DateTime? HanNopTienThuHo { get; set; }
+        public string? TrangThaiThuHo { get; set; }
+        public string? GhiChu { get; set; }
 
         public ICollection<ChiTietDonHang> ChiTietDonHangs { get; set; }
     }

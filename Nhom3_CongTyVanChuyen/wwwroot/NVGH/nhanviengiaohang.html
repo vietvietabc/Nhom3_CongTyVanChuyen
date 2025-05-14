@@ -2,68 +2,1617 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Trang Quản Trị nvgh</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NVGH - Hệ thống Quản lý Giao hàng</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #eef2f3;
-            margin: 0;
-            padding: 0;
+        :root {
+            --primary: #3498db;
+            --secondary: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --light: #f8f9fa;
+            --dark: #343a40;
         }
 
-        .header {
-            background-color: #007bff;
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #f5f7fa;
+            margin: 0;
+            padding: 0;
+            color: #444;
+        }
+
+        .sidebar {
+            position: fixed;
+            height: 100vh;
+            width: 260px;
+            background: linear-gradient(135deg, #2c3e50, #34495e);
             color: white;
-            padding: 20px;
+            padding-top: 20px;
+            transition: all 0.3s;
+            z-index: 1000;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-header {
+            padding: 15px 20px;
+            background: rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
             text-align: center;
         }
 
-        .content {
-            margin: 40px auto;
-            max-width: 800px;
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.2);
-        }
-
-        button {
-            background-color: #dc3545;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-            button:hover {
-                background-color: #c82333;
+            .sidebar-header h3 {
+                font-size: 1.5rem;
+                margin: 0;
+                font-weight: 700;
             }
+
+            .sidebar-header p {
+                margin: 0;
+                font-size: 0.9rem;
+                opacity: 0.8;
+            }
+
+        .sidebar ul.components {
+            padding: 0;
+            list-style: none;
+        }
+
+        .sidebar ul li a {
+            padding: 15px 20px;
+            display: block;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+            font-size: 1rem;
+        }
+
+            .sidebar ul li a:hover, .sidebar ul li a.active {
+                background-color: rgba(255, 255, 255, 0.1);
+                border-left-color: var(--secondary);
+            }
+
+            .sidebar ul li a i {
+                margin-right: 10px;
+                width: 20px;
+                text-align: center;
+            }
+
+        .sidebar .logout {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            padding: 0 20px;
+        }
+
+            .sidebar .logout a {
+                background-color: rgba(231, 76, 60, 0.8);
+                color: white;
+                border-radius: 5px;
+                text-align: center;
+                padding: 10px;
+                display: block;
+                text-decoration: none;
+                transition: background-color 0.3s;
+            }
+
+                .sidebar .logout a:hover {
+                    background-color: rgba(231, 76, 60, 1);
+                }
+
+        .content {
+            margin-left: 260px;
+            padding: 20px;
+            width: calc(100% - 260px);
+            transition: all 0.3s;
+        }
+
+        .top-bar {
+            background-color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+            .top-bar h2 {
+                margin: 0;
+                font-size: 1.5rem;
+                font-weight: 600;
+            }
+
+            .top-bar .user-info {
+                display: flex;
+                align-items: center;
+            }
+
+                .top-bar .user-info .avatar {
+                    height: 40px;
+                    width: 40px;
+                    background-color: var(--primary);
+                    color: white;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-weight: bold;
+                    margin-right: 10px;
+                    font-size: 1.2rem;
+                }
+
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 25px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 15px 20px;
+            border-top-left-radius: 10px !important;
+            border-top-right-radius: 10px !important;
+            font-weight: 600;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+            .stats-card .icon {
+                height: 60px;
+                width: 60px;
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.5rem;
+                margin-right: 20px;
+            }
+
+            .stats-card.primary .icon {
+                background-color: rgba(52, 152, 219, 0.1);
+                color: var(--primary);
+            }
+
+            .stats-card.success .icon {
+                background-color: rgba(46, 204, 113, 0.1);
+                color: var(--secondary);
+            }
+
+            .stats-card.warning .icon {
+                background-color: rgba(243, 156, 18, 0.1);
+                color: var(--warning);
+            }
+
+            .stats-card.danger .icon {
+                background-color: rgba(231, 76, 60, 0.1);
+                color: var(--danger);
+            }
+
+            .stats-card .details h3 {
+                font-size: 1.8rem;
+                margin: 0;
+                font-weight: 700;
+            }
+
+            .stats-card .details p {
+                margin: 0;
+                color: #777;
+            }
+
+        .badge {
+            padding: 6px 12px;
+            border-radius: 30px;
+            font-weight: 500;
+            font-size: 0.8rem;
+        }
+
+        .badge-primary {
+            background-color: rgba(52, 152, 219, 0.1);
+            color: var(--primary);
+        }
+
+        .badge-success {
+            background-color: rgba(46, 204, 113, 0.1);
+            color: var(--secondary);
+        }
+
+        .badge-warning {
+            background-color: rgba(243, 156, 18, 0.1);
+            color: var(--warning);
+        }
+
+        .badge-danger {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--danger);
+        }
+
+        .order-list .order-item {
+            padding: 15px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+            .order-list .order-item:hover {
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+                transform: translateY(-3px);
+            }
+
+        .btn-custom {
+            padding: 8px 16px;
+            border-radius: 5px;
+            font-weight: 500;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .btn-primary-custom {
+            background-color: var(--primary);
+            color: white;
+        }
+
+            .btn-primary-custom:hover {
+                background-color: #2980b9;
+            }
+
+        .btn-success-custom {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+            .btn-success-custom:hover {
+                background-color: #27ae60;
+            }
+
+        .btn-warning-custom {
+            background-color: var(--warning);
+            color: white;
+        }
+
+            .btn-warning-custom:hover {
+                background-color: #d35400;
+            }
+
+        .btn-danger-custom {
+            background-color: var(--danger);
+            color: white;
+        }
+
+            .btn-danger-custom:hover {
+                background-color: #c0392b;
+            }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 991px) {
+            .sidebar {
+                margin-left: -260px;
+            }
+
+                .sidebar.active {
+                    margin-left: 0;
+                }
+
+            .content {
+                width: 100%;
+                margin-left: 0;
+            }
+
+                .content.active {
+                    margin-left: 260px;
+                    width: calc(100% - 260px);
+                }
+        }
+
+        .modal-content {
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border: none;
+        }
+
+        .modal-header {
+            background-color: var(--primary);
+            color: white;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+
+        .modal-footer {
+            border-top: 1px solid #eee;
+        }
+
+        .table {
+            width: 100%;
+            margin-bottom: 1rem;
+            color: #212529;
+            vertical-align: top;
+            border-color: #dee2e6;
+        }
+
+            .table > :not(caption) > * > * {
+                padding: 0.75rem;
+                border-bottom-width: 1px;
+                box-shadow: inset 0 0 0 9999px transparent;
+            }
+
+            .table > thead {
+                vertical-align: bottom;
+            }
+
+            .table > tbody {
+                vertical-align: inherit;
+            }
+
+        .table-hover tbody tr:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+
+        .searchbar {
+            background-color: white;
+            padding: 12px 15px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+            .searchbar input {
+                flex-grow: 1;
+                border: none;
+                outline: none;
+                padding: 0 15px;
+                font-size: 0.9rem;
+            }
+
+            .searchbar button {
+                background-color: var(--primary);
+                color: white;
+                border: none;
+                border-radius: 30px;
+                padding: 8px 15px;
+                cursor: pointer;
+                transition: all 0.3s;
+            }
+
+                .searchbar button:hover {
+                    background-color: #2980b9;
+                }
     </style>
 </head>
 <body>
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <h3>NVGH PANEL</h3>
+            <p>Hệ thống giao hàng</p>
+        </div>
+        <ul class="components">
+            <li>
+                <a href="#" class="active" onclick="loadAssignedOrders()">
+                    <i class="fas fa-list"></i> Quản lý đơn cần giao
+                </a>
+            <li>
+                <a href="#" onclick="loadUpdateOrderStatus()">
+                    <i class="fas fa-edit"></i> Cập nhật trạng thái đơn
+                </a>
+            </li>
+            <li>
+                <a href="#" onclick="loadUpdatePaymentStatus()">
+                    <i class="fas fa-credit-card"></i> Cập nhật thanh toán
+                </a>
+            </li>
 
-    <div class="header">
-        <h1>Chào mừng đến trang nvgh!</h1>
-    </div>
-
+            <li>
+                <a href="#" onclick="loadCODOrders()">
+                    <i class="fas fa-money-bill-wave"></i> Đơn hàng & Tiền thu hộ
+                </a>
+            </li>
+            <li>
+                <a href="#" onclick="loadOrderHistory()">
+                    <i class="fas fa-history"></i> Lịch sử giao hàng
+                </a>
+            </li>
+            <li>
+                <a href="#" onclick="loadPersonalIncome()">
+                    <i class="fas fa-wallet"></i> Thu nhập cá nhân
+                </a>
+            </li>
+            <li>
+                <a href="#" onclick="loadProfile()">
+                    <i class="fas fa-user"></i> Hồ sơ cá nhân
+                </a>
+            </li>
+        </ul>
+        <div class="logout">
+            <a href="#" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Đăng xuất
+            </a>
+        </div>
+    </nav>
+    <!-- Page Content -->
     <div class="content">
-        <h2>Xin chào, nvgh!</h2>
-        <p>Chúc bạn một ngày tốt lành 🌟</p>
-
-        <button onclick="logout()">Đăng xuất</button>
+        <div class="top-bar">
+            <button id="sidebarToggle" class="btn btn-link d-md-none">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h2 id="pageTitle">Đơn hàng cần giao</h2>
+            <div class="user-info">
+                <div class="avatar" id="userAvatar">NV</div>
+                <span id="userName">Nhân viên</span>
+            </div>
+        </div>
+        <div id="mainContent">
+            <!-- Nội dung sẽ được load bằng JS -->
+        </div>
     </div>
 
-    <script>
-        function logout() {
-            // Clear localStorage nếu có lưu token (ở đây không dùng, nhưng setup sẵn)
-            // localStorage.removeItem('token');
+    <!-- Modal cập nhật trạng thái -->
+    <div class="modal fade" id="updateStatusModal" tabindex="-1" aria-labelledby="updateStatusModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="updateStatusModalLabel">Cập nhật trạng thái đơn hàng</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="statusOrderId">
 
-            // Quay về trang login
-            window.location.href = '/login.html';
+                    <!-- Thông tin đơn hàng sẽ được hiển thị ở đây -->
+                    <div id="orderInfoDisplay" class="mb-3"></div>
+
+                    <div class="mb-3">
+                        <label for="statusSelect" class="form-label">Trạng thái mới</label>
+                        <select class="form-select" id="statusSelect">
+                            <option value="Đang giao">Đang giao</option>
+                            <option value="Đã giao">Đã giao</option>
+                            <option value="Khách hẹn lại ngày giao">Khách hẹn lại ngày giao</option>
+                            <option value="Khách không nhận hàng">Khách không nhận hàng</option>
+                        </select>
+                        <!-- Phần hiển thị cảnh báo -->
+                        <div id="statusWarning" style="display: none;"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="statusNote" class="form-label">Ghi chú</label>
+                        <textarea class="form-control" id="statusNote" rows="3" placeholder="Nhập ghi chú nếu có"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" id="confirmStatusUpdate">Cập nhật</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal cập nhật trạng thái đơn hàng -->
+    <div class="modal fade" id="updateStatusModal" tabindex="-1" aria-labelledby="updateStatusModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="updateStatusModalLabel">Cập nhật trạng thái đơn hàng</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="updateOrderId">
+                    <div class="mb-3">
+                        <label for="orderStatus" class="form-label">Trạng thái mới</label>
+                        <select class="form-select" id="orderStatus">
+                            <option value="Đang giao">Đang giao</option>
+                            <option value="Đã giao">Đã giao</option>
+                            <option value="Không nhận hàng">Khách không nhận hàng</option>
+                            <option value="Khách hẹn lại ngày giao">Khách hẹn lại ngày giao</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="statusNote" class="form-label">Ghi chú</label>
+                        <textarea class="form-control" id="statusNote" rows="3" placeholder="Nhập ghi chú nếu có"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" id="confirmUpdateStatus" onclick="updateOrderStatus(event)">Cập nhật</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal cập nhật thanh toán -->
+    <div class="modal fade" id="updatePaymentModal" tabindex="-1" aria-labelledby="updatePaymentModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="updatePaymentModalLabel">Cập nhật thanh toán</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="paymentOrderId">
+                    <!-- Thông tin đơn hàng sẽ được hiển thị ở đây -->
+                    <div class="mb-3">
+                        <label for="paymentStatus" class="form-label">Trạng thái thanh toán</label>
+                        <select class="form-select" id="paymentStatus">
+                            <option value="Đã thanh toán">Đã thanh toán</option>
+                            <option value="Chưa thanh toán">Chưa thanh toán</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="paymentMethod" class="form-label">Phương thức thanh toán</label>
+                        <select class="form-select" id="paymentMethod">
+                            <option value="Tiền mặt">Tiền mặt</option>
+                            <option value="Chuyển khoản">Chuyển khoản</option>
+                            <option value="COD">COD</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="paymentNote" class="form-label">Ghi chú</label>
+                        <textarea class="form-control" id="paymentNote" rows="3" placeholder="Nhập ghi chú nếu có"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-success" id="confirmUpdatePayment">Cập nhật</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap & jQuery JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Cấu hình API backend
+        const apiBaseUrl = "https://localhost:7113/api";
+        let currentUser = {};
+
+        document.addEventListener('DOMContentLoaded', function () {
+            loadUserInfo();
+            loadAssignedOrders();
+
+            document.getElementById('sidebarToggle')?.addEventListener('click', function () {
+                document.querySelector('.sidebar').classList.toggle('active');
+                document.querySelector('.content').classList.toggle('active');
+            });
+
+            document.getElementById('confirmUpdateStatus')?.addEventListener('click', updateOrderStatus);
+            document.getElementById('confirmUpdatePayment')?.addEventListener('click', updatePaymentStatus);
+        });
+
+        function loadUserInfo() {
+            const userInfo = localStorage.getItem('userInfo');
+            if (!userInfo) {
+                // Nếu chưa đăng nhập, chuyển hướng về trang đăng nhập
+                window.location.href = '/login.html'; // hoặc URL trang login của bạn
+                return;
+            }
+
+            try {
+                currentUser = JSON.parse(userInfo);
+                document.getElementById('userName').innerText = currentUser.tenNhanVien || 'Nhân viên';
+                document.getElementById('userAvatar').innerText = getUserInitials(currentUser.tenNhanVien);
+
+                // Load danh sách đơn hàng sau khi đã có thông tin người dùng
+                loadAssignedOrders();
+            } catch {
+                console.error("Lỗi khi đọc thông tin người dùng");
+                // Xử lý lỗi, có thể redirect về trang đăng nhập
+                window.location.href = '/login.html';
+            }
+        }
+        function getUserInitials(name) {
+            if (!name) return 'NV';
+            const parts = name.split(' ').filter(x => x.length > 0);
+            if (parts.length === 1) return parts[0][0].toUpperCase();
+            return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+        }
+        function setPageTitle(title) {
+            document.getElementById('pageTitle').innerText = title;
+            document.querySelectorAll('.sidebar ul.components li a').forEach(item => {
+                item.classList.remove('active');
+                if (item.innerText.trim() === title) item.classList.add('active');
+            });
+        }
+
+        // 1. Đơn hàng cần giao
+        async function loadAssignedOrders() {
+            setPageTitle('Đơn hàng cần giao');
+            document.getElementById('mainContent').innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>';
+
+            try {
+                // Đảm bảo rằng currentUser có dữ liệu
+                if (!currentUser || !currentUser.maNhanVien) {
+                    throw new Error("Chưa đăng nhập hoặc không tìm thấy mã nhân viên");
+                }
+
+                console.log("Đang tải đơn hàng cho nhân viên: " + currentUser.maNhanVien);
+
+                // Gọi API với mã nhân viên từ thông tin đăng nhập
+                const res = await fetch(`${apiBaseUrl}/NVGH/ByStatus?TrangThaiDonHang=Đã duyệt&MaNhanVien=${currentUser.maNhanVien}`);
+
+                // Kiểm tra response
+                if (!res.ok) {
+                    const errorText = await res.text();
+                    console.error("API Error:", errorText);
+                    throw new Error("Lỗi khi lấy dữ liệu từ server");
+                }
+
+                const orders = await res.json();
+                console.log("Nhận được đơn hàng:", orders);
+
+                // Cập nhật UI
+                document.getElementById('mainContent').innerHTML = `
+                        <div class="searchbar mb-3">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="searchOrderInput" placeholder="Tìm kiếm đơn hàng...">
+                            <button onclick="searchAssignedOrders()">Tìm kiếm</button>
+                        </div>
+                        <div class="order-list">
+                            ${orders.length ? orders.map(renderOrderItem).join('') : '<div class="alert alert-info">Không có đơn hàng nào</div>'}
+                        </div>
+                    `;
+
+                document.getElementById('searchOrderInput')?.addEventListener('keypress', function (e) {
+                    if (e.key === 'Enter') searchAssignedOrders();
+                });
+            } catch (error) {
+                console.error("Lỗi:", error);
+                document.getElementById('mainContent').innerHTML = `
+                        <div class="alert alert-danger">
+                            <strong>Lỗi:</strong> ${error.message || 'Không thể tải danh sách đơn hàng'}
+                        </div>
+                    `;
+            }
+        }
+        function searchAssignedOrders() {
+            const term = document.getElementById('searchOrderInput').value.trim().toLowerCase();
+            // Giả lập tìm kiếm phía client, có thể thay bằng API nếu cần
+            loadAssignedOrders(); // Đơn giản, có thể mở rộng tìm kiếm phía server
+        }
+
+        function renderOrderItem(order) {
+            // Chuyển đổi tên trường để phù hợp với dữ liệu API trả về
+            const ma = order.maDonHang || order.ma;
+            const tenKhachHang = order.tenKhachHang || '';
+            const sdtKhachHang = order.sdtKhachHang || order.khachHang?.soDienThoai || 'N/A';
+            const diaChiGiao = order.diaChiGiao || order.khachHang?.diaChi || 'N/A';
+            const ngayGui = order.ngayGui;
+            const trangThai = order.trangThaiDonHang || order.trangThai;
+
+            return `
+                    <div class="order-item row align-items-center">
+                        <div class="col-md-2 fw-bold">#${ma}</div>
+                        <div class="col-md-3">
+                            <i class="fas fa-user me-1"></i> ${tenKhachHang}<br>
+                            <small class="text-muted"><i class="fas fa-phone me-1"></i> ${sdtKhachHang}</small>
+                        </div>
+                        <div class="col-md-3">
+                            <i class="fas fa-map-marker-alt me-1"></i> ${shortenAddress(diaChiGiao)}
+                            <br><small class="text-muted"><i class="fas fa-calendar me-1"></i> ${formatDate(ngayGui)}</small>
+                        </div>
+                        <div class="col-md-2">
+                            <span class="badge ${getBadgeClass(trangThai)}">${trangThai}</span>
+                        </div>
+                    </div>
+                `;
+        }
+
+        // 2. Cập nhật trạng thái đơn
+        async function loadUpdateOrderStatus() {
+            setPageTitle('Cập nhật trạng thái đơn');
+            document.getElementById('mainContent').innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>';
+
+            try {
+                // Kiểm tra người dùng đăng nhập
+                if (!currentUser || !currentUser.maNhanVien) {
+                    console.error("Không tìm thấy thông tin người dùng");
+                    document.getElementById('mainContent').innerHTML = '<div class="alert alert-warning">Vui lòng đăng nhập lại để tiếp tục</div>';
+                    return;
+                }
+
+                console.log("Đang tải đơn hàng cho nhân viên:", currentUser.maNhanVien);
+
+                // Sử dụng endpoint GetAllOrders với MaNhanVien
+                const res = await fetch(`${apiBaseUrl}/NVGH/GetAllOrders?MaNhanVien=${currentUser.maNhanVien}`);
+
+                // Xử lý lỗi nếu có
+                if (!res.ok) {
+                    throw new Error("Lỗi khi lấy dữ liệu từ server");
+                }
+
+                // Xử lý dữ liệu thành công
+                const orders = await res.json();
+                console.log("Đơn hàng nhận được:", orders);
+
+                // Hiển thị danh sách đơn hàng
+                document.getElementById('mainContent').innerHTML = `
+                    <div class="order-list">
+                        ${orders.length ? orders.map(order => `
+                            <div class="order-item row align-items-center">
+                                <div class="col-md-2 fw-bold">#${order.ma}</div>
+                                <div class="col-md-3">
+                                    <i class="fas fa-user me-1"></i> ${order.tenKhachHang}<br>
+                                    <small class="text-muted"><i class="fas fa-phone me-1"></i> ${order.sdtKhachHang || 'N/A'}</small>
+                                </div>
+                                <div class="col-md-3">
+                                    <i class="fas fa-map-marker-alt me-1"></i> ${shortenAddress(order.diaChiGiao)}
+                                    <br><small class="text-muted"><i class="fas fa-calendar me-1"></i> ${formatDate(order.ngayGui)}</small>
+                                </div>
+                                <div class="col-md-2">
+                                    <span class="badge ${getBadgeClass(order.trangThai)}">${order.trangThai}</span>
+                                </div>
+                                <div class="col-md-2 text-end">
+                                    <button class="btn btn-sm btn-primary" onclick="openUpdateStatusModal('${order.ma}')">
+                                        <i class="fas fa-edit"></i> Cập nhật
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('') : '<div class="alert alert-info">Không có đơn hàng nào được phân công cho bạn</div>'}
+                    </div>
+                `;
+            } catch (error) {
+                console.error("Lỗi:", error);
+                document.getElementById('mainContent').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i> Lỗi: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        // 3. Cập nhật thanh toán
+        async function loadUpdatePaymentStatus() {
+            setPageTitle('Cập nhật thanh toán');
+            document.getElementById('mainContent').innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>';
+
+            try {
+                // Gọi API lấy các đơn hàng đã giao
+                const res = await fetch(`${apiBaseUrl}/NVGH/DeliveredOrders?MaNhanVien=${currentUser.maNhanVien}`);
+
+                if (!res.ok) {
+                    throw new Error("Lỗi khi lấy dữ liệu từ server");
+                }
+
+                const orders = await res.json();
+                console.log("Đơn hàng đã giao:", orders);
+
+                // Hiển thị danh sách đơn hàng
+                document.getElementById('mainContent').innerHTML = `
+                    <div class="order-list">
+                        ${orders.length ? orders.map(order => `
+                            <div class="order-item row align-items-center">
+                                <div class="col-md-2 fw-bold">#${order.ma}</div>
+                                <div class="col-md-3">
+                                    <i class="fas fa-user me-1"></i> ${order.tenKhachHang}<br>
+                                    <small class="text-muted"><i class="fas fa-phone me-1"></i> ${order.sdtKhachHang || 'N/A'}</small>
+                                </div>
+                                <div class="col-md-2">
+                                    <i class="fas fa-calendar me-1"></i> ${formatDate(order.ngayNhan || order.ngayGui)}
+                                </div>
+                                <div class="col-md-3">
+                                    <div><strong>TT thanh toán:</strong>
+                                        <span class="badge ${order.daThanhToan ? 'bg-success' : 'bg-warning'}">
+                                            ${order.trangThaiThanhToan || 'Chưa thanh toán'}
+                                        </span>
+                                    </div>
+                                    <div><small class="text-muted">Phương thức: ${order.phuongThucThanhToan || 'Chưa có'}</small></div>
+                                </div>
+                                <div class="col-md-2 text-end">
+                                    <button class="btn btn-sm btn-success" onclick="openUpdatePaymentModal('${order.ma}')">
+                                        <i class="fas fa-credit-card"></i> Cập nhật
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('') : '<div class="alert alert-info">Không có đơn nào cần cập nhật thanh toán</div>'}
+                    </div>
+                `;
+            } catch (error) {
+                console.error("Lỗi:", error);
+                document.getElementById('mainContent').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i> Lỗi: ${error.message || 'Không thể tải danh sách đơn hàng'}
+                    </div>
+                `;
+            }
+        }
+
+        // Hàm mở modal cập nhật trạng thái
+        function openUpdateStatusModal(maDonHang) {
+            // Lưu mã đơn hàng vào input hidden trong modal
+            document.getElementById('updateOrderId').value = maDonHang;
+
+            // Reset form
+            document.getElementById('orderStatus').value = 'Đang giao';
+            document.getElementById('statusNote').value = '';
+
+            // Hiển thị modal bằng Bootstrap
+            const modal = new bootstrap.Modal(document.getElementById('updateStatusModal'));
+            modal.show();
+        }
+
+        // Sửa hàm xử lý khi nhấn nút "Cập nhật" trong modal trạng thái
+        async function updateOrderStatus(event) {
+            // Ngăn chặn tải lại trang
+            if (event) event.preventDefault();
+
+            try {
+                // Lấy giá trị từ form
+                const maDonHang = document.getElementById('statusOrderId').value;
+                const trangThaiMoi = document.getElementById('statusSelect').value;
+                const ghiChu = document.getElementById('statusNote').value;
+
+                if (!maDonHang || !trangThaiMoi) {
+                    alert('Thiếu thông tin cần thiết để cập nhật!');
+                    return;
+                }
+
+                // Nút cập nhật
+                const button = document.getElementById('confirmStatusUpdate');
+                const originalText = button.innerHTML;
+
+                // Thêm hiệu ứng loading và vô hiệu hóa nút
+                button.disabled = true;
+                button.innerHTML = '<div class="spinner-border spinner-border-sm me-2" role="status"></div> Đang xử lý...';
+
+                console.log('Gửi dữ liệu:', { maDonHang, trangThaiMoi, ghiChu });
+
+                // Gọi API cập nhật trạng thái
+                const response = await fetch(`${apiBaseUrl}/NVGH/UpdateStatus`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        maDonHang: maDonHang,
+                        trangThaiMoi: trangThaiMoi,
+                        ghiChu: ghiChu
+                    })
+                });
+
+                console.log('API response status:', response.status);
+
+                // Xử lý phản hồi
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('API error response:', errorText);
+                    throw new Error(errorText || 'Lỗi khi cập nhật trạng thái');
+                }
+
+                const result = await response.json();
+                console.log('API success response:', result);
+
+                // Đóng modal
+                try {
+                    const modalElement = document.getElementById('updateStatusModal');
+                    const modal = bootstrap.Modal.getInstance(modalElement);
+                    if (modal) {
+                        modal.hide();
+                    } else {
+                        // Fallback nếu không lấy được instance
+                        $(modalElement).modal('hide');
+                    }
+                } catch (modalError) {
+                    console.warn('Không thể đóng modal:', modalError);
+                    // Fallback cách đóng modal
+                    document.querySelector('[data-bs-dismiss="modal"]').click();
+                }
+
+                // Hiển thị thông báo thành công với SweetAlert nếu có
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công!',
+                        text: 'Cập nhật trạng thái đơn hàng thành công',
+                        confirmButtonText: 'OK'
+                    });
+                } else {
+                    // Fallback về alert thông thường
+                    alert('Cập nhật trạng thái đơn hàng thành công!');
+                }
+
+                // Tải lại danh sách đơn hàng
+                setTimeout(() => {
+                    if (typeof loadUpdateOrderStatus === 'function') {
+                        loadUpdateOrderStatus();
+                    } else {
+                        // Hoặc tải lại trang hiện tại
+                        location.reload();
+                    }
+                }, 500);
+
+            } catch (error) {
+                console.error('Lỗi:', error);
+                alert('Lỗi: ' + (error.message || 'Không thể cập nhật trạng thái đơn hàng'));
+            } finally {
+                // Khôi phục nút
+                try {
+                    const button = document.getElementById('confirmStatusUpdate');
+                    if (button) {
+                        button.disabled = false;
+                        button.innerHTML = 'Cập nhật';
+                    }
+                } catch (btnError) {
+                    console.warn('Không thể khôi phục nút:', btnError);
+                }
+            }
+        }
+
+        // Đảm bảo sự kiện click được gán đúng
+        document.addEventListener('DOMContentLoaded', function () {
+            // Thêm event listener cho nút cập nhật trong modal
+            const updateStatusModal = document.getElementById('updateStatusModal');
+            if (updateStatusModal) {
+                updateStatusModal.addEventListener('shown.bs.modal', function () {
+                    const confirmBtn = document.getElementById('confirmStatusUpdate');
+                    if (confirmBtn) {
+                        // Xóa tất cả event listeners cũ
+                        const newBtn = confirmBtn.cloneNode(true);
+                        confirmBtn.parentNode.replaceChild(newBtn, confirmBtn);
+
+                        // Thêm event listener mới
+                        newBtn.addEventListener('click', updateOrderStatus);
+                    }
+                });
+            }
+        });
+
+        // Thêm hàm kiểm tra kết nối mạng
+        function checkNetworkAndDebug() {
+            // Kiểm tra kết nối mạng
+            const isOnline = navigator.onLine;
+            console.log('Trạng thái mạng:', isOnline ? 'Đang trực tuyến' : 'Đang ngoại tuyến');
+
+            // Thử ping API
+            fetch(`${apiBaseUrl}/ping`)
+                .then(response => {
+                    console.log('Ping API response:', response.status);
+                    return response.text();
+                })
+                .then(data => console.log('Ping data:', data))
+                .catch(err => console.error('Ping error:', err));
+
+            return isOnline;
+        }
+
+        // Gọi hàm kiểm tra khi cần update
+        function prepareForUpdate() {
+            const networkStatus = checkNetworkAndDebug();
+            if (!networkStatus) {
+                alert('Bạn đang offline! Vui lòng kiểm tra kết nối mạng và thử lại.');
+                return false;
+            }
+            return true;
+        }
+
+        // Sửa lại hàm mở modal để kiểm tra tình trạng mạng
+        function openUpdateStatusModal(orderId) {
+            // Kiểm tra mạng trước
+            if (!prepareForUpdate()) return;
+
+            // Tiếp tục mở modal và cập nhật dữ liệu
+            const modal = new bootstrap.Modal(document.getElementById('updateStatusModal'));
+            document.getElementById('statusOrderId').value = orderId;
+
+            // Lấy thông tin đơn hàng để hiển thị
+            fetch(`${apiBaseUrl}/NVGH/${orderId}`)
+                .then(res => res.json())
+                .then(data => {
+                    // Hiển thị thông tin đơn trong modal
+                    document.getElementById('orderInfoDisplay').innerHTML = `
+                <div class="card bg-light">
+                    <div class="card-body p-3">
+                        <h6 class="card-title">Thông tin đơn hàng: ${orderId}</h6>
+                        <p class="mb-1"><strong>Khách hàng:</strong> ${data.tenKhachHang}</p>
+                        <p class="mb-1"><strong>Trạng thái hiện tại:</strong> <span class="badge bg-secondary">${data.trangThaiDonHang}</span></p>
+                    </div>
+                </div>
+            `;
+
+                    // Chọn trạng thái hiện tại trong dropdown
+                    const statusSelect = document.getElementById('statusSelect');
+                    for (let i = 0; i < statusSelect.options.length; i++) {
+                        if (statusSelect.options[i].value === data.trangThaiDonHang) {
+                            statusSelect.selectedIndex = i;
+                            break;
+                        }
+                    }
+
+                    // Hiển thị modal
+                    modal.show();
+                })
+                .catch(error => {
+                    console.error('Lỗi khi lấy thông tin đơn hàng:', error);
+                    alert('Không thể lấy thông tin đơn hàng. Vui lòng thử lại sau.');
+                });
+        }
+
+        // Khi mở modal cập nhật trạng thái
+        document.getElementById('statusSelect').addEventListener('change', function () {
+            const selectedStatus = this.value;
+            const warningDiv = document.getElementById('statusWarning');
+
+            // Các trạng thái đặc biệt cần hiển thị cảnh báo
+            const specialStatuses = ["Khách hẹn lại ngày giao", "Đang giao", "Khách không nhận hàng"];
+
+            if (specialStatuses.includes(selectedStatus)) {
+                warningDiv.innerHTML = `
+                <div class="alert alert-warning mt-2">
+                    <i class="fas fa-exclamation-triangle"></i> Lưu ý: Khi chuyển sang trạng thái "${selectedStatus}",
+                    thông tin thanh toán sẽ được đặt lại về "Chưa thanh toán".
+                </div>
+            `;
+                warningDiv.style.display = 'block';
+            } else {
+                warningDiv.style.display = 'none';
+            }
+        });
+
+
+        // Hàm hỗ trợ để tải lại chức năng hiện tại
+        function loadCurrentFunction() {
+            // Lấy chức năng đang hiển thị dựa trên tiêu đề trang
+            const pageTitle = document.getElementById('pageTitle').textContent;
+
+            switch (pageTitle) {
+                case 'Quản lý đơn cần giao':
+                    loadAssignedOrders();
+                    break;
+                case 'Cập nhật trạng thái đơn':
+                    loadUpdateOrderStatus();
+                    break;
+                case 'Cập nhật thanh toán':
+                    loadUpdatePaymentStatus();
+                    break;
+                case 'Đơn hàng & Tiền thu hộ':
+                    loadCODOrders();
+                    break;
+                case 'Lịch sử giao hàng':
+                    loadOrderHistory();
+                    break;
+                case 'Thu nhập cá nhân':
+                    loadPersonalIncome();
+                    break;
+                default:
+                    loadAssignedOrders();
+            }
+        }
+
+        // Hàm mở modal cập nhật thanh toán
+        async function openUpdatePaymentModal(maDonHang) {
+            try {
+                // Hiển thị loading indicator
+                const modalBody = document.querySelector('#updatePaymentModal .modal-body');
+                modalBody.innerHTML = '<div class="text-center py-3"><div class="spinner-border text-primary"></div><p>Đang tải thông tin...</p></div>';
+
+                // Hiển thị modal trước để người dùng biết hệ thống đang xử lý
+                const modal = new bootstrap.Modal(document.getElementById('updatePaymentModal'));
+                modal.show();
+
+                // Gọi API
+                const res = await fetch(`${apiBaseUrl}/NVGH/${maDonHang}`);
+
+                if (!res.ok) {
+                    throw new Error(`Lỗi ${res.status}: ${res.statusText}`);
+                }
+
+                const order = await res.json();
+
+                // Cập nhật nội dung modal với dữ liệu đơn hàng
+                modalBody.innerHTML = `
+                <div class="mb-3 p-2 bg-light rounded">
+                    <div class="mb-1"><strong>Mã đơn hàng:</strong> ${maDonHang}</div>
+                    <div class="mb-1"><strong>Khách hàng:</strong> ${order.tenKhachHang}</div>
+                    ${order.tienThuHo ? `<div class="mb-1"><strong>Tiền thu hộ:</strong> ${formatCurrency(order.tienThuHo)}</div>` : ''}
+                </div>
+                <input type="hidden" id="paymentOrderId" value="${maDonHang}">
+                <div class="mb-3">
+                    <label for="paymentStatus" class="form-label">Trạng thái thanh toán</label>
+                    <select class="form-select" id="paymentStatus">
+                        <option value="Đã thanh toán" ${order.trangThaiThanhToan === 'Đã thanh toán' ? 'selected' : ''}>Đã thanh toán</option>
+                        <option value="Chưa thanh toán" ${order.trangThaiThanhToan === 'Chưa thanh toán' || !order.trangThaiThanhToan ? 'selected' : ''}>Chưa thanh toán</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="paymentMethod" class="form-label">Phương thức thanh toán</label>
+                    <select class="form-select" id="paymentMethod">
+                        <option value="Tiền mặt" ${order.phuongThucThanhToan === 'Tiền mặt' ? 'selected' : ''}>Tiền mặt</option>
+                        <option value="Chuyển khoản" ${order.phuongThucThanhToan === 'Chuyển khoản' ? 'selected' : ''}>Chuyển khoản</option>
+                        <option value="COD" ${order.phuongThucThanhToan === 'COD' ? 'selected' : ''}>COD</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="paymentNote" class="form-label">Ghi chú</label>
+                    <textarea class="form-control" id="paymentNote" rows="3" placeholder="Nhập ghi chú nếu có">${order.ghiChu || ''}</textarea>
+                </div>
+            `;
+
+            } catch (error) {
+                console.error("Lỗi:", error);
+                // Hiển thị lỗi trong modal thay vì alert
+                document.querySelector('#updatePaymentModal .modal-body').innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle"></i> ${error.message || "Không thể lấy thông tin đơn hàng"}
+                </div>
+                <div class="text-center">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            `;
+            }
+        }
+
+        // Hàm xử lý khi nhấn nút "Cập nhật" trong modal thanh toán
+        // Hàm xử lý khi nhấn nút "Cập nhật" trong modal thanh toán
+        async function updatePaymentStatus(event) {
+            // Ngăn chặn tải lại trang
+            if (event) event.preventDefault();
+
+            const maDonHang = document.getElementById('paymentOrderId').value;
+            const trangThaiThanhToan = document.getElementById('paymentStatus').value;
+            const phuongThucThanhToan = document.getElementById('paymentMethod').value;
+            const ghiChu = document.getElementById('paymentNote').value;
+
+            // Nút cập nhật
+            const button = document.getElementById('confirmUpdatePayment');
+            const originalText = button.innerHTML;
+
+            try {
+                // Thêm hiệu ứng loading
+                button.disabled = true;
+                button.innerHTML = '<div class="loading-spinner"></div> Đang xử lý...';
+
+                // Gọi API cập nhật thanh toán
+                const response = await fetch(`${apiBaseUrl}/NVGH/UpdatePayment`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        maDonHang: maDonHang,
+                        trangThaiThanhToan: trangThaiThanhToan,
+                        phuongThucThanhToan: phuongThucThanhToan,
+                        ghiChu: ghiChu
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(errorText || 'Lỗi khi cập nhật thanh toán');
+                }
+
+                // Đóng modal
+                const modalElement = document.getElementById('updatePaymentModal');
+                const modal = bootstrap.Modal.getInstance(modalElement);
+                modal.hide();
+
+                // Hiển thị thông báo thành công
+                alert('Cập nhật thanh toán đơn hàng thành công!');
+
+                // Tải lại danh sách đơn hàng
+                loadUpdatePaymentStatus();
+
+            } catch (error) {
+                console.error('Lỗi:', error);
+                alert('Lỗi: ' + (error.message || 'Không thể cập nhật thanh toán đơn hàng'));
+            } finally {
+                // Khôi phục nút
+                button.disabled = false;
+                button.innerHTML = originalText;
+            }
+        }
+
+        // 4. Đơn hàng & Tiền thu hộ (COD)
+        async function loadCODOrders() {
+            setPageTitle('Đơn hàng & Tiền thu hộ');
+            document.getElementById('mainContent').innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>';
+            try {
+                const res = await fetch(`${apiBaseUrl}/NVGH/COD?MaNhanVien=${currentUser.maNhanVien}`);
+                const orders = res.ok ? await res.json() : [];
+                let totalCOD = 0;
+                orders.forEach(o => { if (o.tienThuHo) totalCOD += o.tienThuHo; });
+                document.getElementById('mainContent').innerHTML = `
+                                    <div class="card mb-3">
+                                        <div class="card-body d-flex justify-content-between">
+                                            <div><b>Tổng số đơn COD:</b> <span class="badge bg-primary">${orders.length}</span></div>
+                                            <div><b>Tổng tiền cần thu:</b> <span class="text-danger fw-bold">${formatCurrency(totalCOD)}</span></div>
+                                        </div>
+                                    </div>
+                                    <div class="order-list">
+                                        ${orders.length ? orders.map(renderCODOrderItem).join('') : '<div class="alert alert-info">Không có đơn hàng COD nào</div>'}
+                                    </div>
+                                `;
+            } catch {
+                document.getElementById('mainContent').innerHTML = '<div class="alert alert-danger">Lỗi tải danh sách COD</div>';
+            }
+        }
+        function renderCODOrderItem(order) {
+            return `
+                                <div class="order-item row align-items-center">
+                                    <div class="col-md-2 fw-bold">#${order.ma}</div>
+                                    <div class="col-md-3">
+                                        <i class="fas fa-user me-1"></i> ${order.tenKhachHang}<br>
+                                        <small class="text-muted"><i class="fas fa-phone me-1"></i> ${order.sdtKhachHang || 'N/A'}</small>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <i class="fas fa-map-marker-alt me-1"></i> ${shortenAddress(order.diaChiGiao)}
+                                        <br><small class="text-muted"><i class="fas fa-calendar me-1"></i> ${formatDate(order.ngayGui)}</small>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <span class="badge badge-warning">${formatCurrency(order.tienThuHo || 0)}</span>
+                                    </div>
+                                    <div class="col-md-2 text-end">
+                                        <span class="badge ${order.daThanhToan ? 'badge-success' : 'badge-danger'}">${order.daThanhToan ? 'Đã nộp' : 'Chưa nộp'}</span>
+                                    </div>
+                                </div>
+                            `;
+        }
+
+
+        // 5. Lịch sử giao hàng
+        async function loadOrderHistory() {
+            setPageTitle('Lịch sử giao hàng');
+            document.getElementById('mainContent').innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>';
+            try {
+                const res = await fetch(`${apiBaseUrl}/NVGH/History?MaNhanVien=${currentUser.maNhanVien}`);
+                const orders = res.ok ? await res.json() : [];
+                document.getElementById('mainContent').innerHTML = `
+                                    <div class="card">
+                                        <div class="card-header"><b>Lịch sử đơn hàng</b></div>
+                                        <div class="card-body table-responsive">
+                                            <table class="table table-hover">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Mã đơn</th>
+                                                        <th>Khách hàng</th>
+                                                        <th>Ngày nhận</th>
+                                                        <th>Ngày giao</th>
+                                                        <th>Trạng thái</th>
+                                                        <th>Tiền thu hộ</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    ${orders.length ? orders.map(o => `
+                                                        <tr>
+                                                            <td>${o.ma}</td>
+                                                            <td>${o.tenKhachHang}</td>
+                                                            <td>${formatDate(o.ngayNhan)}</td>
+                                                            <td>${formatDate(o.ngayGiao)}</td>
+                                                            <td><span class="badge ${getBadgeClass(o.trangThai)}">${o.trangThai}</span></td>
+                                                            <td>${o.tienThuHo ? formatCurrency(o.tienThuHo) : 'Không có'}</td>
+                                                        </tr>
+                                                    `).join('') : '<tr><td colspan="6" class="text-center">Không có dữ liệu</td></tr>'}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                `;
+            } catch {
+                document.getElementById('mainContent').innerHTML = '<div class="alert alert-danger">Lỗi tải lịch sử đơn hàng</div>';
+            }
+        }
+
+        // 6. Hồ sơ cá nhân
+        async function loadProfile() {
+            setPageTitle('Hồ sơ cá nhân');
+            document.getElementById('mainContent').innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>';
+            try {
+                const res = await fetch(`${apiBaseUrl}/NhanVien/${currentUser.maNhanVien}`);
+                const profile = res.ok ? await res.json() : {};
+                document.getElementById('mainContent').innerHTML = `
+                                    <div class="card">
+                                        <div class="card-header"><b>Thông tin cá nhân</b></div>
+                                        <div class="card-body row">
+                                            <div class="col-md-3 text-center">
+                                                <div class="avatar mx-auto mb-3" style="width: 120px; height: 120px; font-size: 2.5rem;">
+                                                    ${getUserInitials(profile.tenNhanVien)}
+                                                </div>
+                                                <h5>${profile.tenNhanVien}</h5>
+                                                <p class="text-muted">Nhân viên giao hàng</p>
+                                            </div>
+                                            <div class="col-md-9">
+                                                <div class="row mb-2">
+                                                    <div class="col-md-6"><b>Mã nhân viên:</b> ${profile.maNhanVien}</div>
+                                                    <div class="col-md-6"><b>Email:</b> ${profile.email || 'Chưa cập nhật'}</div>
+                                                </div>
+                                                <div class="row mb-2">
+                                                    <div class="col-md-6"><b>Số điện thoại:</b> ${profile.sdt || 'Chưa cập nhật'}</div>
+                                                    <div class="col-md-6"><b>CCCD:</b> ${profile.cccd || 'Chưa cập nhật'}</div>
+                                                </div>
+                                                <div class="row mb-2">
+                                                    <div class="col-12"><b>Địa chỉ:</b> ${profile.diaChiChiTiet || 'Chưa cập nhật'}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+            } catch {
+                document.getElementById('mainContent').innerHTML = '<div class="alert alert-danger">Lỗi tải thông tin cá nhân</div>';
+            }
+        }
+
+        // 7. Thu nhập cá nhân
+        async function loadPersonalIncome() {
+            setPageTitle('Thu nhập cá nhân');
+            document.getElementById('mainContent').innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div><p class="mt-2">Đang tải thông tin thu nhập...</p></div>';
+
+            try {
+                // Thêm console.log để debug
+                console.log("Tải thu nhập cho:", currentUser);
+
+                // Gọi API lấy thông tin thu nhập
+                const res = await fetch(`${apiBaseUrl}/NVGH/ThuNhap?MaNhanVien=${currentUser.maNhanVien}`);
+
+                if (!res.ok) {
+                    const errorText = await res.text();
+                    console.error("API Error:", errorText);
+                    throw new Error("Lỗi khi lấy dữ liệu thu nhập");
+                }
+
+                const data = await res.json();
+                console.log("Thu nhập data:", data);
+
+                // Hiển thị cảnh báo nếu không có thu nhập
+                let warningMessage = '';
+                if (data.thongBao) {
+                    warningMessage = `
+                    <div class="alert alert-warning mb-4">
+                        <i class="fas fa-exclamation-circle"></i> ${data.thongBao}
+                    </div>
+                `;
+                }
+
+                // Hiển thị đơn chưa thanh toán nếu có
+                let pendingOrdersSection = '';
+                if (data.donChuaThanhToan && data.donChuaThanhToan.length > 0) {
+                    pendingOrdersSection = `
+                    <div class="card mb-4">
+                        <div class="card-header bg-warning text-white">
+                            <i class="fas fa-clock"></i> Đơn hàng đã giao nhưng chưa thanh toán
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted">Các đơn dưới đây cần được thanh toán để tính vào thu nhập của bạn:</p>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Mã đơn hàng</th>
+                                            <th>Ngày giao</th>
+                                            <th>Trạng thái thanh toán</th>
+                                            <th>Phí giao hàng</th>
+                                            <th>Thao tác</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${data.donChuaThanhToan.map(d => `
+                                            <tr>
+                                                <td>${d.ma}</td>
+                                                <td>${formatDate(d.ngayGiao)}</td>
+                                                <td><span class="badge bg-warning">${d.trangThaiThanhToan || 'Chưa thanh toán'}</span></td>
+                                                <td class="text-end">${formatCurrency(d.phiGiaoHang || 0)}</td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-primary" onclick="openUpdatePaymentModal('${d.ma}')">Cập nhật thanh toán</button>
+                                                </td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                }
+
+                // Hiển thị thông tin thu nhập
+                document.getElementById('mainContent').innerHTML = `
+                ${warningMessage}
+
+                <div class="row mb-4">
+                    <!-- Tổng thu nhập -->
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <h2 class="text-primary mb-0">${formatCurrency(data.tongThuNhap || 0)}</h2>
+                                <p class="text-muted">Tổng thu nhập từ phí giao hàng</p>
+                                <div class="d-flex justify-content-center">
+                                    <span class="badge bg-info me-2">
+                                        <i class="fas fa-box"></i> ${data.soDonHangDaGiao} đơn đã giao & thanh toán
+                                    </span>
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-money-bill"></i> Trung bình: ${formatCurrency(data.soDonHangDaGiao > 0 ? data.tongThuNhap / data.soDonHangDaGiao : 0)}/đơn
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="card-footer text-center text-muted">
+                                <small><i class="fas fa-info-circle"></i> Chỉ tính các đơn hàng đã giao và đã thanh toán</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Biểu đồ thu nhập theo ngày -->
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                Thu nhập 7 ngày gần đây
+                            </div>
+                            <div class="card-body">
+                                <canvas id="incomeChart" height="180"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                ${pendingOrdersSection}
+
+                <!-- Đơn hàng gần đây -->
+                <div class="card">
+                    <div class="card-header">
+                        Đơn hàng đã giao và đã thanh toán gần đây
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Mã đơn hàng</th>
+                                        <th>Ngày giao</th>
+                                        <th>Phí giao hàng</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${data.donHangGanDay && data.donHangGanDay.length ? data.donHangGanDay.map(d => `
+                                        <tr>
+                                            <td>${d.ma}</td>
+                                            <td>${formatDate(d.ngayGiao)}</td>
+                                            <td class="text-end">${formatCurrency(d.phiGiaoHang || 0)}</td>
+                                        </tr>
+                                    `).join('') : '<tr><td colspan="3" class="text-center">Chưa có đơn hàng đã giao và đã thanh toán</td></tr>'}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+                // Khởi tạo biểu đồ nếu có dữ liệu
+                if (data.thuNhapTheoNgay && data.thuNhapTheoNgay.length > 0) {
+                    renderIncomeChart(data.thuNhapTheoNgay);
+                } else {
+                    const canvas = document.getElementById('incomeChart');
+                    const ctx = canvas.getContext('2d');
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.textAlign = 'center';
+                    ctx.fillStyle = '#6c757d';
+                    ctx.font = '14px Arial';
+                    ctx.fillText('Không có dữ liệu thu nhập trong 7 ngày gần đây', canvas.width / 2, 50);
+                }
+            } catch (error) {
+                console.error("Lỗi:", error);
+                document.getElementById('mainContent').innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle"></i> Lỗi: ${error.message || 'Không thể tải thông tin thu nhập'}
+                </div>
+            `;
+            }
+        }
+
+        fetch(`${apiBaseUrl}/NVGH/KiemTraDuLieu?MaNhanVien=${currentUser.maNhanVien}`)
+            .then(res => res.json())
+            .then(data => console.log(data));
+
+        function renderIncomeChart(data) {
+            const ctx = document.getElementById('incomeChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.map(item => {
+                        const date = new Date(item.ngay);
+                        return date.getDate() + '/' + (date.getMonth() + 1);
+                    }),
+                    datasets: [{
+                        label: 'Thu nhập (VNĐ)',
+                        data: data.map(item => item.thuNhap),
+                        backgroundColor: 'rgba(52, 152, 219, 0.6)',
+                        borderColor: 'rgba(52, 152, 219, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function (value) {
+                                    return formatCurrency(value);
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    return formatCurrency(context.raw) + ' (' + data[context.dataIndex].soDon + ' đơn)';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        // Helper
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return dateString;
+            return new Intl.DateTimeFormat('vi-VN', {
+                day: '2-digit', month: '2-digit', year: 'numeric',
+                hour: '2-digit', minute: '2-digit'
+            }).format(date);
+        }
+        function formatCurrency(amount) {
+            if (amount == null || isNaN(amount)) return '0 đ';
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+        }
+        function shortenAddress(address) {
+            if (!address) return 'N/A';
+            if (address.length <= 30) return address;
+            return address.substring(0, 30) + '...';
+        }
+        function getBadgeClass(status) {
+            switch ((status || '').toLowerCase()) {
+                case 'mới': case 'chờ nhận': case 'đã nhận': return 'badge-primary';
+                case 'đang giao': return 'badge-warning';
+                case 'đã giao': return 'badge-success';
+                case 'thất bại': case 'đã hủy': case 'không nhận hàng': return 'badge-danger';
+                default: return 'badge-secondary';
+            }
+        }
+        function logout() {
+            if (confirm('Bạn có chắc chắn muốn đăng xuất?')) {
+                localStorage.removeItem('userInfo'); // Xóa thông tin người dùng
+                window.location.href = '/login.html'; // Chuyển về trang đăng nhập
+            }
         }
     </script>
-
 </body>
 </html>
