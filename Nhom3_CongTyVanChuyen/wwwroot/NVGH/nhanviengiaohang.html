@@ -1266,24 +1266,27 @@
         }
         function renderCODOrderItem(order) {
             return `
-                                <div class="order-item row align-items-center">
-                                    <div class="col-md-2 fw-bold">#${order.ma}</div>
-                                    <div class="col-md-3">
-                                        <i class="fas fa-user me-1"></i> ${order.tenKhachHang}<br>
-                                        <small class="text-muted"><i class="fas fa-phone me-1"></i> ${order.sdtKhachHang || 'N/A'}</small>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <i class="fas fa-map-marker-alt me-1"></i> ${shortenAddress(order.diaChiGiao)}
-                                        <br><small class="text-muted"><i class="fas fa-calendar me-1"></i> ${formatDate(order.ngayGui)}</small>
-                                    </div>
-                                    <div class="col-md-2">
-                                        <span class="badge badge-warning">${formatCurrency(order.tienThuHo || 0)}</span>
-                                    </div>
-                                    <div class="col-md-2 text-end">
-                                        <span class="badge ${order.daThanhToan ? 'badge-success' : 'badge-danger'}">${order.daThanhToan ? 'Đã nộp' : 'Chưa nộp'}</span>
-                                    </div>
-                                </div>
-                            `;
+        <div class="order-item row align-items-center">
+            <div class="col-md-2 fw-bold">#${order.ma}</div>
+            <div class="col-md-3">
+                <i class="fas fa-user me-1"></i> ${order.tenKhachHang}<br>
+                <small class="text-muted"><i class="fas fa-phone me-1"></i> ${order.sdtKhachHang || 'N/A'}</small>
+            </div>
+            <div class="col-md-3">
+                <i class="fas fa-map-marker-alt me-1"></i> ${shortenAddress(order.diaChiGiao)}
+                <br><small class="text-muted"><i class="fas fa-calendar me-1"></i> ${formatDate(order.ngayGui)}</small>
+            </div>
+            <div class="col-md-2">
+                <span class="badge badge-warning">${formatCurrency(order.tienThuHo || 0)}</span>
+            </div>
+            <div class="col-md-2 text-end">
+                <!-- Sửa từ daThanhToan thành daNopTien -->
+                <span class="badge ${order.daNopTien ? 'badge-success' : 'badge-danger'}">
+                    ${order.daNopTien ? 'Đã thu' : 'Chưa thu'}
+                </span>
+            </div>
+        </div>
+    `;
         }
 
 

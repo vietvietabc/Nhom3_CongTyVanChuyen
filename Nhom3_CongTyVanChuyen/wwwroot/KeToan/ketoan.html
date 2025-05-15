@@ -2,68 +2,701 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Trang Ke Toan</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Kế Toán | KTLogistics</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
     <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --bg-light: #f8f9fa;
+            --sidebar-width: 250px;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background-color: #eef2f3;
-            margin: 0;
-            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
         }
 
-        .header {
-            background-color: #007bff;
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: var(--sidebar-width);
+            background-color: var(--primary-color);
             color: white;
-            padding: 20px;
-            text-align: center;
+            padding-top: 20px;
+            z-index: 1000;
+            transition: all 0.3s;
         }
 
-        .content {
-            margin: 40px auto;
-            max-width: 800px;
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.2);
-        }
-
-        button {
-            background-color: #dc3545;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-            button:hover {
-                background-color: #c82333;
+            .sidebar .logo {
+                padding: 15px 20px;
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+                margin-bottom: 15px;
             }
+
+            .sidebar .nav-link {
+                color: rgba(255,255,255,0.7);
+                border-radius: 0;
+                padding: 12px 20px;
+                font-size: 0.95rem;
+            }
+
+                .sidebar .nav-link:hover {
+                    color: #fff;
+                    background-color: rgba(255,255,255,0.1);
+                }
+
+                .sidebar .nav-link.active {
+                    background-color: var(--secondary-color);
+                    color: white;
+                }
+
+                .sidebar .nav-link i {
+                    margin-right: 10px;
+                    width: 20px;
+                    text-align: center;
+                }
+
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 20px;
+            transition: all 0.3s;
+        }
+
+        .dashboard-card {
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+
+            .dashboard-card:hover {
+                transform: translateY(-5px);
+            }
+
+        .summary-card {
+            height: 100%;
+            border-left: 4px solid;
+        }
+
+        .card-revenue {
+            border-left-color: #2ecc71;
+        }
+
+        .card-expense {
+            border-left-color: #e74c3c;
+        }
+
+        .card-profit {
+            border-left-color: #3498db;
+        }
+
+        .card-pending {
+            border-left-color: #f39c12;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: rgba(52,152,219,0.05);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+            border: 0.15rem solid currentColor;
+            border-right-color: transparent;
+            animation: spinner-border 0.75s linear infinite;
+        }
+
+        @keyframes spinner-border {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 0;
+                padding: 0;
+                overflow: hidden;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .sidebar.active {
+                width: var(--sidebar-width);
+                padding-top: 20px;
+            }
+
+            .nav-toggler {
+                display: block !important;
+            }
+        }
+
+        .nav-toggler {
+            display: none;
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 1050;
+        }
     </style>
 </head>
 <body>
-
-    <div class="header">
-        <h1>Chào mừng đến trang ke toan!</h1>
+    <button class="btn btn-primary nav-toggler" id="sidebarToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+    <div class="sidebar" id="sidebar">
+        <div class="logo text-center">
+            <h4>KTLogistics</h4>
+            <div class="small text-muted">Hệ thống kế toán</div>
+        </div>
+        <div class="px-3 mb-3">
+            <div class="d-flex align-items-center">
+                <div class="flex-shrink-0">
+                    <img src="https://via.placeholder.com/40" class="rounded-circle" alt="User">
+                </div>
+                <div class="flex-grow-1 ms-3">
+                    <div class="fw-bold">vietvietabc</div>
+                    <div class="small text-muted">Kế toán viên</div>
+                </div>
+            </div>
+        </div>
+        <div class="mt-2">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#" onclick="loadDashboard()">
+                        <i class="fas fa-tachometer-alt"></i> Tổng quan
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="loadInvoices()">
+                        <i class="fas fa-file-invoice-dollar"></i> Hóa đơn & Thu
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="loadExpenses()">
+                        <i class="fas fa-money-bill-wave"></i> Quản lý thu hộ
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="loadCODManagement()">
+                        <i class="fas fa-cash-register"></i> Quản lý COD
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="loadEmployeePayroll()">
+                        <i class="fas fa-users"></i> Lương nhân viên
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="loadFinancialReports()">
+                        <i class="fas fa-chart-pie"></i> Báo cáo tài chính
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="loadSettings()">
+                        <i class="fas fa-cog"></i> Cài đặt
+                    </a>
+                </li>
+                <li class="nav-item mt-3">
+                    <a class="nav-link text-danger" href="#" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                    </a>
+                </li>
+            </ul>
+        </div>
     </div>
-
-    <div class="content">
-        <h2>Xin chào, ke toan!</h2>
-        <p>Chúc bạn một ngày tốt lành 🌟</p>
-
-        <button onclick="logout()">Đăng xuất</button>
+    <div class="main-content" id="mainContent">
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary"></div>
+            <p class="mt-2">Đang tải dữ liệu...</p>
+        </div>
     </div>
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function logout() {
-            // Clear localStorage nếu có lưu token (ở đây không dùng, nhưng setup sẵn)
-            // localStorage.removeItem('token');
-
-            // Quay về trang login
-            window.location.href = '/login.html';
+        const apiBaseUrl = '/api';
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
         }
-    </script>
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return new Intl.DateTimeFormat('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
+        }
+        function formatDateTime(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return new Intl.DateTimeFormat('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(date);
+        }
+        function setPageTitle(title) {
+            document.title = `${title} | KTLogistics`;
+            const headerElement = document.createElement('div');
+            headerElement.className = 'd-flex justify-content-between align-items-center mb-4';
+            headerElement.innerHTML = `
+                    <h4 class="mb-0">${title}</h4>
+                    <div class="text-muted small">
+                        <i class="far fa-calendar-alt me-1"></i> ${formatDate(new Date())}
+                    </div>
+                `;
+            return headerElement;
+        }
 
+        async function loadDashboard() {
+            const mainContent = document.getElementById('mainContent');
+            mainContent.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div><p class="mt-2">Đang tải dữ liệu tổng quan...</p></div>';
+            try {
+                const [dashboardRes, transRes] = await Promise.all([
+                    fetch(`${apiBaseUrl}/KeToan/Dashboard`),
+                    fetch(`${apiBaseUrl}/KeToan/RecentTransactions`)
+                ]);
+                if (!dashboardRes.ok || !transRes.ok) throw new Error('Lỗi API');
+                const dashboardData = await dashboardRes.json();
+                const recentTransactions = await transRes.json();
+
+                mainContent.innerHTML = '';
+                mainContent.appendChild(setPageTitle('Tổng quan kế toán'));
+
+                // Dashboard Cards
+                const dashboardCards = document.createElement('div');
+                dashboardCards.className = 'row g-4 mb-4';
+                dashboardCards.innerHTML = `
+                        <div class="col-lg-3 col-md-6">
+                            <div class="card dashboard-card h-100">
+                                <div class="card-body summary-card card-revenue">
+                                    <h5 class="card-title text-muted fw-normal">Doanh thu tháng</h5>
+                                    <h3 class="mt-3 mb-2">${formatCurrency(dashboardData.revenue)}</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <div class="card dashboard-card h-100">
+                                <div class="card-body summary-card card-expense">
+                                    <h5 class="card-title text-muted fw-normal">Chi phí tháng</h5>
+                                    <h3 class="mt-3 mb-2">${formatCurrency(dashboardData.expense)}</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <div class="card dashboard-card h-100">
+                                <div class="card-body summary-card card-profit">
+                                    <h5 class="card-title text-muted fw-normal">Lợi nhuận</h5>
+                                    <h3 class="mt-3 mb-2">${formatCurrency(dashboardData.profit)}</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <div class="card dashboard-card h-100">
+                                <div class="card-body summary-card card-pending">
+                                    <h5 class="card-title text-muted fw-normal">Chờ xử lý</h5>
+                                    <h3 class="mt-3 mb-2">${formatCurrency(dashboardData.pending)}</h3>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                mainContent.appendChild(dashboardCards);
+
+                // Charts Row (placeholder, real data needs API support)
+                const chartsRow = document.createElement('div');
+                chartsRow.className = 'row g-4 mb-4';
+                chartsRow.innerHTML = `
+                        <div class="col-lg-8">
+                            <div class="card dashboard-card h-100">
+                                <div class="card-header bg-transparent border-0">
+                                    <h5 class="card-title mb-0">Biểu đồ doanh thu và chi phí</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="chart-container">
+                                        <canvas id="revenueExpenseChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="card dashboard-card h-100">
+                                <div class="card-header bg-transparent border-0">
+                                    <h5 class="card-title mb-0">Tiền thu hộ (COD)</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="chart-container">
+                                        <canvas id="codChart"></canvas>
+                                    </div>
+                                    <div class="mt-4">
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span>Đã thu:</span>
+                                            <span class="fw-bold">${formatCurrency(dashboardData.codData.collected)}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span>Chưa thu:</span>
+                                            <span class="fw-bold">${formatCurrency(dashboardData.codData.pending)}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between border-top pt-2 mt-2">
+                                            <span>Tổng COD:</span>
+                                            <span class="fw-bold">${formatCurrency(dashboardData.codData.total)}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                mainContent.appendChild(chartsRow);
+
+                // Recent Transactions
+                const recentTransactionsDiv = document.createElement('div');
+                recentTransactionsDiv.className = 'row g-4';
+                recentTransactionsDiv.innerHTML = `
+                        <div class="col-12">
+                            <div class="card dashboard-card">
+                                <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+                                    <h5 class="card-title mb-0">Giao dịch gần đây</h5>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover align-middle mb-0">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Mã GD</th>
+                                                    <th>Ngày</th>
+                                                    <th>Mô tả</th>
+                                                    <th>Số tiền</th>
+                                                    <th>Trạng thái</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                ${recentTransactions.map(transaction => `
+                                                    <tr>
+                                                        <td><span class="fw-medium">${transaction.id}</span></td>
+                                                        <td>${formatDate(transaction.date)}</td>
+                                                        <td>${transaction.description || ''}</td>
+                                                        <td>
+                                                            <span class="${transaction.type === 'thu' ? 'text-success' : 'text-danger'}">
+                                                                ${transaction.type === 'thu' ? '+' : '-'} ${formatCurrency(transaction.amount)}
+                                                            </span>
+                                                        </td>
+                                                        <td>
+                                                            <span class="badge ${transaction.status === 'Hoàn thành' ? 'bg-success' : 'bg-warning'}">
+                                                                ${transaction.status}
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                `).join('')}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                mainContent.appendChild(recentTransactionsDiv);
+
+                // Charts (if API returns revenueByMonth/expenseByMonth, use them, else skip)
+                if (dashboardData.revenueByMonth && dashboardData.expenseByMonth) {
+                    const revenueExpenseCtx = document.getElementById('revenueExpenseChart').getContext('2d');
+                    new Chart(revenueExpenseCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5'],
+                            datasets: [
+                                {
+                                    label: 'Doanh thu',
+                                    data: dashboardData.revenueByMonth,
+                                    backgroundColor: 'rgba(46, 204, 113, 0.6)',
+                                    borderColor: '#2ecc71',
+                                    borderWidth: 1
+                                },
+                                {
+                                    label: 'Chi phí',
+                                    data: dashboardData.expenseByMonth,
+                                    backgroundColor: 'rgba(231, 76, 60, 0.6)',
+                                    borderColor: '#e74c3c',
+                                    borderWidth: 1
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        callback: function (value) {
+                                            return value / 1000000 + ' triệu';
+                                        }
+                                    }
+                                }
+                            },
+                            plugins: {
+                                tooltip: {
+                                    callbacks: {
+                                        label: function (context) {
+                                            return context.dataset.label + ': ' + formatCurrency(context.raw);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+                if (dashboardData.codData) {
+                    const codCtx = document.getElementById('codChart').getContext('2d');
+                    new Chart(codCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Đã thu', 'Chưa thu'],
+                            datasets: [{
+                                data: [dashboardData.codData.collected, dashboardData.codData.pending],
+                                backgroundColor: ['#2ecc71', '#f39c12'],
+                                borderWidth: 0
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            cutout: '70%',
+                            plugins: {
+                                legend: { position: 'bottom' },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function (context) {
+                                            const value = context.raw;
+                                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                            const percentage = Math.round((value / total) * 100);
+                                            return formatCurrency(value) + ' (' + percentage + '%)';
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error("Lỗi:", error);
+                mainContent.innerHTML = `<div class="alert alert-danger"><i class="fas fa-exclamation-triangle me-2"></i> Lỗi: Không thể tải dữ liệu tổng quan</div>`;
+            }
+        }
+
+        async function loadCODManagement() {
+            const mainContent = document.getElementById('mainContent');
+            mainContent.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div><p class="mt-2">Đang tải dữ liệu quản lý COD...</p></div>';
+            try {
+                const [codStaffRes, codTransRes] = await Promise.all([
+                    fetch(`${apiBaseUrl}/KeToan/CODByStaff`),
+                    fetch(`${apiBaseUrl}/KeToan/RecentCODTransactions`)
+                ]);
+                if (!codStaffRes.ok || !codTransRes.ok) throw new Error('Lỗi API');
+                const codStaff = await codStaffRes.json();
+                const codTrans = await codTransRes.json();
+
+                // Tổng hợp
+                const total = codStaff.reduce((sum, s) => sum + (s.totalCOD || 0), 0);
+                const collected = codStaff.reduce((sum, s) => sum + (s.collected || 0), 0);
+                const pending = codStaff.reduce((sum, s) => sum + (s.pending || 0), 0);
+
+                mainContent.innerHTML = '';
+                mainContent.appendChild(setPageTitle('Quản lý tiền thu hộ (COD)'));
+
+                // Summary cards
+                const summaryRow = document.createElement('div');
+                summaryRow.className = 'row g-4 mb-4';
+                summaryRow.innerHTML = `
+                        <div class="col-lg-3 col-md-6">
+                            <div class="card dashboard-card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title text-muted fw-normal">Tổng tiền thu hộ</h5>
+                                    <h3 class="mt-3 mb-2">${formatCurrency(total)}</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <div class="card dashboard-card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title text-muted fw-normal">Đã nộp về công ty</h5>
+                                    <h3 class="mt-3 mb-2 text-success">${formatCurrency(collected)}</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <div class="card dashboard-card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title text-muted fw-normal">Chưa nộp</h5>
+                                    <h3 class="mt-3 mb-2 text-warning">${formatCurrency(pending)}</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <div class="card dashboard-card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title text-muted fw-normal">Nhân viên giao hàng</h5>
+                                    <h3 class="mt-3 mb-2">${codStaff.length}</h3>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                mainContent.appendChild(summaryRow);
+
+                // Staff COD table
+                const staffCODRow = document.createElement('div');
+                staffCODRow.className = 'row g-4 mb-4';
+                staffCODRow.innerHTML = `
+                        <div class="col-12">
+                            <div class="card dashboard-card">
+                                <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+                                    <h5 class="card-title mb-0">Thống kê COD theo nhân viên</h5>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover align-middle mb-0">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Mã NV</th>
+                                                    <th>Tên nhân viên</th>
+                                                    <th>Tổng COD</th>
+                                                    <th>Đã nộp</th>
+                                                    <th>Chưa nộp</th>
+                                                    <th>Tỷ lệ nộp</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                ${codStaff.map(collector => `
+                                                    <tr>
+                                                        <td><span class="fw-medium">${collector.id}</span></td>
+                                                        <td>${collector.name || ''}</td>
+                                                        <td>${formatCurrency(collector.totalCOD)}</td>
+                                                        <td class="text-success fw-medium">${formatCurrency(collector.collected)}</td>
+                                                        <td class="text-warning fw-medium">${formatCurrency(collector.pending)}</td>
+                                                        <td>
+                                                            <div class="progress" style="height: 6px;">
+                                                                <div class="progress-bar bg-success" role="progressbar"
+                                                                     style="width: ${collector.totalCOD ? Math.round((collector.collected / collector.totalCOD) * 100) : 0}%;">
+                                                                </div>
+                                                            </div>
+                                                            <span class="small">${collector.totalCOD ? Math.round((collector.collected / collector.totalCOD) * 100) : 0}%</span>
+                                                        </td>
+                                                    </tr>
+                                                `).join('')}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                mainContent.appendChild(staffCODRow);
+
+                // Recent COD transactions
+                const recentCODRow = document.createElement('div');
+                recentCODRow.className = 'row g-4';
+                recentCODRow.innerHTML = `
+                        <div class="col-12">
+                            <div class="card dashboard-card">
+                                <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+                                    <h5 class="card-title mb-0">Giao dịch nộp tiền gần đây</h5>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover align-middle mb-0">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Mã giao dịch</th>
+                                                    <th>Mã ĐH</th>
+                                                    <th>Nhân viên</th>
+                                                    <th>Số tiền</th>
+                                                    <th>Thời gian</th>
+                                                    <th>Trạng thái</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                ${codTrans.map(transaction => `
+                                                    <tr>
+                                                        <td><span class="fw-medium">${transaction.id}</span></td>
+                                                        <td>${transaction.deliveryId || ''}</td>
+                                                        <td>${transaction.staff || ''}</td>
+                                                        <td class="fw-medium">${formatCurrency(transaction.amount)}</td>
+                                                        <td>${formatDateTime(transaction.date)}</td>
+                                                        <td>
+                                                            <span class="badge bg-success">${transaction.status || ''}</span>
+                                                        </td>
+                                                    </tr>
+                                                `).join('')}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                mainContent.appendChild(recentCODRow);
+
+            } catch (error) {
+                console.error("Lỗi:", error);
+                mainContent.innerHTML = `<div class="alert alert-danger"><i class="fas fa-exclamation-triangle me-2"></i> Lỗi: Không thể tải dữ liệu quản lý COD</div>`;
+            }
+        }
+
+        function loadInvoices() {
+            const mainContent = document.getElementById('mainContent');
+            mainContent.innerHTML = '';
+            mainContent.appendChild(setPageTitle('Hóa đơn & Thu'));
+            mainContent.innerHTML += `<div class="alert alert-info"><i class="fas fa-info-circle me-2"></i> Chức năng đang được phát triển. Vui lòng quay lại sau.</div>`;
+        }
+        function loadExpenses() {
+            const mainContent = document.getElementById('mainContent');
+            mainContent.innerHTML = '';
+            mainContent.appendChild(setPageTitle('Quản lý thu hộ'));
+            mainContent.innerHTML += `<div class="alert alert-info"><i class="fas fa-info-circle me-2"></i> Chức năng đang được phát triển. Vui lòng quay lại sau.</div>`;
+        }
+        function loadEmployeePayroll() {
+            const mainContent = document.getElementById('mainContent');
+            mainContent.innerHTML = '';
+            mainContent.appendChild(setPageTitle('Lương nhân viên'));
+            mainContent.innerHTML += `<div class="alert alert-info"><i class="fas fa-info-circle me-2"></i> Chức năng đang được phát triển. Vui lòng quay lại sau.</div>`;
+        }
+        function loadFinancialReports() {
+            const mainContent = document.getElementById('mainContent');
+            mainContent.innerHTML = '';
+            mainContent.appendChild(setPageTitle('Báo cáo tài chính'));
+            mainContent.innerHTML += `<div class="alert alert-info"><i class="fas fa-info-circle me-2"></i> Chức năng đang được phát triển. Vui lòng quay lại sau.</div>`;
+        }
+        function loadSettings() {
+            const mainContent = document.getElementById('mainContent');
+            mainContent.innerHTML = '';
+            mainContent.appendChild(setPageTitle('Cài đặt tài khoản'));
+            mainContent.innerHTML += `<div class="alert alert-info"><i class="fas fa-info-circle me-2"></i> Chức năng đang được phát triển. Vui lòng quay lại sau.</div>`;
+        }
+        function logout() {
+            if (confirm('Bạn có chắc chắn muốn đăng xuất không?')) {
+                alert('Bạn đã đăng xuất thành công.');
+                window.location.href = '/login.html';
+            }
+        }
+        document.getElementById('sidebarToggle').addEventListener('click', function () {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.querySelector('.main-content').classList.toggle('expanded');
+        });
+        document.querySelectorAll('.sidebar .nav-link').forEach(link => {
+            link.addEventListener('click', function () {
+                document.querySelectorAll('.sidebar .nav-link').forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        document.addEventListener('DOMContentLoaded', function () {
+            loadDashboard();
+        });
+    </script>
 </body>
 </html>
