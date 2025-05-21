@@ -28,7 +28,7 @@ namespace Nhom3_CongTyVanChuyen.Data
         public DateTime NgayGui { get; set; }
         public DateTime? NgayNhan { get; set; }
         public string TrangThaiDonHang { get; set; }
-        public string TrangThaiThanhToan { get; set; }
+        public string? TrangThaiThanhToan { get; set; }
         public DateTime? NgayThanhToan { get; set; }
         public string? PhuongThucThanhToan { get; set; }
         public DateTime? HanNopTienThuHo { get; set; }

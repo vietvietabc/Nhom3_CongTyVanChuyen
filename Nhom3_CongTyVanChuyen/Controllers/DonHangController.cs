@@ -165,7 +165,7 @@ namespace Nhom3_CongTyVanChuyen.Controllers
                             .ThenInclude(sn => sn.PhuongXa)
                                 .ThenInclude(px => px.QuanHuyen)
                                     .ThenInclude(qh => qh.TinhThanhPho)
-                .Where(dh => dh.TrangThaiDonHang == "đang giao")
+              .Where(dh => dh.TrangThaiDonHang == "Đã duyệt" || dh.TrangThaiDonHang == "trả về kho" || dh.TrangThaiDonHang == "Khách hẹn lại ngày giao")
                 .ToListAsync();
 
             var donHangs = donHangsRaw.Select(dh =>
@@ -245,23 +245,6 @@ namespace Nhom3_CongTyVanChuyen.Controllers
                 MaVanDon = donHang.MaVanDon
             });
         }
-        [HttpGet("nhanvien-giaohang")]
-
-
-        public async Task<IActionResult> GetNhanVienGiaoHang()
-        {
-            var nhanViens = await _context.NhanViens
-                .Where(nv => nv.VaiTro.TenVaiTro == "Nhân viên giao hàng")
-                .Select(nv => new
-                {
-                    nv.MaNhanVien,
-                    nv.TenNhanVien,
-                    TenQuanHuyen = nv.SoNha.PhuongXa.TenPhuongXa
-                })
-                .ToListAsync();
-
-            return Ok(nhanViens);
-        }
 
 
 
@@ -288,163 +271,18 @@ namespace Nhom3_CongTyVanChuyen.Controllers
 
 
 
-        [HttpPost("tao")]
-
-        public async Task<IActionResult> TaoDonHang([FromBody] TaoDonHangDto dto)
-        {
-            try
-            {
-                // ======= 1. Tạo địa chỉ khách hàng =======
-                var maSoNhaKH = "SN" + Guid.NewGuid().ToString("N").Substring(0, 6).ToUpper();
-                var diaChiDayDuKH = await GetDiaChiDayDu(dto.DiaChiKhachHang);
-                var soNhaKH = new SoNha
-                {
-                    MaSoNha = maSoNhaKH,
-                    DiaChiSoNha = $"{dto.DiaChiKhachHang.SoNha}, {diaChiDayDuKH}",
-                    MaPhuongXa = dto.DiaChiKhachHang.MaPhuongXa
-                };
-                _context.SoNhas.Add(soNhaKH);
-
-                // =====`== 2. Tạo địa chỉ người nhận =======
-                var maSoNhaNN = "SN" + Guid.NewGuid().ToString("N").Substring(0, 6).ToUpper();
-                var diaChiDayDuNN = await GetDiaChiDayDu(dto.DiaChiNguoiNhan);
-                var soNhaNN = new SoNha
-                {
-                    MaSoNha = maSoNhaNN,
-                    DiaChiSoNha = $"{dto.DiaChiNguoiNhan.SoNha}, {diaChiDayDuNN}",
-                    MaPhuongXa = dto.DiaChiNguoiNhan.MaPhuongXa
-                };
-                _context.SoNhas.Add(soNhaNN);
-                await _context.SaveChangesAsync();
-
-                // ======= 3. Tạo khách hàng =======
-                var khachHang = new KhachHang
-                {
-                    MaKhachHang = Guid.NewGuid().ToString(),
-                    TenKhachHang = dto.TenKhachHang,
-                    SDT = dto.SDT_KhachHang,
-                    MaSoNha = soNhaKH.MaSoNha
-                };
-
-                // ======= 4. Tạo người nhận =======
-                var nguoiNhan = new NguoiNhan
-                {
-                    MaNguoiNhan = Guid.NewGuid().ToString(),
-                    HoTen = dto.HoTenNguoiNhan,
-                    SDT = dto.SDT_NguoiNhan,
-                    MaSoNha = soNhaNN.MaSoNha
-                };
-
-                // ======= 5. Tạo mã đơn hàng tự động: DH001, DH002... =======
-                string newMaDonHang;
-                var lastOrder = await _context.DonHangs
-                    .OrderByDescending(d => d.MaDonHang)
-                    .FirstOrDefaultAsync();
-
-                if (lastOrder != null && lastOrder.MaDonHang.StartsWith("DH"))
-                {
-                    var numberPart = lastOrder.MaDonHang.Substring(2);
-                    int.TryParse(numberPart, out int lastNumber);
-                    newMaDonHang = $"DH{(lastNumber + 1):D3}";
-                }
-                else
-                {
-                    newMaDonHang = "DH001";
-                }
-
-                // ======= 6. Tạo mã vận đơn tự động: VD1, VD2... =======
-                string newMaVanDon;
-                var lastVD = await _context.DonHangs
-                    .OrderByDescending(d => d.MaVanDon)
-                    .FirstOrDefaultAsync();
-
-                if (lastVD != null && lastVD.MaVanDon != null && lastVD.MaVanDon.StartsWith("VD"))
-                {
-                    var vdNumber = lastVD.MaVanDon.Substring(2);
-                    int.TryParse(vdNumber, out int lastVDNumber);
-                    newMaVanDon = $"VD{(lastVDNumber + 1)}";
-                }
-                else
-                {
-                    newMaVanDon = "VD1";
-                }
-
-                // ======= 7. Tạo đơn hàng =======
-                var donHang = new DonHang
-                {
-                    MaDonHang = newMaDonHang,
-                    MaVanDon = newMaVanDon,
-                    TenDonHang = dto.TenDonHang,
-                    TienThuHo = dto.TienThuHo,
-                    NgayGui = dto.NgayGui,
-                    TrangThaiDonHang = "chờ duyệt",
-                    KhachHang = khachHang,
-                    //    NguoiNhans = new List<NguoiNhan> { nguoiNhan },
-                    PhiGiaoHang = 0 // hoặc tính nếu có
-                };
-
-                // ======= 8. Hàng hóa và chi tiết đơn hàng =======
-                foreach (var hangDto in dto.HangHoas)
-                {
-                    var danhMuc = await _context.DanhMucs.FindAsync(hangDto.MaDanhMuc);
-                    if (danhMuc == null)
-                        return BadRequest($"Danh mục với ID {hangDto.MaDanhMuc} không tồn tại.");
-
-                    var hangHoa = new HangHoa
-                    {
-                        MaHangHoa = Guid.NewGuid().ToString(),
-                        DonGia = hangDto.DonGia,
-                        TinhChatHangHoa = hangDto.TinhChatHangHoa,
-                        MaDanhMuc = hangDto.MaDanhMuc // Vẫn lưu bằng mã danh mục
-                    };
-
-                    var chiTiet = new ChiTietDonHang
-                    {
-                        MaChiTietDonHang = Guid.NewGuid().ToString(),
-                        DonHang = donHang,
-                        HangHoa = hangHoa,
-                        SoLuong = hangDto.SoLuong,
-                        TrongLuong = hangDto.TrongLuong,
-                        KichThuoc = hangDto.KichThuoc
-                    };
-
-                    _context.ChiTietDonHangs.Add(chiTiet);
-                }
-
-                // ======= 9. Lưu DB =======
-                _context.DonHangs.Add(donHang);
-                await _context.SaveChangesAsync();
-
-                return Ok(new
-                {
-                    message = "Tạo đơn hàng thành công!",
-                    donHang.MaDonHang,
-                    donHang.MaVanDon
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Lỗi server: {ex.Message}");
-            }
-        }
-
-        private async Task<string> GetDiaChiDayDu(DiaChiDto diaChi)
-        {
-            var xa = await _context.PhuongXas.FindAsync(diaChi.MaPhuongXa);
-            var quan = await _context.QuanHuyens.FindAsync(diaChi.MaQuanHuyen);
-            var tinh = await _context.TinhThanhPhos.FindAsync(diaChi.MaTinhThanhPho);
-
-            return $"{xa?.TenPhuongXa ?? "Chưa rõ"}, {quan?.TenQuanHuyen ?? "Chưa rõ"}, {tinh?.TenTinhTP ?? "Chưa rõ"}";
-        }
-
-
+        /// <summary>
+        /// ĐẶC BIỆT
+        /// </summary>
+        /// <returns></returns>
 
         [HttpGet("DSDonHangDacBiet")]
         public async Task<IActionResult> GetDonHangsDacBiet()
         {
-            var excludedStatuses = new[] { "đã giao", "chờ duyệt", "chờ phân công", "đang giao" };
+            var excludedStatuses = new[] { "đã giao", "chờ duyệt", "chờ phân công", "đang giao", "Đã duyệt", "trả về kho" };
 
             var donHangsRaw = await _context.DonHangs
+                  .Include(dh => dh.NhanVien)
                 .Include(dh => dh.KhachHang)
                     .ThenInclude(kh => kh.SoNha)
                         .ThenInclude(sn => sn.PhuongXa)
@@ -485,6 +323,8 @@ namespace Nhom3_CongTyVanChuyen.Controllers
                 {
                     maDonHang = dh.MaDonHang,
                     maVanDon = dh.MaVanDon,
+                    tenNhanVien = dh.NhanVien?.TenNhanVien ?? "Chưa có nhân viên",
+                    sdtNhanvien = dh.NhanVien?.SDT ?? "Chưa có SDT",
                     tenDonHang = dh.TenDonHang,
                     tenKhachHang = dh.KhachHang.TenKhachHang,
                     sdtKhachHang = dh.KhachHang.SDT,
@@ -494,18 +334,78 @@ namespace Nhom3_CongTyVanChuyen.Controllers
                     diaChiNguoiNhan = diaChiNguoiNhan,
                     phiGiaoHang = dh.PhiGiaoHang,
                     ngayGui = dh.NgayGui,
-                    trangThaiDonHang = dh.TrangThaiDonHang
+                    trangThaiDonHang = dh.TrangThaiDonHang,
+                    lydo = dh.GhiChu
                 };
             }).ToList();
 
             return Ok(donHangs);
         }
-
-
-
-        [HttpGet("GetNhanVienPhuHop/{maDonHang}")]
-        public IActionResult GetNhanVienPhuHop(string maDonHang)
+        [HttpPut("CapNhatTrangThaiTuDong")]
+        public async Task<IActionResult> CapNhatTrangThaiTuDong(string maDonHang)
         {
+            var donHang = await _context.DonHangs.FirstOrDefaultAsync(dh => dh.MaDonHang == maDonHang);
+            if (donHang == null)
+            {
+                return NotFound("Không tìm thấy đơn hàng.");
+            }
+
+            string trangThaiHienTai = donHang.TrangThaiDonHang?.ToLower();
+
+            if (trangThaiHienTai == "hoàn hàng")
+            {
+                donHang.TrangThaiDonHang = "trả về kho";
+            }
+            else if (trangThaiHienTai == "không tiếp nhận")
+            {
+                donHang.TrangThaiDonHang = "chờ phân công";
+            }
+            else
+            {
+                return BadRequest("Đơn hàng không ở trạng thái có thể cập nhật tự động.");
+            }
+
+            await _context.SaveChangesAsync();
+            return Ok(new { message = $"Cập nhật trạng thái đơn hàng {maDonHang} thành '{donHang.TrangThaiDonHang}' thành công." });
+        }
+        [HttpPut("HuyYeuCau")]
+        public async Task<IActionResult> HuyYeuCau(string maDonHang)
+        {
+            var donHang = await _context.DonHangs.FirstOrDefaultAsync(dh => dh.MaDonHang == maDonHang);
+            if (donHang == null)
+            {
+                return NotFound("Không tìm thấy đơn hàng.");
+            }
+
+            string trangThai = donHang.TrangThaiDonHang?.ToLower();
+
+            if (trangThai == "không tiếp nhận")
+            {
+                donHang.TrangThaiDonHang = "Đã duyệt";
+            }
+            else if (trangThai == "hoàn hàng")
+            {
+                donHang.TrangThaiDonHang = "Đã duyệt";
+            }
+            else
+            {
+                return BadRequest("Chỉ có thể hủy yêu cầu khi trạng thái là 'không tiếp nhận' hoặc 'hoàn hàng'.");
+            }
+
+            await _context.SaveChangesAsync();
+            return Ok(new { message = $"Đơn hàng {maDonHang} đã được cập nhật trạng thái về 'Đã duyệt'." });
+        }
+
+
+
+
+
+
+
+        [HttpGet("GetNhanVienPhuHopDiaChi/{maDonHang}")]
+        public IActionResult GetNhanVienPhuHopDiaChi(string maDonHang)
+        {
+            // Lấy đơn hàng, bao gồm KhachHang, NguoiNhan và địa chỉ người nhận (không lấy số nhà)
             var donHang = _context.DonHangs
                 .Include(d => d.KhachHang)
                     .ThenInclude(kh => kh.NguoiNhans)
@@ -520,25 +420,30 @@ namespace Nhom3_CongTyVanChuyen.Controllers
 
             var nguoiNhan = donHang.KhachHang?.NguoiNhans?.FirstOrDefault();
 
-            if (nguoiNhan?.SoNha == null || nguoiNhan.SoNha.PhuongXa == null)
+            if (nguoiNhan == null || nguoiNhan.SoNha == null || nguoiNhan.SoNha.PhuongXa == null)
                 return BadRequest("Không thể xác định địa chỉ người nhận.");
 
-            // Lấy mã địa chỉ người nhận
-            var maPhuongXa = nguoiNhan.SoNha.PhuongXa.MaPhuongXa;
-            var maQuanHuyen = nguoiNhan.SoNha.PhuongXa.QuanHuyen?.MaQuanHuyen;
-            var maTinhTP = nguoiNhan.SoNha.PhuongXa.QuanHuyen?.TinhThanhPho?.MaTinhTP;
+            var px = nguoiNhan.SoNha.PhuongXa;
+            var qh = px.QuanHuyen;
+            var tp = qh?.TinhThanhPho;
 
-            if (maQuanHuyen == null || maTinhTP == null)
+            if (qh == null || tp == null)
                 return BadRequest("Địa chỉ người nhận không đầy đủ.");
 
-            // So sánh trực tiếp các mã
+            // Mã tỉnh, quận, phường của người nhận
+            var maPhuongXa = px.MaPhuongXa;
+            var maQuanHuyen = qh.MaQuanHuyen;
+            var maTinhTP = tp.MaTinhTP;
+
+            // Lấy danh sách nhân viên giao hàng có địa chỉ phường, quận, tỉnh trùng với người nhận
             var nhanViensPhuHop = _context.NhanViens
+                .Include(nv => nv.VaiTro)
                 .Include(nv => nv.SoNha)
                     .ThenInclude(sn => sn.PhuongXa)
-                        .ThenInclude(px => px.QuanHuyen)
-                            .ThenInclude(qh => qh.TinhThanhPho)
+                        .ThenInclude(p => p.QuanHuyen)
+                            .ThenInclude(q => q.TinhThanhPho)
                 .Where(nv =>
-                    nv.VaiTro.MaVaiTro == "giao hàng" &&
+                        nv.VaiTro.TenVaiTro== "Nhân viên giao hàng" &&
                     nv.SoNha.PhuongXa.MaPhuongXa == maPhuongXa &&
                     nv.SoNha.PhuongXa.QuanHuyen.MaQuanHuyen == maQuanHuyen &&
                     nv.SoNha.PhuongXa.QuanHuyen.TinhThanhPho.MaTinhTP == maTinhTP
@@ -547,19 +452,167 @@ namespace Nhom3_CongTyVanChuyen.Controllers
                 {
                     nv.MaNhanVien,
                     nv.TenNhanVien,
+                    nv.SDT,  // số điện thoại nhân viên
                     DiaChi = nv.SoNha.DiaChiSoNha + ", " +
-                             nv.SoNha.PhuongXa.TenPhuongXa + ", " +
-                             nv.SoNha.PhuongXa.QuanHuyen.TenQuanHuyen + ", " +
-                             nv.SoNha.PhuongXa.QuanHuyen.TinhThanhPho.TenTinhTP
+                 nv.SoNha.PhuongXa.TenPhuongXa + ", " +
+                 nv.SoNha.PhuongXa.QuanHuyen.TenQuanHuyen + ", " +
+                 nv.SoNha.PhuongXa.QuanHuyen.TinhThanhPho.TenTinhTP
                 })
                 .ToList();
 
             return Ok(nhanViensPhuHop);
         }
 
+
+        [HttpGet("LocDonHangChoPhanCong")]
+        public async Task<IActionResult> LocDonHangChoPhanCong(
+       [FromQuery] string? maTinhTP,
+       [FromQuery] string? maQuanHuyen,
+       [FromQuery] string? maPhuongXa)
+        {
+            var donHangsRaw = await _context.DonHangs
+                .Include(dh => dh.KhachHang)
+                    .ThenInclude(kh => kh.SoNha)
+                        .ThenInclude(sn => sn.PhuongXa)
+                            .ThenInclude(px => px.QuanHuyen)
+                                .ThenInclude(qh => qh.TinhThanhPho)
+                .Include(dh => dh.KhachHang)
+                    .ThenInclude(kh => kh.NguoiNhans)
+                        .ThenInclude(nn => nn.SoNha)
+                            .ThenInclude(sn => sn.PhuongXa)
+                                .ThenInclude(px => px.QuanHuyen)
+                                    .ThenInclude(qh => qh.TinhThanhPho)
+                .Where(dh => dh.TrangThaiDonHang == "chờ phân công")
+                .ToListAsync();
+
+            var donHangs = donHangsRaw
+                .Where(dh =>
+                {
+                    var nguoiNhan = dh.KhachHang?.NguoiNhans?.FirstOrDefault();
+                    var phuongXa = nguoiNhan?.SoNha?.PhuongXa;
+                    var quanHuyen = phuongXa?.QuanHuyen;
+                    var tinh = quanHuyen?.TinhThanhPho;
+
+                    bool matchTinh = string.IsNullOrEmpty(maTinhTP) || tinh?.MaTinhTP == maTinhTP;
+                    bool matchQuan = string.IsNullOrEmpty(maQuanHuyen) || quanHuyen?.MaQuanHuyen == maQuanHuyen;
+                    bool matchPhuong = string.IsNullOrEmpty(maPhuongXa) || phuongXa?.MaPhuongXa == maPhuongXa;
+
+                    return matchTinh && matchQuan && matchPhuong;
+                })
+                .Select(dh =>
+                {
+                    var nguoiNhan = dh.KhachHang?.NguoiNhans?.FirstOrDefault();
+
+                    string diaChiNguoiNhan = "Không xác định";
+                    if (nguoiNhan?.SoNha?.PhuongXa?.QuanHuyen?.TinhThanhPho != null)
+                    {
+                        diaChiNguoiNhan = nguoiNhan.SoNha.DiaChiSoNha + ", " +
+                                          nguoiNhan.SoNha.PhuongXa.TenPhuongXa + ", " +
+                                          nguoiNhan.SoNha.PhuongXa.QuanHuyen.TenQuanHuyen + ", " +
+                                          nguoiNhan.SoNha.PhuongXa.QuanHuyen.TinhThanhPho.TenTinhTP;
+                    }
+
+                    string diaChiKhachHang = "Không xác định";
+                    if (dh.KhachHang?.SoNha?.PhuongXa?.QuanHuyen?.TinhThanhPho != null)
+                    {
+                        diaChiKhachHang = dh.KhachHang.SoNha.DiaChiSoNha + ", " +
+                                          dh.KhachHang.SoNha.PhuongXa.TenPhuongXa + ", " +
+                                          dh.KhachHang.SoNha.PhuongXa.QuanHuyen.TenQuanHuyen + ", " +
+                                          dh.KhachHang.SoNha.PhuongXa.QuanHuyen.TinhThanhPho.TenTinhTP;
+                    }
+
+                    return new
+                    {
+                        maDonHang = dh.MaDonHang,
+                        maVanDon = dh.MaVanDon,
+                        tenDonHang = dh.TenDonHang,
+                        tenKhachHang = dh.KhachHang?.TenKhachHang ?? "Không xác định",
+                        sdtKhachHang = dh.KhachHang?.SDT ?? "Không xác định",
+                        diaChiKhachHang = diaChiKhachHang,
+                        hoTenNguoiNhan = nguoiNhan?.HoTen ?? "Không xác định",
+                        sdtNguoiNhan = nguoiNhan?.SDT ?? "Không xác định",
+                        diaChiNguoiNhan = diaChiNguoiNhan,
+                        phiGiaoHang = dh.PhiGiaoHang,
+                        ngayGui = dh.NgayGui,
+                        trangThaiDonHang = dh.TrangThaiDonHang
+                    };
+                })
+                .ToList();
+
+            return Ok(donHangs);
+        }
+
+
+
+        [HttpGet("ThongKeDonHang")]
+        public IActionResult ThongKeDonHang(int tuThang, int denThang, int nam)
+        {
+            var thongKe = new List<object>();
+
+            for (int thang = tuThang; thang <= denThang; thang++)
+            {
+                var soDonGiao = _context.DonHangs
+                    .Where(d => d.NgayNhan.HasValue &&
+                                d.NgayNhan.Value.Month == thang &&
+                                d.NgayNhan.Value.Year == nam &&
+                                d.TrangThaiDonHang == "đã giao")
+                    .Count();
+
+                var soDonHoan = _context.DonHangs
+                    .Where(d => d.NgayNhan.HasValue &&
+                                d.NgayNhan.Value.Month == thang &&
+                                d.NgayNhan.Value.Year == nam &&
+                                d.TrangThaiDonHang == "hoàn hàng")
+                    .Count();
+
+                thongKe.Add(new
+                {
+                    thang = thang,
+                    soDonGiao = soDonGiao,
+                    soDonHoan = soDonHoan
+                });
+            }
+
+            return Ok(thongKe);
+        }
+
+        [HttpGet("GetAllKhachHangs")]
+        public async Task<ActionResult<IEnumerable<object>>> GetAllKhachHangs()
+        {
+            var khachHangs = await _context.KhachHangs
+                .Include(k => k.SoNha)
+                    .ThenInclude(s => s.PhuongXa)
+                    .ThenInclude(p => p.QuanHuyen)
+                    .ThenInclude(q => q.TinhThanhPho)
+                .Select(k => new
+                {
+                    k.MaKhachHang,
+                    k.TenKhachHang,
+                    k.SDT,
+                    k.Email,
+                    k.NgaySinh,
+                    k.CCCD,
+                    k.MaSoNha,
+                    MaTinhTP = k.SoNha.PhuongXa.QuanHuyen.TinhThanhPho.MaTinhTP,
+                    TenTinhTP = k.SoNha.PhuongXa.QuanHuyen.TinhThanhPho.TenTinhTP,
+                    MaQuanHuyen = k.SoNha.PhuongXa.QuanHuyen.MaQuanHuyen,
+                    TenQuanHuyen = k.SoNha.PhuongXa.QuanHuyen.TenQuanHuyen,
+                    MaPhuongXa = k.SoNha.PhuongXa.MaPhuongXa,
+                    TenPhuongXa = k.SoNha.PhuongXa.TenPhuongXa,
+                    DiaChiSoNha = k.SoNha.DiaChiSoNha,
+                    DiaChiChiTiet = $"{k.SoNha.DiaChiSoNha}, {k.SoNha.PhuongXa.TenPhuongXa}, {k.SoNha.PhuongXa.QuanHuyen.TenQuanHuyen}, {k.SoNha.PhuongXa.QuanHuyen.TinhThanhPho.TenTinhTP}"
+                })
+                .ToListAsync();
+
+            return Ok(khachHangs);
+        }
     }
 
 
 
-
 }
+
+
+
+
+

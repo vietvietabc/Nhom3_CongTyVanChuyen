@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Nhom3_CongTyVanChuyen.Data;
 
@@ -11,9 +12,11 @@ using Nhom3_CongTyVanChuyen.Data;
 namespace Nhom3_CongTyVanChuyen.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250521104701_b")]
+    partial class b
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -164,6 +167,7 @@ namespace Nhom3_CongTyVanChuyen.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("CCCD")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
@@ -171,6 +175,7 @@ namespace Nhom3_CongTyVanChuyen.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("MaSoNha")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("MatKhau")
@@ -463,7 +468,8 @@ namespace Nhom3_CongTyVanChuyen.Migrations
                     b.HasOne("Nhom3_CongTyVanChuyen.Data.SoNha", "SoNha")
                         .WithMany("KhachHangs")
                         .HasForeignKey("MaSoNha")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("SoNha");
                 });

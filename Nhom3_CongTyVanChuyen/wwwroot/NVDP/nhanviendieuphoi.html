@@ -448,8 +448,9 @@
                                     </div>
                                     <div class="col-md-4">
                                         <label class="form-label">Đơn giá</label>
-                                        <input type="number" class="form-control" id="DonGia" required>
+                                        <input type="number" class="form-control" id="DonGia" placeholder="Tự động điền khi chọn tính chất" required>
                                     </div>
+
                                     <div class="col-md-4">
                                         <label class="form-label">Số lượng</label>
                                         <input type="number" class="form-control" id="SoLuong" required>
@@ -479,66 +480,240 @@
             <script>
                 // Gọi khi modal hiển thị
                 document.getElementById('taoDonHangModal').addEventListener('show.bs.modal', () => {
-                    loadTinhThanhPho();
-                    loadDanhMucVaTinhChat();
+                    loadTinhThanhPho(); // Tải thông tin địa chỉ
+                    loadDanhMuc();      // Tải danh mục
+                    loadTinhChat();     // Tải tất cả tính chất
                 });
 
+                document.getElementById('selectDanhMuc').addEventListener('change', function () {
+                    const selectedDanhMuc = this.value;
+
+                    if (selectedDanhMuc && selectedDanhMuc !== 'Chọn danh mục') {
+                        loadTinhChatByDanhMuc(selectedDanhMuc);
+                    } else {
+                        loadTinhChat();
+                    }
+
+                    // Reset and enable the price field
+                    const donGiaInput = document.getElementById('DonGia');
+                    donGiaInput.value = '';
+                    donGiaInput.removeAttribute('readonly');
+                    donGiaInput.classList.remove('bg-light');
+                });
+
+
+
                 async function loadTinhThanhPho() {
-                    const res = await fetch('/api/TinhThanhPho');
-                    const data = await res.json();
-                    const options = ['<option disabled selected>Chọn tỉnh</option>']
-                        .concat(data.map(t => `<option value="${t.maTinhTP}">${t.tenTinhTP}</option>`)).join('');
-                    ['selectTinhKhachHang', 'selectTinhNguoiNhan'].forEach(id => {
-                        document.getElementById(id).innerHTML = options;
-                    });
-                    resetDropdown('selectQuanHuyenKhachHang', 'Chọn quận/huyện');
-                    resetDropdown('selectPhuongXaKhachHang', 'Chọn phường/xã');
-                    resetDropdown('selectQuanHuyenNguoiNhan', 'Chọn quận/huyện');
-                    resetDropdown('selectPhuongXaNguoiNhan', 'Chọn phường/xã');
+                    try {
+                        const res = await fetch('/api/DiaChi/TinhThanhPho');
+                        const data = await res.json();
+                        const options = ['<option disabled selected>Chọn tỉnh</option>']
+                            .concat(data.map(t => `<option value="${t.maTinhTP}">${t.tenTinhTP}</option>`)).join('');
+                        ['selectTinhKhachHang', 'selectTinhNguoiNhan'].forEach(id => {
+                            document.getElementById(id).innerHTML = options;
+                        });
+                        resetDropdown('selectQuanHuyenKhachHang', 'Chọn quận/huyện');
+                        resetDropdown('selectPhuongXaKhachHang', 'Chọn phường/xã');
+                        resetDropdown('selectQuanHuyenNguoiNhan', 'Chọn quận/huyện');
+                        resetDropdown('selectPhuongXaNguoiNhan', 'Chọn phường/xã');
+                    } catch (error) {
+                        console.error("Error loading provinces:", error);
+                        alert("Không thể tải thông tin tỉnh/thành phố");
+                    }
                 }
 
                 async function loadQuanHuyen(maTinh, quanId, phuongId) {
-                    const res = await fetch(`/api/QuanHuyen/${maTinh}`);
-                    const data = await res.json();
+                    try {
+                        const res = await fetch(`/api/DiaChi/QuanHuyen?maTinhTP=${maTinh}`);
+                        const data = await res.json();
 
-                    if (data && data.length > 0) {
-                        const options = ['<option disabled selected>Chọn quận/huyện</option>']
-                            .concat(data.map(q => `<option value="${q.maQuanHuyen}">${q.tenQuanHuyen}</option>`)).join('');
-                        document.getElementById(quanId).innerHTML = options;
-                        resetDropdown(phuongId, 'Chọn phường/xã');
-                    } else {
-                        alert('Không tìm thấy thông tin Quận/Huyện cho tỉnh này.');
-                        resetDropdown(quanId, 'Chọn quận/huyện');
-                        resetDropdown(phuongId, 'Chọn phường/xã');
+                        if (data && data.length > 0) {
+                            const options = ['<option disabled selected>Chọn quận/huyện</option>']
+                                .concat(data.map(q => `<option value="${q.maQuanHuyen}">${q.tenQuanHuyen}</option>`)).join('');
+                            document.getElementById(quanId).innerHTML = options;
+                            resetDropdown(phuongId, 'Chọn phường/xã');
+                        } else {
+                            alert('Không tìm thấy thông tin Quận/Huyện cho tỉnh này.');
+                            resetDropdown(quanId, 'Chọn quận/huyện');
+                            resetDropdown(phuongId, 'Chọn phường/xã');
+                        }
+                    } catch (error) {
+                        console.error("Error loading districts:", error);
+                        alert("Không thể tải thông tin quận/huyện");
                     }
                 }
 
                 async function loadPhuongXa(maQuan, phuongId) {
-                    const res = await fetch(`/api/PhuongXa/${maQuan}`);
-                    const data = await res.json();
+                    try {
+                        const res = await fetch(`/api/DiaChi/PhuongXa?maQuanHuyen=${maQuan}`);
+                        const data = await res.json();
 
-                    if (data && data.length > 0) {
-                        const options = ['<option disabled selected>Chọn phường/xã</option>']
-                            .concat(data.map(p => `<option value="${p.maPhuongXa}">${p.tenPhuongXa}</option>`)).join('');
-                        document.getElementById(phuongId).innerHTML = options;
-                    } else {
-                        alert('Không tìm thấy thông tin Phường/Xã cho quận này.');
-                        resetDropdown(phuongId, 'Chọn phường/xã');
+                        if (data && data.length > 0) {
+                            const options = ['<option disabled selected>Chọn phường/xã</option>']
+                                .concat(data.map(p => `<option value="${p.maPhuongXa}">${p.tenPhuongXa}</option>`)).join('');
+                            document.getElementById(phuongId).innerHTML = options;
+                        } else {
+                            alert('Không tìm thấy thông tin Phường/Xã cho quận này.');
+                            resetDropdown(phuongId, 'Chọn phường/xã');
+                        }
+                    } catch (error) {
+                        console.error("Error loading wards:", error);
+                        alert("Không thể tải thông tin phường/xã");
                     }
                 }
 
-                async function loadDanhMucVaTinhChat() {
-                    const [dm, tc] = await Promise.all([
-                        fetch('/api/danhmuc').then(res => res.json()),
-                        fetch('/api/tinhchat').then(res => res.json())
-                    ]);
-                    document.getElementById('selectDanhMuc').innerHTML =
-                        ['<option disabled selected>Chọn danh mục</option>']
-                            .concat(dm.map(d => `<option value="${d.id}">${d.name}</option>`)).join('');
-                    document.getElementById('selectTinhChat').innerHTML =
-                        ['<option disabled selected>Chọn tính chất</option>']
-                            .concat(tc.map(t => `<option value="${t.id}">${t.name}</option>`)).join('');
+                // Function to load only categories (Danh Mục)
+                async function loadDanhMuc() {
+                    try {
+                        console.log("Loading categories...");
+
+                        // Fetch categories from DanhMuc controller
+                        const response = await fetch('/api/DanhMuc');
+                        if (!response.ok) {
+                            throw new Error(`Error fetching DanhMuc: ${response.statusText}`);
+                        }
+
+                        const danhMucs = await response.json();
+                        console.log("Categories loaded:", danhMucs);
+
+                        // Populate the DanhMuc dropdown
+                        document.getElementById('selectDanhMuc').innerHTML =
+                            '<option disabled selected>Chọn danh mục</option>' +
+                            danhMucs.map(d => `<option value="${d.maDanhMuc}">${d.tenDanhMuc}</option>`).join('');
+
+                        console.log("Categories loaded successfully");
+                    } catch (error) {
+                        console.error("Error loading categories:", error);
+                        alert("Không thể tải danh mục. Chi tiết: " + error.message);
+                    }
                 }
+
+                async function loadTinhChat() {
+                    try {
+                        console.log("Loading all characteristics...");
+
+                        // Call the API endpoint to get all tính chất
+                        const response = await fetch('/api/HangHoa/TinhChat');
+                        if (!response.ok) {
+                            throw new Error(`Error fetching characteristics: ${response.statusText}`);
+                        }
+
+                        const tinhChats = await response.json();
+                        console.log("Loaded characteristics:", tinhChats);
+
+                        // Update the dropdown with all characteristics
+                        const selectElement = document.getElementById('selectTinhChat');
+                        selectElement.innerHTML = '<option disabled selected>Chọn tính chất</option>';
+
+                        if (tinhChats && tinhChats.length > 0) {
+                            tinhChats.forEach(tinhChat => {
+                                const option = document.createElement('option');
+                                option.value = tinhChat;
+                                option.textContent = tinhChat;
+                                selectElement.appendChild(option);
+                            });
+                        } else {
+                            selectElement.innerHTML = '<option disabled selected>Không có tính chất nào</option>';
+                        }
+                    } catch (error) {
+                        console.error("Error loading characteristics:", error);
+                        document.getElementById('selectTinhChat').innerHTML =
+                            '<option disabled selected>Lỗi khi tải tính chất</option>';
+                    }
+                }
+
+
+                async function loadTinhChatByDanhMuc(maDanhMuc) {
+                    try {
+                        console.log(`Loading characteristics for category ${maDanhMuc}...`);
+
+                        // Call the API to get characteristics by category
+                        const response = await fetch(`/api/HangHoa/TinhChatByDanhMuc/${maDanhMuc}`);
+                        if (!response.ok) {
+                            throw new Error(`Error fetching characteristics: ${response.statusText}`);
+                        }
+
+                        const tinhChats = await response.json();
+                        console.log(`Found ${tinhChats.length} characteristics for category ${maDanhMuc}:`, tinhChats);
+
+                        // Update dropdown with filtered values
+                        const selectElement = document.getElementById('selectTinhChat');
+                        selectElement.innerHTML = '<option disabled selected>Chọn tính chất</option>';
+
+                        if (tinhChats && tinhChats.length > 0) {
+                            tinhChats.forEach(tinhChat => {
+                                const option = document.createElement('option');
+                                option.value = tinhChat;
+                                option.textContent = tinhChat;
+                                selectElement.appendChild(option);
+                            });
+                        } else {
+                            // If no characteristics for this category
+                            selectElement.innerHTML =
+                                '<option disabled selected>Không có tính chất cho danh mục này</option>';
+                        }
+                    } catch (error) {
+                        console.error(`Error loading characteristics for category ${maDanhMuc}:`, error);
+                        document.getElementById('selectTinhChat').innerHTML =
+                            '<option disabled selected>Lỗi khi tải tính chất</option>';
+                    }
+                }
+
+                // Add event listener to the tinhChat dropdown
+                // Add event listener to the tinhChat dropdown
+                document.getElementById('selectTinhChat').addEventListener('change', async function () {
+                    const selectedDanhMuc = document.getElementById('selectDanhMuc').value;
+                    const selectedTinhChat = this.value;
+
+                    if (selectedDanhMuc && selectedTinhChat) {
+                        try {
+                            // Fetch the price for the selected combination of category and characteristic
+                            const response = await fetch(`/api/HangHoa/GetDonGia?maDanhMuc=${selectedDanhMuc}&tinhChat=${selectedTinhChat}`);
+
+                            if (!response.ok) {
+                                throw new Error(`Error fetching price: ${response.statusText}`);
+                            }
+
+                            const donGia = await response.json();
+                            console.log(`Price loaded for ${selectedTinhChat}: ${donGia}`);
+
+                            // Update the unit price field and make it readonly
+                            const donGiaInput = document.getElementById('DonGia');
+                            donGiaInput.value = donGia;
+                            donGiaInput.setAttribute('readonly', true);
+                            donGiaInput.classList.add('bg-light'); // Add light background to indicate readonly
+                        } catch (error) {
+                            console.error("Error loading price:", error);
+                            alert("Không thể tải đơn giá. Chi tiết: " + error.message);
+
+                            // Reset and enable the price field in case of error
+                            const donGiaInput = document.getElementById('DonGia');
+                            donGiaInput.value = '';
+                            donGiaInput.removeAttribute('readonly');
+                            donGiaInput.classList.remove('bg-light');
+                        }
+                    } else {
+                        // Reset and enable the price field if not all required selections are made
+                        const donGiaInput = document.getElementById('DonGia');
+                        donGiaInput.value = '';
+                        donGiaInput.removeAttribute('readonly');
+                        donGiaInput.classList.remove('bg-light');
+                    }
+                });
+
+                // Reset the price field when category changes
+                document.getElementById('selectDanhMuc').addEventListener('change', function () {
+                    const donGiaInput = document.getElementById('DonGia');
+                    donGiaInput.value = '';
+                    donGiaInput.removeAttribute('readonly');
+                    donGiaInput.classList.remove('bg-light');
+                });
+
+                document.getElementById('selectDanhMuc').addEventListener('change', function () {
+                    const selectedDanhMuc = this.value;
+                    loadTinhChatByDanhMuc(selectedDanhMuc);
+                });
+
 
                 function resetDropdown(id, placeholder) {
                     document.getElementById(id).innerHTML = `<option disabled selected>${placeholder}</option>`;
@@ -564,71 +739,90 @@
                 document.getElementById('formTaoDonHang').addEventListener('submit', async function (e) {
                     e.preventDefault();
 
-                    // Lấy giá trị của địa chỉ khách hàng
-                    const diaChiKhachHang = {
-                        soNha: getVal('SoNhaKhachHang'),
-                        maPhuongXa: getVal('selectPhuongXaKhachHang'),
-                        maQuanHuyen: getInt('selectQuanHuyenKhachHang'),
-                        maTinhThanhPho: getInt('selectTinhKhachHang')
-                    };
+                    try {
+                        // 1. Properly format the address data - convert numbers to strings
+                        const diaChiKhachHang = {
+                            soNha: getVal('SoNhaKhachHang'),
+                            maPhuongXa: getVal('selectPhuongXaKhachHang'),
+                            maQuanHuyen: String(getVal('selectQuanHuyenKhachHang')), // Convert to string
+                            maTinhThanhPho: String(getVal('selectTinhKhachHang'))    // Convert to string
+                        };
 
-                    // Lấy giá trị của địa chỉ người nhận
-                    const diaChiNguoiNhan = {
-                        soNha: getVal('SoNhaNguoiNhan'),
-                        maPhuongXa: getVal('selectPhuongXaNguoiNhan'),
-                        maQuanHuyen: getInt('selectQuanHuyenNguoiNhan'),
-                        maTinhThanhPho: getInt('selectTinhNguoiNhan')
-                    };
+                        const diaChiNguoiNhan = {
+                            soNha: getVal('SoNhaNguoiNhan'),
+                            maPhuongXa: getVal('selectPhuongXaNguoiNhan'),
+                            maQuanHuyen: String(getVal('selectQuanHuyenNguoiNhan')), // Convert to string
+                            maTinhThanhPho: String(getVal('selectTinhNguoiNhan'))    // Convert to string
+                        };
 
-                    // Kiểm tra các trường của địa chỉ khách hàng và người nhận
-                    if (!diaChiKhachHang.soNha || !diaChiKhachHang.maTinhThanhPho || !diaChiKhachHang.maQuanHuyen || !diaChiKhachHang.maPhuongXa) {
-                        alert('Địa chỉ khách hàng chưa đầy đủ thông tin! Vui lòng chọn đầy đủ thông tin tỉnh, quận, phường và số nhà.');
-                        return;
-                    }
+                        // 2. Build the correct payload structure
+                        const donHangData = {
+                            TenDonHang: getVal('TenDonHang'),
+                            TienThuHo: parseFloat(getVal('TienThuHo')),
+                            NgayGui: getVal('NgayGui'),
+                            TenKhachHang: getVal('TenKhachHang'),
+                            SDT_KhachHang: getVal('SDT_KhachHang'),
+                            DiaChiKhachHang: diaChiKhachHang,
+                            HoTenNguoiNhan: getVal('HoTenNguoiNhan'),
+                            SDT_NguoiNhan: getVal('SDT_NguoiNhan'),
+                            DiaChiNguoiNhan: diaChiNguoiNhan,
+                            HangHoas: [{
+                                MaDanhMuc: getVal('selectDanhMuc'),
+                                TinhChatHangHoa: getVal('selectTinhChat'),
+                                DonGia: parseFloat(getVal('DonGia')),
+                                SoLuong: parseInt(getVal('SoLuong')),
+                                TrongLuong: parseFloat(getVal('TrongLuong')),
+                                KichThuoc: getVal('KichThuoc')
+                            }]
+                        };
 
-                    if (!diaChiNguoiNhan.soNha || !diaChiNguoiNhan.maTinhThanhPho || !diaChiNguoiNhan.maQuanHuyen || !diaChiNguoiNhan.maPhuongXa) {
-                        alert('Địa chỉ người nhận chưa đầy đủ thông tin! Vui lòng chọn đầy đủ thông tin tỉnh, quận, phường và số nhà.');
-                        return;
-                    }
+                        console.log("Sending data:", donHangData);
 
-                    // Nếu đã có đủ thông tin, tiếp tục gửi dữ liệu đi
-                    const data = {
-                        TenDonHang: getVal('TenDonHang'),
-                        TienThuHo: getInt('TienThuHo'),
-                        NgayGui: getVal('NgayGui'),
-                        TenKhachHang: getVal('TenKhachHang'),
-                        SDT_KhachHang: getVal('SDT_KhachHang'),
-                        DiaChiKhachHang: diaChiKhachHang,
-                        HoTenNguoiNhan: getVal('HoTenNguoiNhan'),
-                        SDT_NguoiNhan: getVal('SDT_NguoiNhan'),
-                        DiaChiNguoiNhan: diaChiNguoiNhan,
-                        HangHoas: [] // Nếu có hàng hóa, lưu thông tin vào đây
-                    };
+                        // 3. Add proper logging and error handling
+                        const response = await fetch('/api/donhang/tao', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(donHangData)
+                        });
 
-                    // Gửi dữ liệu tới API
-                    const res = await fetch('/api/taodonhang', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(data)
-                    });
+                        const responseData = await response.json();
+                        console.log("Response received:", responseData);
 
-                    const result = await res.json();
-                    if (res.ok) {
-                        alert('Tạo đơn hàng thành công!');
-                        // Đóng modal hoặc reset form nếu cần
-                    } else {
-                        alert(`Lỗi: ${result.message}`);
+                        if (response.ok) {
+                            alert('Tạo đơn hàng thành công!');
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('taoDonHangModal'));
+                            modal.hide();
+
+                            if (document.getElementById("donHangsChuaDuyet").style.display === "block") {
+                                fetchDonHangsChuaDuyet();
+                            }
+                        } else {
+                            // Format error message for better readability
+                            let errorMessage = "Lỗi không xác định";
+
+                            if (responseData.errors) {
+                                errorMessage = Object.entries(responseData.errors)
+                                    .map(([key, errors]) => `${key}: ${errors.join(', ')}`)
+                                    .join('\n');
+                            } else if (responseData.message) {
+                                errorMessage = responseData.message;
+                            } else if (responseData.title) {
+                                errorMessage = responseData.title;
+                            }
+
+                            alert(`Lỗi: ${errorMessage}`);
+                            console.error("API Error:", responseData);
+                        }
+                    } catch (error) {
+                        console.error("Form submission error:", error);
+                        alert(`Lỗi: ${error.message}`);
                     }
                 });
 
 
-
             </script>
-
-
-
             <!-- PHÂN CÔNG Modal -->
             <div class="modal fade" id="phanCongModal" tabindex="-1" aria-labelledby="phanCongLabel" aria-hidden="true">
                 <div class="modal-dialog modal-lg">
@@ -640,9 +834,6 @@
                         <div class="modal-body">
                             <p><strong>Các đơn hàng đã chọn:</strong></p>
                             <ul id="selectedDonHangsList" class="list-group mb-3"></ul>
-
-
-
                             <p><strong>Chọn nhân viên giao hàng:</strong></p>
                             <table class="table table-bordered">
                                 <thead>
@@ -663,13 +854,8 @@
                 </div>
             </div>
 
-
-
-
-
             <!-- Bootstrap JS -->
             <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
             <script>
                 function toggleSidebar() {
                     const sidebar = document.getElementById("sidebar");
@@ -682,9 +868,6 @@
                     document.getElementById("donHangsDaDuyet").style.display = "none";
                     document.getElementById("donHangsDacBiet").style.display = "none";
                     document.getElementById("assign-btn").classList.add("d-none");
-
-
-
                     try {
                         const response = await fetch("https://localhost:7113/api/donhang/choduyet");
                         const donHangs = await response.json();
@@ -730,9 +913,6 @@
                     document.getElementById("donHangsDaDuyet").style.display = "none";
                     document.getElementById("donHangsDacBiet").style.display = "none";
                     document.getElementById("assign-btn").classList.add("d-none");
-
-
-
                     try {
                         const response = await fetch("https://localhost:7113/api/donhang/DSduyet");
                         const donHangs = await response.json();
@@ -761,8 +941,6 @@
                         alert("Không thể tải danh sách đơn hàng đã duyệt.");
                     }
                 }
-
-
 
                 async function duyetDonHang(maDonHang) {
                     try {
@@ -795,12 +973,7 @@
                     }
                 }
 
-
-
-
-
                 //// PHÂN CÔNG
-
                 async function fetchDonHangsDuyet() {
                     document.getElementById("donHangsDangGiao").style.display = "none";
                     document.getElementById("donHangsChuaDuyet").style.display = "none";
@@ -1166,20 +1339,22 @@
                     const modal = new bootstrap.Modal(document.getElementById("modalChiTietDonHang"));
                     modal.show();
                 }
+                // Before sending the request
+                console.log("Form data:", {
+                    tenDonHang: getVal('TenDonHang'),
+                    tienThuHo: getVal('TienThuHo'),
+                    ngayGui: getVal('NgayGui'),
+                    khachHang: getVal('TenKhachHang'),
+                    soDT: getVal('SDT_KhachHang'),
+                    danhMuc: getVal('selectDanhMuc'),
+                    tinhChat: getVal('selectTinhChat')
+                });
 
+                // After receiving the response
+                console.log("Response:", result);
 
             </script>
-
-
-
-
-
         </div>
     </div>
 </body>
 </html>
-
-
-
-
-

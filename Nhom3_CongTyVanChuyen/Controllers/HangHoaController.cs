@@ -153,6 +153,86 @@ namespace Nhom3_CongTyVanChuyen.Controllers
             return NoContent();
         }
 
+        // GET: api/HangHoa/TinhChat
+        [HttpGet("TinhChat")]
+        public async Task<ActionResult<IEnumerable<string>>> GetTinhChat()
+        {
+            try
+            {
+                // Get all unique characteristic values from the database
+                var tinhChats = await _context.HangHoas
+                    .Select(h => h.TinhChatHangHoa)
+                    .Distinct()
+                    .Where(t => !string.IsNullOrEmpty(t))
+                    .ToListAsync();
+
+                return tinhChats;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error retrieving TinhChatHangHoa: {ex.Message}");
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        // GET: api/HangHoa/TinhChatByDanhMuc/{maDanhMuc}
+        [HttpGet("TinhChatByDanhMuc/{maDanhMuc}")]
+        public async Task<ActionResult<IEnumerable<string>>> GetTinhChatByDanhMuc(string maDanhMuc)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(maDanhMuc))
+                {
+                    return BadRequest("Mã danh mục không được để trống");
+                }
+
+                // Query products with the specified category ID and get their characteristics
+                var tinhChats = await _context.HangHoas
+                    .Where(h => h.MaDanhMuc == maDanhMuc)
+                    .Select(h => h.TinhChatHangHoa)
+                    .Distinct()
+                    .Where(t => !string.IsNullOrEmpty(t))
+                    .ToListAsync();
+
+                return tinhChats;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error retrieving TinhChatByDanhMuc: {ex.Message}");
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        // GET: api/HangHoa/GetDonGia
+        [HttpGet("GetDonGia")]
+        public async Task<ActionResult<double>> GetDonGia([FromQuery] string maDanhMuc, [FromQuery] string tinhChat)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(maDanhMuc) || string.IsNullOrEmpty(tinhChat))
+                {
+                    return BadRequest("Mã danh mục và tính chất không được để trống");
+                }
+
+                // Find the product with the specified category and characteristic
+                var hangHoa = await _context.HangHoas
+                    .Where(h => h.MaDanhMuc == maDanhMuc && h.TinhChatHangHoa == tinhChat)
+                    .FirstOrDefaultAsync();
+
+                if (hangHoa == null)
+                {
+                    return NotFound($"Không tìm thấy hàng hóa cho danh mục {maDanhMuc} và tính chất {tinhChat}");
+                }
+
+                return hangHoa.DonGia;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error retrieving price: {ex.Message}");
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
         // POST: api/HangHoa
         [HttpPost]
         public async Task<ActionResult<HangHoaDto>> PostHangHoa(HangHoaCreateDto hangHoaDto)
