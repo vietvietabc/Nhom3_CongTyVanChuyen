@@ -5,10 +5,14 @@ namespace Nhom3_CongTyVanChuyen.Dtos
     public class HangHoaDto
     {
         public string MaHangHoa { get; set; }
-        public string TinhChatHangHoa { get; set; }
         public string MaDanhMuc { get; set; }
-        public string TenDanhMuc { get; set; } 
+        public string TinhChatHangHoa { get; set; }
+        public string TenDanhMuc { get; set; }
         public double DonGia { get; set; }
+        public int SoLuong { get; set; }
+        public double TrongLuong { get; set; }
+        public string KichThuoc { get; set; }
+
     }
 
     public class HangHoaCreateDto

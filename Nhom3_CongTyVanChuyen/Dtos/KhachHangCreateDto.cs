@@ -1,6 +1,5 @@
 ﻿namespace Nhom3_CongTyVanChuyen.Dtos
 {
-    // DTO cho tạo khách hàng mới
     public class KhachHangCreateDto
     {
         public string TenKhachHang { get; set; }

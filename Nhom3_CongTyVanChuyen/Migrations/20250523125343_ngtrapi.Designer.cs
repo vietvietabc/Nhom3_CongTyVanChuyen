@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Nhom3_CongTyVanChuyen.Data;
 
@@ -11,9 +12,11 @@ using Nhom3_CongTyVanChuyen.Data;
 namespace Nhom3_CongTyVanChuyen.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250523125343_ngtrapi")]
+    partial class ngtrapi
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -87,10 +90,8 @@ namespace Nhom3_CongTyVanChuyen.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("MaNguoiNhan")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("MaNhanVien")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("MaVanDon")
@@ -135,8 +136,6 @@ namespace Nhom3_CongTyVanChuyen.Migrations
 
                     b.HasIndex("MaKhachHang");
 
-                    b.HasIndex("MaNguoiNhan");
-
                     b.HasIndex("MaNhanVien");
 
                     b.ToTable("DonHang");
@@ -174,12 +173,14 @@ namespace Nhom3_CongTyVanChuyen.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("MaSoNha")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("MatKhau")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("NgaySinh")
@@ -441,18 +442,13 @@ namespace Nhom3_CongTyVanChuyen.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Nhom3_CongTyVanChuyen.Data.NguoiNhan", "NguoiNhan")
-                        .WithMany()
-                        .HasForeignKey("MaNguoiNhan");
-
                     b.HasOne("Nhom3_CongTyVanChuyen.Data.NhanVien", "NhanVien")
                         .WithMany("DonHangs")
                         .HasForeignKey("MaNhanVien")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("KhachHang");
-
-                    b.Navigation("NguoiNhan");
 
                     b.Navigation("NhanVien");
                 });

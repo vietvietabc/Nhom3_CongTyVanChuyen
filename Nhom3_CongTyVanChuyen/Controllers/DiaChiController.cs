@@ -62,5 +62,42 @@ namespace Nhom3_CongTyVanChuyen.Controllers
 
             return Ok(phuongXas);
         }
+
+        // GET: api/DiaChi/SoNhaInfo?maSoNha=...
+        [HttpGet("SoNhaInfo")]
+        public async Task<IActionResult> GetFullAddressBySoNha(string maSoNha)
+        {
+            if (string.IsNullOrEmpty(maSoNha))
+                return BadRequest("Mã số nhà không được để trống");
+
+            var soNha = await _context.SoNhas
+                .Include(s => s.PhuongXa)
+                    .ThenInclude(p => p.QuanHuyen)
+                        .ThenInclude(q => q.TinhThanhPho)
+                .FirstOrDefaultAsync(s => s.MaSoNha == maSoNha);
+
+            if (soNha == null)
+                return NotFound(new { message = "Không tìm thấy thông tin địa chỉ với mã số nhà đã cung cấp." });
+
+            var result = new
+            {
+                maSoNha = soNha.MaSoNha,
+                diaChi = soNha.DiaChiSoNha,
+                tenPhuongXa = soNha.PhuongXa?.TenPhuongXa,
+                maPhuongXa = soNha.PhuongXa?.MaPhuongXa,
+                tenQuanHuyen = soNha.PhuongXa?.QuanHuyen?.TenQuanHuyen,
+                maQuanHuyen = soNha.PhuongXa?.QuanHuyen?.MaQuanHuyen,
+                tenTinhTP = soNha.PhuongXa?.QuanHuyen?.TinhThanhPho?.TenTinhTP,
+                maTinhTP = soNha.PhuongXa?.QuanHuyen?.TinhThanhPho?.MaTinhTP
+            };
+
+            return Ok(result);
+        }
+        [HttpGet("GenerateMaSoNha")]
+        public IActionResult GenerateMaSoNha()
+        {
+            string maSoNha = "SN" + DateTime.Now.Ticks.ToString();
+            return Ok(maSoNha);
+        }
     }
 }

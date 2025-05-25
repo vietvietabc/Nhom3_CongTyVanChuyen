@@ -304,18 +304,6 @@
                 </a>
             </li>
             <li>
-                <a href="#" onclick="loadQuanLyDonHang()">
-                    <i class="fas fa-fw fa-file-invoice me-2"></i>
-                    Xem danh sách đơn hàng
-                </a>
-            </li>
-            <li>
-                <a href="#" onclick="loadThongKe()">
-                    <i class="fas fa-fw fa-chart-bar me-2"></i>
-                    Thống kê báo cáo
-                </a>
-            </li>
-            <li>
                 <a href="#" onclick="logout()">
                     <i class="fas fa-fw fa-sign-out-alt me-2"></i>
                     Đăng xuất
@@ -825,6 +813,7 @@
             // Load dashboard stats & data
             loadDashboardStats();
         }
+
 
         async function loadDashboardStats() {
             try {
@@ -2397,82 +2386,6 @@
                 loadTinhThanhPhoKhachHang();
             });
         });
-
-
-        /* Xem danh sách ĐƠN HÀNG */
-        function loadQuanLyDonHang() {
-            document.getElementById('pageTitle').innerText = 'Danh sách đơn hàng';
-
-            const mainContent = document.getElementById('mainContent');
-            mainContent.innerHTML = `
-                                                    <div class="card shadow mb-4">
-                                                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                                                            <h6 class="m-0 font-weight-bold text-primary">Danh sách đơn hàng</h6>
-                                                        </div>
-                                                        <div class="card-body">
-                                                            <div class="row mb-3">
-                                                                <div class="col-md-4">
-                                                                    <div class="input-group">
-                                                                        <input type="text" class="form-control" id="searchDonHang" placeholder="Tìm kiếm đơn hàng...">
-                                                                        <button class="btn btn-primary" type="button" id="btnSearchDonHang">
-                                                                            <i class="fas fa-search"></i>
-                                                                        </button>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-md-3">
-                                                                    <select class="form-select" id="filterTrangThai">
-                                                                        <option value="">Tất cả trạng thái</option>
-                                                                        <option value="Mới">Mới</option>
-                                                                        <option value="Đang vận chuyển">Đang vận chuyển</option>
-                                                                        <option value="Đã giao">Đã giao</option>
-                                                                        <option value="Đã hủy">Đã hủy</option>
-                                                                    </select>
-                                                                </div>
-                                                            </div>
-                                                            <div class="table-responsive">
-                                                                <table class="table table-bordered" width="100%" cellspacing="0">
-                                                                    <thead>
-                                                                        <tr>
-                                                                            <th width="5%">STT</th>
-                                                                            <th width="10%">Mã đơn hàng</th>
-                                                                            <th width="10%">Mã vận đơn</th>
-                                                                            <th width="15%">Khách hàng</th>
-                                                                            <th width="10%">Ngày gửi</th>
-                                                                            <th width="10%">Trạng thái</th>
-                                                                            <th width="15%">Nhân viên giao hàng</th>
-                                                                            <th width="15%">Nhân viên điều phối</th>
-                                                                        </tr>
-                                                                    </thead>
-                                                                    <tbody id="donHangTableBody">
-                                                                        <tr>
-                                                                            <td colspan="8" class="text-center">Đang tải dữ liệu...</td>
-                                                                        </tr>
-                                                                    </tbody>
-                                                                </table>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                `;
-
-            loadDanhSachDonHang();
-        }
-
-        /* THỐNG KÊ BÁO CÁO */
-        function loadThongKe() {
-            document.getElementById('pageTitle').innerText = 'Thống kê báo cáo';
-
-            const mainContent = document.getElementById('mainContent');
-            mainContent.innerHTML = `
-                                                    <div class="card shadow mb-4">
-                                                        <div class="card-header py-3">
-                                                            <h6 class="m-0 font-weight-bold text-primary">Thống kê doanh thu</h6>
-                                                        </div>
-                                                        <div class="card-body">
-                                                            <p>Chức năng đang được phát triển...</p>
-                                                        </div>
-                                                    </div>
-                                                `;
-        }
 
         /* HELPER FUNCTIONS */
         function showModal(modalId) {

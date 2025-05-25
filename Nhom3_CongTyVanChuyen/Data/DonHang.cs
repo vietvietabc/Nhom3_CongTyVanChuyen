@@ -14,10 +14,15 @@ namespace Nhom3_CongTyVanChuyen.Data
         public string? MaVanDon { get; set; }
 
         public string MaKhachHang { get; set; }
-        public string MaNhanVien { get; set; }
+
+        public string? MaNguoiNhan { get; set; }
+        public string? MaNhanVien { get; set; }
 
         [ForeignKey("MaKhachHang")]
         public KhachHang KhachHang { get; set; }
+
+        [ForeignKey("MaNguoiNhan")]
+        public NguoiNhan NguoiNhan { get; set; }
 
         [ForeignKey("MaNhanVien")]
         public NhanVien NhanVien { get; set; }
@@ -25,6 +30,8 @@ namespace Nhom3_CongTyVanChuyen.Data
         public string TenDonHang { get; set; }
         public double PhiGiaoHang { get; set; }
         public double TienThuHo { get; set; }
+
+        public string? NguoiTraPhi { get; set; }
         public DateTime NgayGui { get; set; }
         public DateTime? NgayNhan { get; set; }
         public string TrangThaiDonHang { get; set; }

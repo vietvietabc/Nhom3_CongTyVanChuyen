@@ -14,8 +14,8 @@ namespace Nhom3_CongTyVanChuyen.Data
         public string? MaSoNha { get; set; }
         public string TenKhachHang { get; set; }
         public string SDT { get; set; }
-        public string Email { get; set; }
-        public string MatKhau { get; set; }
+        public string? Email { get; set; }
+        public string? MatKhau { get; set; }
         public DateTime? NgaySinh { get; set; }
         public string? CCCD { get; set; }
 

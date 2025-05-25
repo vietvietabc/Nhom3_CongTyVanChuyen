@@ -50,7 +50,7 @@ namespace Nhom3_CongTyVanChuyen.Controllers
                 SDT = SDT,
                 Email = Email,
                 MatKhau = MatKhau,
-                CCCD = "", // để tránh lỗi NULL
+                CCCD = null,
                 MaSoNha = null,
                 NgaySinh = null
             };

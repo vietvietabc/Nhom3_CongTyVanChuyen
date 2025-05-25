@@ -227,7 +227,8 @@ namespace Nhom3_CongTyVanChuyen.Controllers
                     ngayGui = d.NgayGui,
                     trangThai = d.TrangThaiDonHang,
                     daThanhToan = d.TrangThaiThanhToan == "Đã thanh toán",
-                    tienThuHo = d.TienThuHo
+                    tienThuHo = d.TienThuHo,
+                    trangThaiThuHo = d.TrangThaiThuHo
                 }).ToList();
 
                 return Ok(result);
@@ -430,7 +431,6 @@ namespace Nhom3_CongTyVanChuyen.Controllers
             }
         }
 
-        // POST: api/NVGH/UpdateStatus - Cập nhật trạng thái đơn hàng
         [HttpPost("UpdateStatus")]
         public ActionResult UpdateStatus([FromBody] UpdateStatusModel model)
         {
@@ -464,8 +464,9 @@ namespace Nhom3_CongTyVanChuyen.Controllers
                 // Lưu lại trạng thái cũ để ghi log
                 var trangThaiCu = donHang.TrangThaiDonHang;
 
-                // Cập nhật trạng thái mới
-                donHang.TrangThaiDonHang = model.TrangThaiMoi;
+                // Cập nhật trạng thái mới (luôn viết thường)
+                var trangThaiMoiLower = model.TrangThaiMoi.ToLower();
+                donHang.TrangThaiDonHang = trangThaiMoiLower;
 
                 // Cập nhật ghi chú nếu có
                 if (!string.IsNullOrEmpty(model.GhiChu))
@@ -473,26 +474,27 @@ namespace Nhom3_CongTyVanChuyen.Controllers
                     donHang.GhiChu = model.GhiChu;
                 }
 
-                // Xử lý dựa trên trạng thái mới
-                switch (model.TrangThaiMoi)
+                // Xử lý dựa trên trạng thái mới (so sánh viết thường)
+                switch (trangThaiMoiLower)
                 {
-                    case "Đã giao":
+                    case "đã giao":
                         // Nếu đơn hàng đã giao, cập nhật ngày nhận
                         donHang.NgayNhan = DateTime.Now;
                         break;
 
-                    case "Khách hẹn lại ngày giao":
-                    case "Đang giao":
-                    case "Khách không nhận hàng":
+                    case "khách hẹn lại ngày giao":
+                    case "đang giao":
+                    case "khách không nhận hàng":
                         // Reset thông tin thanh toán
-                        donHang.TrangThaiThanhToan = "Chưa thanh toán";
+                        donHang.TrangThaiThanhToan = "chưa thanh toán";
                         donHang.NgayThanhToan = null;
                         donHang.PhuongThucThanhToan = null;
+                        donHang.TrangThaiThuHo = null;
 
                         // Ghi log vào GhiChu nếu chưa có ghi chú
                         if (string.IsNullOrEmpty(model.GhiChu))
                         {
-                            donHang.GhiChu = $"Đơn hàng chuyển sang trạng thái '{model.TrangThaiMoi}' vào {DateTime.Now}. Đặt lại thông tin thanh toán.";
+                            donHang.GhiChu = $"Đơn hàng chuyển sang trạng thái '{trangThaiMoiLower}' vào {DateTime.Now}. Đặt lại thông tin thanh toán.";
                         }
                         else
                         {
@@ -502,17 +504,17 @@ namespace Nhom3_CongTyVanChuyen.Controllers
                 }
 
                 _context.SaveChanges();
-                System.Diagnostics.Debug.WriteLine($"Successfully updated order {model.MaDonHang} status from {trangThaiCu} to {model.TrangThaiMoi}");
+                System.Diagnostics.Debug.WriteLine($"Successfully updated order {model.MaDonHang} status from {trangThaiCu} to {trangThaiMoiLower}");
 
                 // Trả về thông tin chi tiết
                 return Ok(new
                 {
                     message = "Cập nhật trạng thái đơn hàng thành công",
                     trangThaiCu = trangThaiCu,
-                    trangThaiMoi = model.TrangThaiMoi,
-                    daCapNhatThanhToan = model.TrangThaiMoi == "Khách hẹn lại ngày giao" ||
-                                        model.TrangThaiMoi == "Đang giao" ||
-                                        model.TrangThaiMoi == "Khách không nhận hàng"
+                    trangThaiMoi = trangThaiMoiLower,
+                    daCapNhatThanhToan = trangThaiMoiLower == "khách hẹn lại ngày giao" ||
+                                        trangThaiMoiLower == "đang giao" ||
+                                        trangThaiMoiLower == "khách không nhận hàng"
                 });
             }
             catch (Exception ex)
@@ -521,6 +523,7 @@ namespace Nhom3_CongTyVanChuyen.Controllers
                 return StatusCode(500, $"Lỗi khi cập nhật trạng thái đơn hàng: {ex.Message}");
             }
         }
+
 
         // Model cho việc cập nhật trạng thái
         public class UpdateStatusModel
@@ -559,11 +562,6 @@ namespace Nhom3_CongTyVanChuyen.Controllers
                 {
                     donHang.NgayThanhToan = null;
                 }
-
-                // QUAN TRỌNG: KHÔNG thay đổi trạng thái nộp tiền thu hộ
-                // Trạng thái nộp tiền thu hộ được quản lý riêng biệt
-
-                // Cập nhật ghi chú nếu có
                 if (!string.IsNullOrEmpty(model.GhiChu))
                 {
                     if (string.IsNullOrEmpty(donHang.GhiChu))

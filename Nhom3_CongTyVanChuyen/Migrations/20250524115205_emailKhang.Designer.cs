@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Nhom3_CongTyVanChuyen.Data;
 
@@ -11,9 +12,11 @@ using Nhom3_CongTyVanChuyen.Data;
 namespace Nhom3_CongTyVanChuyen.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250524115205_emailKhang")]
+    partial class emailKhang
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -87,9 +90,6 @@ namespace Nhom3_CongTyVanChuyen.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("MaNguoiNhan")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("MaNhanVien")
                         .HasColumnType("nvarchar(450)");
 
@@ -134,8 +134,6 @@ namespace Nhom3_CongTyVanChuyen.Migrations
                     b.HasKey("MaDonHang");
 
                     b.HasIndex("MaKhachHang");
-
-                    b.HasIndex("MaNguoiNhan");
 
                     b.HasIndex("MaNhanVien");
 
@@ -441,18 +439,12 @@ namespace Nhom3_CongTyVanChuyen.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Nhom3_CongTyVanChuyen.Data.NguoiNhan", "NguoiNhan")
-                        .WithMany()
-                        .HasForeignKey("MaNguoiNhan");
-
                     b.HasOne("Nhom3_CongTyVanChuyen.Data.NhanVien", "NhanVien")
                         .WithMany("DonHangs")
                         .HasForeignKey("MaNhanVien")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("KhachHang");
-
-                    b.Navigation("NguoiNhan");
 
                     b.Navigation("NhanVien");
                 });

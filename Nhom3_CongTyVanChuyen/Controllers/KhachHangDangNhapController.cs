@@ -41,8 +41,19 @@ namespace Nhom3_CongTyVanChuyen.Controllers
                 return Unauthorized("Mật khẩu không đúng.");
             }
 
-            // Nếu đăng nhập thành công
-            return Ok(new { message = "Đăng nhập thành công!", maKhachHang = khachHang.MaKhachHang });
+            // Nếu đăng nhập thành công, trả về thông tin khách hàng (trừ mật khẩu)
+            return Ok(new
+            {
+                message = "Đăng nhập thành công!",
+                maKhachHang = khachHang.MaKhachHang,
+                tenKhachHang = khachHang.TenKhachHang,
+                email = khachHang.Email,
+                sdt = khachHang.SDT,
+                ngaySinh = khachHang.NgaySinh,
+                cccd = khachHang.CCCD,
+                maSoNha = khachHang.MaSoNha
+            });
         }
+
     }
 }

@@ -1,0 +1,2015 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logistic - Danh sách người nhận</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* Giữ nguyên toàn bộ phần CSS của bạn */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', Arial, sans-serif;
+        }
+
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary-color: #f59e0b;
+            --text-color: #1e293b;
+            --text-light: #64748b;
+            --bg-light: #f8fafc;
+            --bg-white: #ffffff;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --border-color: #e2e8f0;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --sidebar-width: 260px;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-color);
+            line-height: 1.5;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 24px;
+            background-color: var(--bg-white);
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            height: 70px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+            .logo h1 {
+                font-size: 1.8rem;
+                color: var(--primary-color);
+                font-weight: 700;
+                letter-spacing: -0.5px;
+            }
+
+        .search-bar {
+            flex-grow: 1;
+            max-width: 500px;
+            margin: 0 24px;
+            position: relative;
+        }
+
+            .search-bar input {
+                width: 100%;
+                padding: 10px 16px 10px 40px;
+                border: 1px solid var(--border-color);
+                border-radius: 8px;
+                background-color: var(--bg-light);
+                font-size: 0.95rem;
+                transition: all 0.2s ease;
+            }
+
+                .search-bar input:focus {
+                    outline: none;
+                    border-color: var(--primary-color);
+                    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+                }
+
+            .search-bar i {
+                position: absolute;
+                left: 15px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: var(--text-light);
+            }
+
+        .user-actions {
+            display: flex;
+            align-items: center;
+        }
+
+        .notification {
+            position: relative;
+            margin-right: 24px;
+            cursor: pointer;
+        }
+
+            .notification i {
+                font-size: 1.25rem;
+                color: var(--text-light);
+                transition: color 0.2s ease;
+            }
+
+            .notification:hover i {
+                color: var(--primary-color);
+            }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--danger-color);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        .user-phone {
+            margin-right: 16px;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 6px 10px;
+            border-radius: 8px;
+            transition: background-color 0.2s ease;
+            position: relative;
+        }
+
+            .user-profile:hover {
+                background-color: var(--bg-light);
+            }
+
+        .user-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.1rem;
+            margin-right: 8px;
+        }
+
+        .dropdown-icon {
+            margin-left: 8px;
+            color: var(--text-light);
+            font-size: 0.8rem;
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 200px;
+            background-color: var(--bg-white);
+            border-radius: 8px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+            z-index: 101;
+            margin-top: 8px;
+            display: none;
+        }
+
+            .user-dropdown.show {
+                display: block;
+            }
+
+        .user-dropdown-item {
+            padding: 12px 16px;
+            color: var(--text-color);
+            font-size: 0.95rem;
+            transition: background-color 0.2s ease;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+            .user-dropdown-item:last-child {
+                border-bottom: none;
+            }
+
+            .user-dropdown-item:hover {
+                background-color: var(--bg-light);
+            }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+            padding-top: 70px;
+        }
+
+        #sidebar {
+            position: fixed;
+            width: var(--sidebar-width);
+            height: calc(100vh - 70px);
+            background: linear-gradient(180deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            transition: all 0.3s;
+            z-index: 99;
+            box-shadow: var(--shadow-lg);
+            overflow-y: auto;
+            top: 70px;
+        }
+
+            #sidebar .sidebar-header {
+                padding: 20px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            #sidebar ul.components {
+                padding: 15px 0;
+                list-style: none;
+            }
+
+            #sidebar ul li {
+                margin-bottom: 2px;
+            }
+
+                #sidebar ul li a {
+                    padding: 12px 20px;
+                    display: flex;
+                    align-items: center;
+                    color: rgba(255, 255, 255, 0.85);
+                    border-left: 3px solid transparent;
+                    text-decoration: none;
+                    font-weight: 400;
+                    transition: all 0.2s ease;
+                    font-size: 0.95rem;
+                }
+
+                    #sidebar ul li a i {
+                        margin-right: 10px;
+                        font-size: 1.1rem;
+                        width: 24px;
+                        text-align: center;
+                    }
+
+                    #sidebar ul li a:hover {
+                        color: white;
+                        background: rgba(255, 255, 255, 0.1);
+                        border-left-color: white;
+                    }
+
+                #sidebar ul li.active > a {
+                    color: white;
+                    background: rgba(255, 255, 255, 0.15);
+                    border-left-color: var(--secondary-color);
+                    font-weight: 500;
+                }
+
+            #sidebar ul ul.sub-menu {
+                padding-left: 0;
+                list-style: none;
+            }
+
+                #sidebar ul ul.sub-menu a {
+                    padding: 10px 20px 10px 54px;
+                    font-size: 0.9rem;
+                    background: rgba(0, 0, 0, 0.1);
+                    transition: all 0.2s ease;
+                }
+
+                    #sidebar ul ul.sub-menu a:hover {
+                        background: rgba(0, 0, 0, 0.2);
+                    }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 30px;
+            margin-left: var(--sidebar-width);
+            overflow-y: auto;
+        }
+
+        .recipients-container {
+            background-color: var(--bg-white);
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .recipients-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .recipients-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .search-recipients {
+            display: flex;
+            gap: 10px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+            .search-recipients input {
+                flex-grow: 1;
+                padding: 10px 16px;
+                border: 1px solid var(--border-color);
+                border-radius: 8px;
+                font-size: 0.95rem;
+                transition: all 0.2s ease;
+            }
+
+                .search-recipients input:focus {
+                    outline: none;
+                    border-color: var(--primary-color);
+                    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+                }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+            .btn-primary:hover {
+                background-color: var(--primary-dark);
+            }
+
+        .btn-secondary {
+            background-color: var(--bg-light);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+
+            .btn-secondary:hover {
+                background-color: var(--border-color);
+            }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+            .btn-danger:hover {
+                background-color: #dc2626;
+            }
+
+        .btn-warning {
+            background-color: var(--warning-color);
+            color: white;
+        }
+
+            .btn-warning:hover {
+                background-color: #d97706;
+            }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        th {
+            background-color: var(--bg-light);
+            color: var(--text-color);
+            font-weight: 600;
+            text-align: left;
+            padding: 12px 16px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-color);
+        }
+
+        tr:hover {
+            background-color: var(--bg-light);
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: var(--bg-white);
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            width: 90%;
+            max-width: 600px;
+            position: relative;
+            animation: modalFadeIn 0.3s;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .modal-close {
+            font-size: 1.5rem;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+            .modal-close:hover {
+                color: var(--danger-color);
+            }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text-color);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+        }
+
+            .form-control:focus {
+                outline: none;
+                border-color: var(--primary-color);
+                box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            }
+
+        .form-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-col {
+            flex: 1;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+            display: none;
+        }
+
+        .alert-success {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .alert-danger {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+            gap: 5px;
+        }
+
+        .pagination-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background-color: var(--bg-white);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+            .pagination-item:hover {
+                background-color: var(--bg-light);
+            }
+
+            .pagination-item.active {
+                background-color: var(--primary-color);
+                color: white;
+                border-color: var(--primary-color);
+            }
+
+            .pagination-item.disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+            }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 0;
+            text-align: center;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            color: var(--text-light);
+            margin-bottom: 20px;
+        }
+
+        .empty-state-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 10px;
+        }
+
+        .empty-state-description {
+            color: var(--text-light);
+            margin-bottom: 20px;
+            max-width: 400px;
+        }
+
+        .footer {
+            margin-top: 40px;
+            padding: 20px 0;
+            text-align: center;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .sub-menu {
+            display: none;
+        }
+
+        .chat-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: var(--shadow-lg);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            z-index: 90;
+        }
+
+            .chat-button:hover {
+                background-color: var(--primary-dark);
+                transform: scale(1.05);
+            }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
+
+        @media (max-width: 992px) {
+            :root {
+                --sidebar-width: 70px;
+            }
+
+            #sidebar ul li a span {
+                display: none;
+            }
+
+            #sidebar ul li a i {
+                margin-right: 0;
+                font-size: 1.3rem;
+            }
+
+            #sidebar ul li a {
+                justify-content: center;
+                padding: 15px 0;
+            }
+
+            #sidebar ul ul.sub-menu {
+                position: absolute;
+                left: 70px;
+                top: 0;
+                width: 200px;
+                background: var(--primary-dark);
+                z-index: 100;
+                display: none;
+            }
+
+            #sidebar ul li:hover > ul.sub-menu {
+                display: block;
+            }
+
+            #sidebar ul ul.sub-menu a {
+                padding: 10px 15px;
+            }
+
+            .user-phone {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 10px 15px;
+            }
+
+            .logo h1 {
+                font-size: 1.5rem;
+            }
+
+            .search-bar {
+                display: none;
+            }
+
+            .main-content {
+                padding: 20px 15px;
+            }
+
+            .recipients-actions {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+
+            .search-recipients {
+                width: 100%;
+            }
+
+            .table-responsive {
+                margin: 0 -15px;
+                width: calc(100% + 30px);
+            }
+
+            table {
+                min-width: 800px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .modal-content {
+                margin: 20% auto;
+                padding: 20px;
+                width: 95%;
+            }
+
+            .modal-footer {
+                flex-direction: column;
+            }
+
+                .modal-footer .btn {
+                    width: 100%;
+                }
+        }
+    </style>
+</head>
+<body>
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <h1>LOGISTIC</h1>
+            </div>
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Tra cứu đơn hàng...">
+            </div>
+            <div class="user-actions">
+                <div class="notification">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge">6</span>
+                </div>
+                <div class="user-phone" id="user-phone">Đang tải...</div>
+                <div class="user-profile" id="user-profile">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <i class="fas fa-chevron-down dropdown-icon"></i>
+                    <div class="user-dropdown" id="user-dropdown">
+                        <div class="user-dropdown-item" onclick="window.location.href='TrangChu2.html'">
+                            Trang chủ
+                        </div>
+                        <div class="user-dropdown-item" onclick="window.location.href='CaiDatTaiKhoan.html'">
+                            Cài đặt tài khoản
+                        </div>
+                        <div class="user-dropdown-item" onclick="logout()">
+                            Đăng xuất
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <div class="container">
+            <!-- Sidebar -->
+            <nav id="sidebar">
+                <ul class="components">
+                    <li id="nav-home">
+                        <a href="TrangChu2.html">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span>Trang chủ</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="menu-toggle">
+                            <i class="fas fa-file-alt"></i>
+                            <span>Tạo đơn</span>
+                        </a>
+                        <ul class="sub-menu">
+                            <li><a href="#">Tạo đơn lẻ</a></li>
+                            <li><a href="#">Nhập excel</a></li>
+                        </ul>
+                    </li>
+                    <li class="active">
+                        <a href="#" class="menu-toggle">
+                            <i class="fas fa-box"></i>
+                            <span>Quản lý</span>
+                        </a>
+                        <ul class="sub-menu" style="display: block;">
+                            <li><a href="#">Quản lý vận đơn</a></li>
+                            <li><a href="#">Thống kê tiền hàng</a></li>
+                            <li><a href="#">Đơn hàng cần xử lý</a></li>
+                            <li class="active"><a href="DanhSachNguoiNhan.html">Danh sách người nhận</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <i class="fas fa-calculator"></i>
+                            <span>Ước tính phí</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="CaiDatTaiKhoan.html">
+                            <i class="fas fa-cog"></i>
+                            <span>Cài đặt tài khoản</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <i class="fas fa-question-circle"></i>
+                            <span>Hỏi đáp trợ giúp</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Thống kê báo cáo</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Đăng xuất</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <!-- Main Content -->
+            <main class="main-content">
+                <div id="recipients-list">
+                    <div class="recipients-container">
+                        <h1 class="recipients-title">Danh sách người nhận</h1>
+                        <div id="alert-success" class="alert alert-success"></div>
+                        <div id="alert-danger" class="alert alert-danger"></div>
+                        <div class="recipients-actions">
+                            <div class="search-recipients">
+                                <input type="text" id="search-input" placeholder="Tìm kiếm theo tên, số điện thoại...">
+                                <button class="btn btn-secondary" id="search-btn">
+                                    <i class="fas fa-search"></i> Tìm kiếm
+                                </button>
+                            </div>
+                            <button class="btn btn-primary" id="add-recipient-btn">
+                                <i class="fas fa-plus"></i> Thêm người nhận
+                            </button>
+                        </div>
+                        <div class="table-container">
+                            <table id="recipients-table">
+                                <thead>
+                                    <tr>
+                                        <th>STT</th>
+                                        <th>Tên người nhận</th>
+                                        <th>Số điện thoại</th>
+                                        <th>Địa chỉ</th>
+                                        <th>Tỉnh/Thành phố</th>
+                                        <th>Quận/Huyện</th>
+                                        <th>Phường/Xã</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recipients-table-body">
+                                    <!-- Data will be loaded here -->
+                                </tbody>
+                            </table>
+                            <div id="empty-state" class="empty-state" style="display: none;">
+                                <div class="empty-state-icon">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <h3 class="empty-state-title">Chưa có người nhận nào</h3>
+                                <p class="empty-state-description">Bạn chưa có người nhận nào trong danh sách. Hãy thêm người nhận mới để quản lý.</p>
+                                <button class="btn btn-primary" onclick="document.getElementById('add-recipient-btn').click()">
+                                    <i class="fas fa-plus"></i> Thêm người nhận
+                                </button>
+                            </div>
+                            <div id="loading-state" class="empty-state">
+                                <div class="empty-state-icon">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                </div>
+                                <h3 class="empty-state-title">Đang tải dữ liệu...</h3>
+                                <p class="empty-state-description">Vui lòng đợi trong giây lát.</p>
+                            </div>
+                        </div>
+                        <div class="pagination" id="pagination"></div>
+                    </div>
+                </div>
+                <div class="footer">
+                    <p>© 2025 Logistic. Tất cả quyền được bảo lưu.</p>
+                </div>
+            </main>
+        </div>
+        <!-- Modal Thêm/Sửa người nhận -->
+        <div id="recipient-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title" id="modal-title">Thêm người nhận mới</h2>
+                    <span class="modal-close" id="close-modal">×</span>
+                </div>
+                <div class="modal-body">
+                    <form id="recipient-form">
+                        <input type="hidden" id="recipient-id">
+                        <input type="hidden" id="recipient-address-id">
+                        <div class="form-group">
+                            <label class="form-label" for="recipient-name">Tên người nhận <span style="color: var(--danger-color);">*</span></label>
+                            <input type="text" id="recipient-name" class="form-control" placeholder="Nhập tên người nhận" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="recipient-phone">Số điện thoại <span style="color: var(--danger-color);">*</span></label>
+                            <input type="tel" id="recipient-phone" class="form-control" placeholder="Nhập số điện thoại" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-col">
+                                <label class="form-label" for="recipient-city">Tỉnh/Thành phố <span style="color: var(--danger-color);">*</span></label>
+                                <select id="recipient-city" class="form-control" required>
+                                    <option value="">Chọn tỉnh/thành phố</option>
+                                </select>
+                            </div>
+                            <div class="form-col">
+                                <label class="form-label" for="recipient-district">Quận/Huyện <span style="color: var(--danger-color);">*</span></label>
+                                <select id="recipient-district" class="form-control" required>
+                                    <option value="">Chọn quận/huyện</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-col">
+                                <label class="form-label" for="recipient-ward">Phường/Xã <span style="color: var(--danger-color);">*</span></label>
+                                <select id="recipient-ward" class="form-control" required>
+                                    <option value="">Chọn phường/xã</option>
+                                </select>
+                            </div>
+                            <div class="form-col">
+                                <label class="form-label" for="recipient-address">Số nhà, tên đường <span style="color: var(--danger-color);">*</span></label>
+                                <input type="text" id="recipient-address" class="form-control" placeholder="Nhập số nhà, tên đường" required>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancel-btn">Hủy</button>
+                    <button type="button" class="btn btn-primary" id="save-recipient-btn">
+                        <span id="save-btn-text">Lưu</span>
+                        <span id="save-btn-loading" style="display: none;"><div class="spinner"></div></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Modal Xóa -->
+        <div id="delete-modal" class="modal">
+            <div class="modal-content" style="max-width: 400px;">
+                <div class="modal-header">
+                    <h2 class="modal-title">Xác nhận xóa</h2>
+                    <span class="modal-close" id="close-delete-modal">×</span>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn có chắc chắn muốn xóa người nhận này không? Hành động này không thể hoàn tác.</p>
+                    <input type="hidden" id="delete-recipient-id">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancel-delete-btn">Hủy</button>
+                    <button type="button" class="btn btn-danger" id="confirm-delete-btn">
+                        <span id="delete-btn-text">Xóa</span>
+                        <span id="delete-btn-loading" style="display: none;"><div class="spinner"></div></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Chat Button -->
+        <div class="chat-button">
+            <i class="fas fa-comment"></i>
+        </div>
+
+        <script>
+            // Global variables
+            let currentPage = 1;
+            let totalPages = 1;
+            let pageSize = 10;
+            let recipients = [];
+            let filteredRecipients = [];
+            let isSearchActive = false;
+
+            // Document ready
+            document.addEventListener('DOMContentLoaded', function () {
+                // Kiểm tra đăng nhập
+                const userEmail = sessionStorage.getItem("userEmail");
+                const maKhachHang = sessionStorage.getItem("maKhachHang");
+
+                if (!userEmail || !maKhachHang) {
+                    console.error("Không tìm thấy thông tin đăng nhập");
+                    window.location.href = "TrangChu.html";
+                    return;
+                }
+
+                // Lấy thông tin khách hàng
+                fetchUserData(userEmail);
+
+                // Khởi tạo dropdown địa chỉ
+                initAddressDropdowns();
+
+                // Tải danh sách người nhận
+                loadRecipients();
+
+                // Thêm sự kiện click cho user profile để hiển thị dropdown
+                const userProfile = document.getElementById('user-profile');
+                userProfile.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    const dropdown = document.getElementById('user-dropdown');
+                    dropdown.classList.toggle('show');
+                });
+
+                // Đóng dropdown khi click ra ngoài
+                document.addEventListener('click', function (e) {
+                    const dropdown = document.getElementById('user-dropdown');
+                    if (dropdown.classList.contains('show') && !e.target.closest('#user-profile')) {
+                        dropdown.classList.remove('show');
+                    }
+                });
+
+                // Gắn sự kiện cho menu toggle
+                const menuItems = document.querySelectorAll('.menu-toggle');
+                menuItems.forEach(item => {
+                    item.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        const subMenu = this.nextElementSibling;
+                        if (subMenu && subMenu.classList.contains('sub-menu')) {
+                            subMenu.style.display = subMenu.style.display === 'block' ? 'none' : 'block';
+                        }
+                    });
+                });
+
+                // Thêm sự kiện cho nút tìm kiếm
+                document.getElementById('search-btn').addEventListener('click', searchRecipients);
+                document.getElementById('search-input').addEventListener('keyup', function (e) {
+                    if (e.key === 'Enter') {
+                        searchRecipients();
+                    }
+                });
+
+                // Thêm sự kiện cho nút thêm người nhận
+                document.getElementById('add-recipient-btn').addEventListener('click', showAddRecipientModal);
+
+                // Thêm sự kiện cho nút đóng modal
+                document.getElementById('close-modal').addEventListener('click', closeRecipientModal);
+                document.getElementById('cancel-btn').addEventListener('click', closeRecipientModal);
+
+                // Thêm sự kiện cho nút lưu người nhận
+                document.getElementById('save-recipient-btn').addEventListener('click', saveRecipient);
+
+                // Thêm sự kiện cho modal xóa
+                document.getElementById('close-delete-modal').addEventListener('click', closeDeleteModal);
+                document.getElementById('cancel-delete-btn').addEventListener('click', closeDeleteModal);
+                document.getElementById('confirm-delete-btn').addEventListener('click', deleteRecipient);
+            });
+
+            // Hàm lấy thông tin khách hàng từ API
+            async function fetchUserData(email) {
+                try {
+                    console.log("Fetching user data for email:", email);
+                    const response = await fetch(`https://localhost:7113/api/KhachHangController2/GetByEmail?email=${encodeURIComponent(email)}`);
+                    if (response.ok) {
+                        const userData = await response.json();
+                        console.log("User data received:", userData);
+                        if (userData && userData.sdt) {
+                            document.getElementById("user-phone").textContent = userData.sdt;
+                        } else {
+                            document.getElementById("user-phone").textContent = "Không có SDT";
+                        }
+                        if (userData.maKhachHang) {
+                            sessionStorage.setItem("maKhachHang", userData.maKhachHang);
+                        }
+                    } else {
+                        console.error("API response not OK:", response.status, response.statusText);
+                        document.getElementById("user-phone").textContent = "Không có SDT";
+                    }
+                } catch (error) {
+                    console.error("Lỗi khi kết nối máy chủ:", error);
+                    document.getElementById("user-phone").textContent = "Không có SDT";
+                }
+            }
+
+            // Hàm tải danh sách người nhận
+            async function loadRecipients() {
+                try {
+                    document.getElementById('loading-state').style.display = 'flex';
+                    document.getElementById('recipients-table').style.display = 'none';
+                    document.getElementById('empty-state').style.display = 'none';
+                    document.getElementById('pagination').style.display = 'none';
+
+                    const maKhachHang = sessionStorage.getItem("maKhachHang");
+                    if (!maKhachHang) {
+                        showAlert("danger", "Không tìm thấy thông tin khách hàng. Vui lòng đăng nhập lại!");
+                        return;
+                    }
+
+                    const response = await fetch(`https://localhost:7113/api/NguoiNhan/GetByKhachHang/${encodeURIComponent(maKhachHang)}`);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    console.log("Danh sách người nhận (RAW):", data);
+
+                    // Chuẩn hóa dữ liệu nhận được từ API
+                    recipients = Array.isArray(data) ? data.map(item => ({
+                        maNguoiNhan: item.maNguoiNhan || item.MaNguoiNhan,
+                        maKhachHang: item.maKhachHang || item.MaKhachHang,
+                        maSoNha: item.maSoNha || item.MaSoNha,
+                        hoTen: item.hoTen || item.HoTen,
+                        sdt: item.sdt || item.SDT,
+                        diaChi: item.diaChi || item.DiaChi,
+                        phuongXa: item.phuongXa || item.PhuongXa,
+                        quanHuyen: item.quanHuyen || item.QuanHuyen,
+                        tinhThanh: item.tinhThanh || item.TinhThanh,
+                        maPhuongXa: item.maPhuongXa || item.MaPhuongXa // Thêm trường này nếu API trả về
+                    })) : [];
+
+                    filteredRecipients = [...recipients];
+                    console.log("Recipients sau khi chuẩn hóa:", recipients);
+
+                    document.getElementById('loading-state').style.display = 'none';
+
+                    if (recipients.length === 0) {
+                        document.getElementById('empty-state').style.display = 'flex';
+                        document.getElementById('recipients-table').style.display = 'none';
+                        document.getElementById('pagination').style.display = 'none';
+                    } else {
+                        document.getElementById('empty-state').style.display = 'none';
+                        document.getElementById('recipients-table').style.display = 'table';
+                        totalPages = Math.ceil(recipients.length / pageSize);
+                        currentPage = 1;
+                        displayRecipients();
+                        createPagination();
+                        document.getElementById('pagination').style.display = 'flex';
+                    }
+                } catch (error) {
+                    console.error("Lỗi khi tải danh sách người nhận:", error);
+                    showAlert("danger", "Không thể tải danh sách người nhận. Vui lòng thử lại sau!");
+                    document.getElementById('loading-state').style.display = 'none';
+                    document.getElementById('empty-state').style.display = 'flex';
+                    document.querySelector('.empty-state-title').textContent = "Không thể tải dữ liệu";
+                    document.querySelector('.empty-state-description').textContent = "Đã xảy ra lỗi khi tải danh sách người nhận. Vui lòng thử lại sau.";
+                    document.getElementById('recipients-table').style.display = 'none';
+                    document.getElementById('pagination').style.display = 'none';
+                }
+            }
+
+            // Hàm hiển thị danh sách người nhận
+            function displayRecipients() {
+                const tableBody = document.getElementById('recipients-table-body');
+                if (!tableBody) {
+                    console.error("Không tìm thấy phần tử recipients-table-body");
+                    return;
+                }
+                tableBody.innerHTML = '';
+
+                const displayList = isSearchActive ? filteredRecipients : recipients;
+                const startIndex = (currentPage - 1) * pageSize;
+                const endIndex = Math.min(startIndex + pageSize, displayList.length);
+
+                if (displayList.length === 0) {
+                    const emptyRow = document.createElement('tr');
+                    emptyRow.innerHTML = `
+                                <td colspan="8" style="text-align: center; padding: 30px;">
+                                    <div style="color: var(--text-light);">
+                                        <i class="fas fa-search" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                                        <p>Không tìm thấy người nhận nào</p>
+                                    </div>
+                                </td>
+                            `;
+                    tableBody.appendChild(emptyRow);
+                    return;
+                }
+
+                for (let i = startIndex; i < endIndex; i++) {
+                    const recipient = displayList[i];
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                                <td>${i + 1}</td>
+                                <td>${recipient.hoTen || 'Không có tên'}</td>
+                                <td>${recipient.sdt || 'Không có số'}</td>
+                                <td>${recipient.diaChi || 'Không có địa chỉ'}</td>
+                                <td>${recipient.tinhThanh || 'Không có tỉnh'}</td>
+                                <td>${recipient.quanHuyen || 'Không có huyện'}</td>
+                                <td>${recipient.phuongXa || 'Không có phường'}</td>
+                                <td class="table-actions">
+                                    <button class="btn btn-sm btn-warning edit-btn" data-id="${recipient.maNguoiNhan}">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-danger delete-btn" data-id="${recipient.maNguoiNhan}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            `;
+                    tableBody.appendChild(row);
+                }
+
+                attachEventListeners();
+            }
+
+            // Hàm gắn sự kiện cho các nút
+            function attachEventListeners() {
+                document.querySelectorAll('.edit-btn').forEach(btn => {
+                    btn.removeEventListener('click', editRecipient);
+                    btn.addEventListener('click', function () {
+                        const recipientId = this.getAttribute('data-id');
+                        editRecipient(recipientId);
+                    });
+                });
+
+                document.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.removeEventListener('click', showDeleteConfirmation);
+                    btn.addEventListener('click', function () {
+                        const recipientId = this.getAttribute('data-id');
+                        showDeleteConfirmation(recipientId);
+                    });
+                });
+            }
+
+            // Hàm tạo phân trang
+            function createPagination() {
+                const pagination = document.getElementById('pagination');
+                pagination.innerHTML = '';
+
+                if (totalPages <= 1) {
+                    return;
+                }
+
+                const prevBtn = document.createElement('div');
+                prevBtn.className = `pagination-item ${currentPage === 1 ? 'disabled' : ''}`;
+                prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
+                if (currentPage > 1) {
+                    prevBtn.addEventListener('click', () => {
+                        currentPage--;
+                        displayRecipients();
+                        createPagination();
+                    });
+                }
+                pagination.appendChild(prevBtn);
+
+                const maxVisiblePages = 5;
+                let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+                let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+                if (endPage === totalPages) {
+                    startPage = Math.max(1, endPage - maxVisiblePages + 1);
+                }
+
+                if (startPage > 1) {
+                    const firstPageBtn = document.createElement('div');
+                    firstPageBtn.className = 'pagination-item';
+                    firstPageBtn.textContent = '1';
+                    firstPageBtn.addEventListener('click', () => {
+                        currentPage = 1;
+                        displayRecipients();
+                        createPagination();
+                    });
+                    pagination.appendChild(firstPageBtn);
+
+                    if (startPage > 2) {
+                        const ellipsis = document.createElement('div');
+                        ellipsis.className = 'pagination-item disabled';
+                        ellipsis.textContent = '...';
+                        pagination.appendChild(ellipsis);
+                    }
+                }
+
+                for (let i = startPage; i <= endPage; i++) {
+                    const pageBtn = document.createElement('div');
+                    pageBtn.className = `pagination-item ${i === currentPage ? 'active' : ''}`;
+                    pageBtn.textContent = i;
+                    pageBtn.addEventListener('click', () => {
+                        currentPage = i;
+                        displayRecipients();
+                        createPagination();
+                    });
+                    pagination.appendChild(pageBtn);
+                }
+
+                if (endPage < totalPages) {
+                    if (endPage < totalPages - 1) {
+                        const ellipsis = document.createElement('div');
+                        ellipsis.className = 'pagination-item disabled';
+                        ellipsis.textContent = '...';
+                        pagination.appendChild(ellipsis);
+                    }
+
+                    const lastPageBtn = document.createElement('div');
+                    lastPageBtn.className = 'pagination-item';
+                    lastPageBtn.textContent = totalPages;
+                    lastPageBtn.addEventListener('click', () => {
+                        currentPage = totalPages;
+                        displayRecipients();
+                        createPagination();
+                    });
+                    pagination.appendChild(lastPageBtn);
+                }
+
+                const nextBtn = document.createElement('div');
+                nextBtn.className = `pagination-item ${currentPage === totalPages ? 'disabled' : ''}`;
+                nextBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
+                if (currentPage < totalPages) {
+                    nextBtn.addEventListener('click', () => {
+                        currentPage++;
+                        displayRecipients();
+                        createPagination();
+                    });
+                }
+                pagination.appendChild(nextBtn);
+            }
+
+            // Hàm tìm kiếm người nhận
+            function searchRecipients() {
+                const searchTerm = document.getElementById('search-input').value.trim().toLowerCase();
+
+                if (searchTerm === '') {
+                    isSearchActive = false;
+                    filteredRecipients = [...recipients];
+                } else {
+                    isSearchActive = true;
+                    filteredRecipients = recipients.filter(recipient => {
+                        return (
+                            (recipient.hoTen && recipient.hoTen.toLowerCase().includes(searchTerm)) ||
+                            (recipient.sdt && recipient.sdt.toLowerCase().includes(searchTerm)) ||
+                            (recipient.diaChi && recipient.diaChi.toLowerCase().includes(searchTerm)) ||
+                            (recipient.tinhThanh && recipient.tinhThanh.toLowerCase().includes(searchTerm)) ||
+                            (recipient.quanHuyen && recipient.quanHuyen.toLowerCase().includes(searchTerm)) ||
+                            (recipient.phuongXa && recipient.phuongXa.toLowerCase().includes(searchTerm))
+                        );
+                    });
+                }
+
+                currentPage = 1;
+                totalPages = Math.ceil(filteredRecipients.length / pageSize);
+
+                if (filteredRecipients.length === 0) {
+                    document.getElementById('empty-state').style.display = 'flex';
+                    document.querySelector('.empty-state-title').textContent = "Không tìm thấy kết quả";
+                    document.querySelector('.empty-state-description').textContent = "Không tìm thấy người nhận nào phù hợp với từ khóa tìm kiếm.";
+                    document.getElementById('recipients-table').style.display = 'none';
+                    document.getElementById('pagination').style.display = 'none';
+                } else {
+                    document.getElementById('empty-state').style.display = 'none';
+                    document.getElementById('recipients-table').style.display = 'table';
+                    displayRecipients();
+                    createPagination();
+                    document.getElementById('pagination').style.display = 'flex';
+                }
+            }
+
+            // Hàm hiển thị modal thêm người nhận
+            function showAddRecipientModal() {
+                document.getElementById('modal-title').textContent = 'Thêm người nhận mới';
+                document.getElementById('recipient-form').reset();
+                document.getElementById('recipient-id').value = '';
+                document.getElementById('recipient-address-id').value = '';
+
+                const districtSelect = document.getElementById('recipient-district');
+                const wardSelect = document.getElementById('recipient-ward');
+                while (districtSelect.options.length > 1) districtSelect.remove(1);
+                while (wardSelect.options.length > 1) wardSelect.remove(1);
+
+                document.getElementById('recipient-modal').style.display = 'block';
+            }
+
+            // Hàm chỉnh sửa người nhận
+            async function editRecipient(recipientId) {
+                try {
+                    showAlert("success", "Đang tải thông tin người nhận...");
+                    const recipient = recipients.find(r => r.maNguoiNhan === recipientId);
+
+                    if (!recipient) {
+                        showAlert("danger", "Không tìm thấy thông tin người nhận!");
+                        return;
+                    }
+
+                    // Cập nhật tiêu đề modal và điền dữ liệu vào form
+                    document.getElementById('modal-title').textContent = 'Chỉnh sửa thông tin người nhận';
+                    document.getElementById('recipient-id').value = recipient.maNguoiNhan;
+                    document.getElementById('recipient-name').value = recipient.hoTen || '';
+                    document.getElementById('recipient-phone').value = recipient.sdt || '';
+                    document.getElementById('recipient-address').value = recipient.diaChi || '';
+                    document.getElementById('recipient-address-id').value = recipient.maSoNha || '';
+
+                    // Tải lại danh sách tỉnh/thành phố
+                    await loadCities();
+
+                    // Chọn tỉnh/thành phố
+                    const citySelect = document.getElementById('recipient-city');
+                    let selectedCityCode = '';
+                    for (let i = 0; i < citySelect.options.length; i++) {
+                        if (citySelect.options[i].textContent === recipient.tinhThanh) {
+                            citySelect.selectedIndex = i;
+                            selectedCityCode = citySelect.options[i].value;
+                            break;
+                        }
+                    }
+
+                    // Tải danh sách quận/huyện dựa trên tỉnh/thành phố
+                    if (selectedCityCode) {
+                        await loadDistricts(selectedCityCode);
+
+                        // Chọn quận/huyện
+                        const districtSelect = document.getElementById('recipient-district');
+                        let selectedDistrictCode = '';
+                        for (let j = 0; j < districtSelect.options.length; j++) {
+                            if (districtSelect.options[j].textContent === recipient.quanHuyen) {
+                                districtSelect.selectedIndex = j;
+                                selectedDistrictCode = districtSelect.options[j].value;
+                                break;
+                            }
+                        }
+
+                        // Tải danh sách phường/xã dựa trên quận/huyện
+                        if (selectedDistrictCode) {
+                            await loadWards(selectedDistrictCode);
+
+                            // Chọn phường/xã
+                            const wardSelect = document.getElementById('recipient-ward');
+                            for (let k = 0; k < wardSelect.options.length; k++) {
+                                if (wardSelect.options[k].textContent === recipient.phuongXa) {
+                                    wardSelect.selectedIndex = k;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    document.getElementById('alert-success').style.display = 'none';
+                    document.getElementById('recipient-modal').style.display = 'block';
+                } catch (error) {
+                    console.error("Lỗi khi tải thông tin người nhận:", error);
+                    showAlert("danger", "Không thể tải thông tin người nhận. Vui lòng thử lại sau!");
+                }
+            }
+
+            // Hàm đóng modal người nhận
+            function closeRecipientModal() {
+                document.getElementById('recipient-modal').style.display = 'none';
+            }
+
+            // Hàm lưu người nhận
+            async function saveRecipient() {
+                try {
+                    const form = document.getElementById('recipient-form');
+                    if (!form.checkValidity()) {
+                        form.reportValidity();
+                        return;
+                    }
+
+                    document.getElementById('save-btn-text').style.display = 'none';
+                    document.getElementById('save-btn-loading').style.display = 'inline-block';
+
+                    const recipientId = document.getElementById('recipient-id').value;
+                    const maKhachHang = sessionStorage.getItem("maKhachHang");
+
+                    if (!maKhachHang) {
+                        showAlert("danger", "Không tìm thấy thông tin khách hàng. Vui lòng đăng nhập lại!");
+                        return;
+                    }
+
+                    const maPhuongXa = document.getElementById('recipient-ward').value;
+                    if (!maPhuongXa) {
+                        showAlert("danger", "Vui lòng chọn đầy đủ thông tin địa chỉ!");
+                        document.getElementById('save-btn-text').style.display = 'inline-block';
+                        document.getElementById('save-btn-loading').style.display = 'none';
+                        return;
+                    }
+
+                    const diaChiSoNha = document.getElementById('recipient-address').value;
+                    if (!diaChiSoNha) {
+                        showAlert("danger", "Vui lòng nhập số nhà, tên đường!");
+                        document.getElementById('save-btn-text').style.display = 'inline-block';
+                        document.getElementById('save-btn-loading').style.display = 'none';
+                        return;
+                    }
+
+                    let maSoNha = document.getElementById('recipient-address-id').value;
+                    if (!maSoNha) {
+                        maSoNha = await generateMaSoNha();
+                        document.getElementById('recipient-address-id').value = maSoNha;
+                    }
+
+                    const recipientData = {
+                        maNguoiNhan: recipientId || "",
+                        maKhachHang: maKhachHang,
+                        maSoNha: maSoNha,
+                        hoTen: document.getElementById('recipient-name').value,
+                        sdt: document.getElementById('recipient-phone').value,
+                        diaChi: diaChiSoNha,
+                        maPhuongXa: maPhuongXa
+                    };
+
+                    console.log("Gửi dữ liệu lên API:", recipientData);
+
+                    const method = recipientId ? "PUT" : "POST";
+                    const url = recipientId
+                        ? `https://localhost:7113/api/NguoiNhan/Update`
+                        : `https://localhost:7113/api/NguoiNhan/Create`;
+
+                    const response = await fetch(url, {
+                        method: method,
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(recipientData)
+                    });
+
+                    if (response.ok) {
+                        const contentType = response.headers.get("content-type");
+                        let result = null;
+                        if (contentType && contentType.includes("application/json")) {
+                            result = await response.json();
+                            console.log("Phản hồi từ API:", result);
+                        } else {
+                            console.log("API trả về status OK nhưng không có body JSON");
+                        }
+
+                        closeRecipientModal();
+                        showAlert("success", recipientId ? "Cập nhật thông tin người nhận thành công!" : "Thêm người nhận mới thành công!");
+                        await loadRecipients();
+                    } else {
+                        const errorText = await response.text();
+                        console.error("Lỗi từ API:", response.status, errorText);
+
+                        let errorMessage = `Lỗi HTTP ${response.status}: Không thể lưu thông tin người nhận!`;
+                        if (response.status === 500) {
+                            errorMessage += " (Lỗi server nội bộ, vui lòng kiểm tra log server hoặc liên hệ admin.)";
+                        } else {
+                            const contentType = response.headers.get("content-type");
+                            if (contentType && contentType.includes("application/json")) {
+                                try {
+                                    const errorData = JSON.parse(errorText);
+                                    errorMessage = errorData.message || errorMessage;
+                                } catch (e) {
+                                    console.error("Không thể phân tích JSON lỗi:", e);
+                                }
+                            } else {
+                                errorMessage = errorText || errorMessage;
+                            }
+                        }
+                        showAlert("danger", errorMessage);
+                    }
+                } catch (error) {
+                    console.error("Lỗi khi lưu thông tin người nhận:", error);
+                    showAlert("danger", "Lỗi khi lưu thông tin người nhận. Vui lòng thử lại sau!");
+                } finally {
+                    document.getElementById('save-btn-text').style.display = 'inline-block';
+                    document.getElementById('save-btn-loading').style.display = 'none';
+                }
+            }
+
+            // Hàm hiển thị xác nhận xóa
+            function showDeleteConfirmation(recipientId) {
+                document.getElementById('delete-recipient-id').value = recipientId;
+                document.getElementById('delete-modal').style.display = 'block';
+            }
+
+            // Hàm đóng modal xóa
+            function closeDeleteModal() {
+                document.getElementById('delete-modal').style.display = 'none';
+            }
+
+            // Hàm xóa người nhận
+            async function deleteRecipient() {
+                try {
+                    document.getElementById('delete-btn-text').style.display = 'none';
+                    document.getElementById('delete-btn-loading').style.display = 'inline-block';
+
+                    const recipientId = document.getElementById('delete-recipient-id').value;
+                    if (!recipientId) {
+                        showAlert("danger", "Không tìm thấy thông tin người nhận cần xóa!");
+                        return;
+                    }
+
+                    const response = await fetch(`https://localhost:7113/api/NguoiNhan/Delete?maNguoiNhan=${encodeURIComponent(recipientId)}`, {
+                        method: "DELETE"
+                    });
+
+                    if (response.ok) {
+                        closeDeleteModal();
+                        showAlert("success", "Xóa người nhận thành công!");
+                        await loadRecipients();
+                    } else {
+                        const errorData = await response.json();
+                        showAlert("danger", errorData.message || "Không thể xóa người nhận!");
+                    }
+                } catch (error) {
+                    console.error("Lỗi khi xóa người nhận:", error);
+                    showAlert("danger", "Lỗi khi xóa người nhận. Vui lòng thử lại sau!");
+                } finally {
+                    document.getElementById('delete-btn-text').style.display = 'inline-block';
+                    document.getElementById('delete-btn-loading').style.display = 'none';
+                }
+            }
+
+            // Hàm hiển thị thông báo
+            function showAlert(type, message) {
+                const alertSuccess = document.getElementById("alert-success");
+                const alertDanger = document.getElementById("alert-danger");
+
+                alertSuccess.style.display = "none";
+                alertDanger.style.display = "none";
+
+                if (type === "success") {
+                    alertSuccess.textContent = message;
+                    alertSuccess.style.display = "block";
+                    setTimeout(() => {
+                        alertSuccess.style.display = "none";
+                    }, 5000);
+                } else if (type === "danger") {
+                    alertDanger.textContent = message;
+                    alertDanger.style.display = "block";
+                    setTimeout(() => {
+                        alertDanger.style.display = "none";
+                    }, 5000);
+                }
+            }
+
+            // Khởi tạo dropdown địa chỉ
+            function initAddressDropdowns() {
+                const citySelect = document.getElementById("recipient-city");
+                const districtSelect = document.getElementById("recipient-district");
+                const wardSelect = document.getElementById("recipient-ward");
+                const addressInput = document.getElementById("recipient-address");
+
+                checkApiConnection().then(connected => {
+                    if (connected) {
+                        loadCities();
+                    }
+                });
+
+                citySelect.addEventListener("change", async function () {
+                    const selectedCityCode = this.value;
+                    // Xóa quận/huyện và phường/xã nếu chưa chọn tỉnh/thành phố
+                    if (!selectedCityCode) {
+                        while (districtSelect.options.length > 1) districtSelect.remove(1);
+                        while (wardSelect.options.length > 1) wardSelect.remove(1);
+                    } else {
+                        await loadDistricts(selectedCityCode);
+                        while (wardSelect.options.length > 1) wardSelect.remove(1);
+                    }
+                    addressInput.value = "";
+                    document.getElementById("recipient-address-id").value = "";
+                });
+
+
+
+                districtSelect.addEventListener("change", async function () {
+                    const selectedDistrictCode = this.value;
+                    if (!selectedDistrictCode) {
+                        while (wardSelect.options.length > 1) wardSelect.remove(1);
+                    } else {
+                        await loadWards(selectedDistrictCode);
+                    }
+                    addressInput.value = "";
+                    document.getElementById("recipient-address-id").value = "";
+                });
+
+                wardSelect.addEventListener("change", function () {
+                    addressInput.value = "";
+                    document.getElementById("recipient-address-id").value = "";
+                });
+
+                addressInput.addEventListener("input", async function () {
+                    if (this.value && !document.getElementById("recipient-address-id").value) {
+                        const maSoNha = await generateMaSoNha();
+                        document.getElementById("recipient-address-id").value = maSoNha;
+                    }
+                });
+            }
+
+            // Kiểm tra kết nối API
+            async function checkApiConnection() {
+                try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 5000);
+                    const response = await fetch("https://localhost:7113/api/DiaChi/TinhThanhPho", {
+                        signal: controller.signal,
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Cache-Control': 'no-cache'
+                        },
+                        credentials: 'include'
+                    });
+                    clearTimeout(timeoutId);
+
+                    if (!response.ok) {
+                        console.error("Không thể kết nối đến API. Status:", response.status);
+                        showAlert("danger", "Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng và đảm bảo API đang chạy.");
+                        return false;
+                    }
+
+                    const contentType = response.headers.get("content-type");
+                    if (!contentType || !contentType.includes("application/json")) {
+                        console.error("API không trả về dữ liệu JSON!");
+                        showAlert("danger", "API không trả về định dạng dữ liệu đúng. Vui lòng kiểm tra cấu hình API.");
+                        return false;
+                    }
+
+                    console.log("Kết nối API thành công!");
+                    return true;
+                } catch (error) {
+                    console.error("Lỗi kết nối API:", error);
+                    if (error.name === 'AbortError') {
+                        showAlert("danger", "Kết nối đến máy chủ quá thời gian. Vui lòng thử lại sau.");
+                    } else {
+                        showAlert("danger", "Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng và đảm bảo API đang chạy.");
+                    }
+                    return false;
+                }
+            }
+
+            // Tải danh sách tỉnh/thành phố
+            async function loadCities() {
+                const citySelect = document.getElementById("recipient-city");
+                const url = "https://localhost:7113/api/DiaChi/TinhThanhPho";
+
+                try {
+                    console.log("Đang tải tỉnh/thành phố từ:", url);
+                    while (citySelect.options.length > 1) citySelect.remove(1);
+
+                    const response = await fetch(url, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'Cache-Control': 'no-cache'
+                        },
+                        credentials: 'include'
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    console.log("Dữ liệu tỉnh/thành phố nhận được:", data);
+
+                    let cities = Array.isArray(data) ? data : (Array.isArray(data.value) ? data.value : []);
+                    if (cities.length === 0 && typeof data === 'object') {
+                        cities = Object.values(data);
+                    }
+
+                    if (cities.length === 0) {
+                        console.warn("Không có dữ liệu tỉnh/thành phố");
+                        addDefaultAddressData();
+                        return [];
+                    }
+
+                    cities.forEach(city => {
+                        if (city && typeof city === 'object') {
+                            const maTinhTP = city.maTinhTP || city.MaTinhTP;
+                            const tenTinhTP = city.tenTinhTP || city.TenTinhTP;
+                            if (maTinhTP && tenTinhTP) {
+                                const option = document.createElement("option");
+                                option.value = maTinhTP;
+                                option.textContent = tenTinhTP;
+                                citySelect.appendChild(option);
+                            }
+                        }
+                    });
+
+                    console.log(`Đã tải ${cities.length} tỉnh/thành phố`);
+                    return cities;
+                } catch (error) {
+                    console.error("Lỗi khi tải danh sách tỉnh/thành phố:", error);
+                    showAlert("danger", "Không thể tải danh sách tỉnh/thành phố. Vui lòng thử lại sau.");
+                    addDefaultAddressData();
+                    return [];
+                }
+            }
+
+            // Tải danh sách quận/huyện
+            async function loadDistricts(cityCode) {
+                const districtSelect = document.getElementById("recipient-district");
+                if (!cityCode) {
+                    while (districtSelect.options.length > 1) districtSelect.remove(1);
+                    return;
+                }
+
+                try {
+                    const url = `https://localhost:7113/api/DiaChi/QuanHuyen?maTinhTP=${encodeURIComponent(cityCode)}`;
+                    console.log("Đang tải quận/huyện từ:", url);
+
+                    const response = await fetch(url, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'Cache-Control': 'no-cache'
+                        },
+                        credentials: 'include'
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    console.log("Dữ liệu quận/huyện nhận được:", data);
+
+                    while (districtSelect.options.length > 1) districtSelect.remove(1);
+
+                    let districts = Array.isArray(data) ? data : (Array.isArray(data.value) ? data.value : []);
+                    if (districts.length === 0 && typeof data === 'object') {
+                        districts = Object.values(data);
+                    }
+
+                    if (districts.length === 0) {
+                        console.warn("Không có quận/huyện nào cho tỉnh/thành phố này");
+                        return [];
+                    }
+
+                    districts.forEach(district => {
+                        if (district && typeof district === 'object') {
+                            const maQuanHuyen = district.maQuanHuyen || district.MaQuanHuyen;
+                            const tenQuanHuyen = district.tenQuanHuyen || district.TenQuanHuyen;
+                            if (maQuanHuyen && tenQuanHuyen) {
+                                const option = document.createElement("option");
+                                option.value = maQuanHuyen;
+                                option.textContent = tenQuanHuyen;
+                                districtSelect.appendChild(option);
+                            }
+                        }
+                    });
+
+                    console.log(`Đã tải ${districts.length} quận/huyện`);
+                    return districts;
+                } catch (error) {
+                    console.error("Lỗi khi tải quận/huyện:", error);
+                    showAlert("danger", "Không thể tải danh sách quận/huyện. Vui lòng thử lại sau.");
+                    return [];
+                }
+            }
+
+            // Tải danh sách phường/xã
+            async function loadWards(districtCode) {
+                const wardSelect = document.getElementById("recipient-ward");
+                if (!districtCode) {
+                    while (wardSelect.options.length > 1) wardSelect.remove(1);
+                    return;
+                }
+
+                try {
+                    const url = `https://localhost:7113/api/DiaChi/PhuongXa?maQuanHuyen=${encodeURIComponent(districtCode)}`;
+                    console.log("Đang tải phường/xã từ:", url);
+
+                    const response = await fetch(url, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'Cache-Control': 'no-cache'
+                        },
+                        credentials: 'include'
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    console.log("Dữ liệu phường/xã nhận được:", data);
+
+                    while (wardSelect.options.length > 1) wardSelect.remove(1);
+
+                    let wards = Array.isArray(data) ? data : (Array.isArray(data.value) ? data.value : []);
+                    if (wards.length === 0 && typeof data === 'object') {
+                        wards = Object.values(data);
+                    }
+
+                    if (wards.length === 0) {
+                        console.warn("Không có phường/xã nào cho quận/huyện này");
+                        return [];
+                    }
+
+                    wards.forEach(ward => {
+                        if (ward && typeof ward === 'object') {
+                            const maPhuongXa = ward.maPhuongXa || ward.MaPhuongXa;
+                            const tenPhuongXa = ward.tenPhuongXa || ward.TenPhuongXa;
+                            if (maPhuongXa && tenPhuongXa) {
+                                const option = document.createElement("option");
+                                option.value = maPhuongXa;
+                                option.textContent = tenPhuongXa;
+                                wardSelect.appendChild(option);
+                            }
+                        }
+                    });
+
+                    console.log(`Đã tải ${wards.length} phường/xã`);
+                    return wards;
+                } catch (error) {
+                    console.error("Lỗi khi tải phường/xã:", error);
+                    showAlert("danger", "Không thể tải danh sách phường/xã. Vui lòng thử lại sau.");
+                    return [];
+                }
+            }
+
+            // Tạo mã số nhà
+            async function generateMaSoNha() {
+                try {
+                    const response = await fetch("https://localhost:7113/api/DiaChi/GenerateMaSoNha");
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+
+                    const textData = await response.text();
+                    try {
+                        const data = JSON.parse(textData);
+                        console.log("Đã tạo mã số nhà từ API (JSON):", data.maSoNha);
+                        return data.maSoNha;
+                    } catch {
+                        console.log("API trả về text, không phải JSON:", textData);
+                        return textData.trim();
+                    }
+                } catch (error) {
+                    console.error("Lỗi khi tạo mã số nhà từ API:", error);
+                    const maSoNha = "SN" + new Date().getTime();
+                    console.log("Đã tạo mã số nhà trên client:", maSoNha);
+                    return maSoNha;
+                }
+            }
+
+            // Thêm dữ liệu địa chỉ mặc định khi không kết nối được API
+            function addDefaultAddressData() {
+                const citySelect = document.getElementById("recipient-city");
+                const districtSelect = document.getElementById("recipient-district");
+                const wardSelect = document.getElementById("recipient-ward");
+
+                while (citySelect.options.length > 1) citySelect.remove(1);
+                while (districtSelect.options.length > 1) districtSelect.remove(1);
+                while (wardSelect.options.length > 1) wardSelect.remove(1);
+
+                const defaultCities = [
+                    { maTinhTP: "HN", tenTinhTP: "Hà Nội" },
+                    { maTinhTP: "HCM", tenTinhTP: "Hồ Chí Minh" },
+                    { maTinhTP: "DN", tenTinhTP: "Đà Nẵng" },
+                    { maTinhTP: "HP", tenTinhTP: "Hải Phòng" },
+                    { maTinhTP: "CT", tenTinhTP: "Cần Thơ" }
+                ];
+
+                defaultCities.forEach(city => {
+                    const option = document.createElement("option");
+                    option.value = city.maTinhTP;
+                    option.textContent = city.tenTinhTP;
+                    citySelect.appendChild(option);
+                });
+            }
+
+            // Hàm đăng xuất
+            function logout() {
+                sessionStorage.removeItem("userEmail");
+                sessionStorage.removeItem("maKhachHang");
+                window.location.href = "TrangChu.html";
+            }
+        </script>
+    </body>
+</html>

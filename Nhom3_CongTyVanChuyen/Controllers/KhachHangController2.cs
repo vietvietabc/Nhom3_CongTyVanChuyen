@@ -1,12 +1,13 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Nhom3_CongTyVanChuyen.Data;
 using System;
 using System.Linq;
-using System.Threading.Tasks;
-using Nhom3_CongTyVanChuyen.Data;
-using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
-using Microsoft.Extensions.Logging;
+using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 
 namespace Nhom3_CongTyVanChuyen.Controllers
 {
@@ -44,10 +45,17 @@ namespace Nhom3_CongTyVanChuyen.Controllers
                 _logger.LogInformation($"Email: {email}");
 
                 // Tìm khách hàng theo email
+                //var khachHang = await _context.KhachHangs
+                //    .Include(k => k.SoNha)
+                //    .Where(k => k.Email == email)
+                //    .FirstOrDefaultAsync();
                 var khachHang = await _context.KhachHangs
-                    .Include(k => k.SoNha)
-                    .Where(k => k.Email == email)
-                    .FirstOrDefaultAsync();
+    .Include(k => k.SoNha)
+        .ThenInclude(s => s.PhuongXa)
+            .ThenInclude(p => p.QuanHuyen)
+                .ThenInclude(q => q.TinhThanhPho)
+    .Where(k => k.Email == email)
+    .FirstOrDefaultAsync();
 
                 if (khachHang == null)
                 {
@@ -70,7 +78,8 @@ namespace Nhom3_CongTyVanChuyen.Controllers
                     tinhThanh = khachHang.SoNha?.PhuongXa?.QuanHuyen?.TinhThanhPho?.TenTinhTP,
                     quanHuyen = khachHang.SoNha?.PhuongXa?.QuanHuyen?.TenQuanHuyen,
                     phuongXa = khachHang.SoNha?.PhuongXa?.TenPhuongXa,
-                    duong = khachHang.SoNha?.DiaChiSoNha
+                    duong = khachHang.SoNha?.DiaChiSoNha,
+                    maSoNha = khachHang.MaSoNha
                 };
 
                 _logger.LogInformation($"Trả về dữ liệu: {JsonSerializer.Serialize(result)}");
@@ -127,7 +136,8 @@ namespace Nhom3_CongTyVanChuyen.Controllers
                     tinhThanh = khachHang.SoNha?.PhuongXa?.QuanHuyen?.TinhThanhPho?.TenTinhTP,
                     quanHuyen = khachHang.SoNha?.PhuongXa?.QuanHuyen?.TenQuanHuyen,
                     phuongXa = khachHang.SoNha?.PhuongXa?.TenPhuongXa,
-                    duong = khachHang.SoNha?.DiaChiSoNha
+                    duong = khachHang.SoNha?.DiaChiSoNha,
+                    maSoNha = khachHang.MaSoNha
                 };
 
                 _logger.LogInformation($"Trả về dữ liệu: {JsonSerializer.Serialize(result)}");
@@ -140,7 +150,6 @@ namespace Nhom3_CongTyVanChuyen.Controllers
             }
         }
 
-        // PUT: api/KhachHangController2/UpdateInfo
         // PUT: api/KhachHangController2/UpdateInfo
         [HttpPut("UpdateInfo")]
         public async Task<IActionResult> UpdateInfo([FromBody] KhachHangUpdateModel model)
@@ -180,48 +189,93 @@ namespace Nhom3_CongTyVanChuyen.Controllers
                 khachHang.SDT = model.SDT ?? khachHang.SDT;
 
                 // Xử lý ngày sinh nếu có
-                if (model.NgaySinh.HasValue)
+                if (!string.IsNullOrEmpty(model.NgaySinh))
                 {
-                    khachHang.NgaySinh = model.NgaySinh.Value;
+                    try
+                    {
+                        khachHang.NgaySinh = DateTime.Parse(model.NgaySinh);
+                        _logger.LogInformation($"Đã cập nhật ngày sinh: {model.NgaySinh}");
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning($"Không thể chuyển đổi ngày sinh: {model.NgaySinh}, lỗi: {ex.Message}");
+                    }
                 }
 
-                khachHang.CCCD = model.CMND ?? khachHang.CCCD;
+                khachHang.CCCD = model.CCCD ?? khachHang.CCCD;
 
                 // Xử lý thông tin địa chỉ
-                if (!string.IsNullOrEmpty(model.MaSoNha) && !string.IsNullOrEmpty(model.DiaChi) && !string.IsNullOrEmpty(model.PhuongXa))
+                if (!string.IsNullOrEmpty(model.PhuongXa) && !string.IsNullOrEmpty(model.DiaChi))
                 {
+                    _logger.LogInformation($"Xử lý thông tin địa chỉ: DiaChi={model.DiaChi}, MaPhuongXa={model.PhuongXa}");
+
+                    // Kiểm tra PhuongXa có tồn tại không
+                    var phuongXa = await _context.PhuongXas.FindAsync(model.PhuongXa);
+                    if (phuongXa == null)
+                    {
+                        _logger.LogWarning($"Không tìm thấy phường xã với mã: {model.PhuongXa}");
+                        return BadRequest(new { message = $"Không tìm thấy phường xã với mã: {model.PhuongXa}" });
+                    }
+
+                    // Tạo hoặc cập nhật SoNha
+                    string maSoNha = model.MaSoNha;
+                    if (string.IsNullOrEmpty(maSoNha))
+                    {
+                        // Tạo mã số nhà mới nếu không có
+                        maSoNha = "SN" + DateTime.Now.Ticks.ToString();
+                        _logger.LogInformation($"Đã tạo mã số nhà mới: {maSoNha}");
+                    }
+
                     // Kiểm tra SoNha đã tồn tại chưa
-                    var soNha = await _context.SoNhas.FindAsync(model.MaSoNha);
+                    var soNha = await _context.SoNhas.FindAsync(maSoNha);
 
                     if (soNha == null)
                     {
                         // Tạo mới SoNha
                         soNha = new SoNha
                         {
-                            MaSoNha = model.MaSoNha,
-                            MaPhuongXa = model.PhuongXa,  // Đã được gửi đúng mã từ client
+                            MaSoNha = maSoNha,
+                            MaPhuongXa = model.PhuongXa,
                             DiaChiSoNha = model.DiaChi
                         };
                         _context.SoNhas.Add(soNha);
-                        _logger.LogInformation($"Đã tạo mới SoNha: {model.MaSoNha}");
+                        _logger.LogInformation($"Đã tạo mới SoNha: {maSoNha}");
                     }
                     else
                     {
                         // Cập nhật SoNha
                         soNha.MaPhuongXa = model.PhuongXa;
                         soNha.DiaChiSoNha = model.DiaChi;
-                        _logger.LogInformation($"Đã cập nhật SoNha: {model.MaSoNha}");
+                        _logger.LogInformation($"Đã cập nhật SoNha: {maSoNha}");
                     }
 
                     // Liên kết khách hàng với SoNha
-                    khachHang.MaSoNha = model.MaSoNha;
+                    khachHang.MaSoNha = maSoNha;
+                    _logger.LogInformation($"Đã liên kết khách hàng {khachHang.MaKhachHang} với SoNha {maSoNha}");
+                }
+                else
+                {
+                    _logger.LogWarning("Thiếu thông tin địa chỉ: DiaChi hoặc PhuongXa");
                 }
 
                 // Lưu thay đổi vào database
                 await _context.SaveChangesAsync();
                 _logger.LogInformation("Cập nhật thông tin thành công");
 
-                return Ok(new { message = "Cập nhật thông tin thành công" });
+                return Ok(new
+                {
+                    message = "Cập nhật thông tin thành công",
+                    data = new
+                    {
+                        maKhachHang = khachHang.MaKhachHang,
+                        tenKhachHang = khachHang.TenKhachHang,
+                        email = khachHang.Email,
+                        sdt = khachHang.SDT,
+                        ngaySinh = khachHang.NgaySinh,
+                        cccd = khachHang.CCCD,
+                        maSoNha = khachHang.MaSoNha
+                    }
+                });
             }
             catch (Exception ex)
             {
@@ -229,18 +283,22 @@ namespace Nhom3_CongTyVanChuyen.Controllers
                 return StatusCode(500, new { message = "Lỗi server: " + ex.Message });
             }
         }
+
         // Model để nhận dữ liệu cập nhật từ client
         public class KhachHangUpdateModel
         {
             public string Email { get; set; }
             public string TenKhachHang { get; set; }
             public string SDT { get; set; }
-            public DateTime? NgaySinh { get; set; }
-            public string CMND { get; set; }
+            public string NgaySinh { get; set; } // vẫn để string để tiện xử lý parse
+
+            [JsonPropertyName("cccd")] // ánh xạ với trường CCCD trong KhachHang.cs
+            public string CCCD { get; set; }
+
             public string DiaChi { get; set; }
             public string TinhThanh { get; set; }
             public string QuanHuyen { get; set; }
-            public string PhuongXa { get; set; } // Đây nên là mã phường xã
+            public string PhuongXa { get; set; }
             public string Duong { get; set; }
             public string MaSoNha { get; set; }
         }

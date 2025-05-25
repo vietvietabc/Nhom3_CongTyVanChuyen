@@ -459,6 +459,12 @@
                 </a>
             </li>
             <li>
+                <a href="#" onclick="loadHuyDonGiaoHang()">
+                    <i class="fas fa-fw fa-ban me-2"></i>
+                    Hủy đơn giao hàng
+                </a>
+            </li>
+            <li>
                 <a href="#" onclick="loadProfile()">
                     <i class="fas fa-user"></i> Hồ sơ cá nhân
                 </a>
@@ -652,6 +658,40 @@
                 if (item.innerText.trim() === title) item.classList.add('active');
             });
         }
+        function loadHuyDonGiaoHang() {
+            document.getElementById('pageTitle').innerText = 'Hủy đơn giao hàng';
+
+            const mainContent = document.getElementById('mainContent');
+            mainContent.innerHTML = `
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 font-weight-bold text-danger">Danh sách đơn hàng có thể hủy</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered" width="100%" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Mã đơn hàng</th>
+                                        <th>Khách hàng</th>
+                                        <th>Ngày gửi</th>
+                                        <th>Trạng thái</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="huyDonTableBody">
+                                    <tr>
+                                        <td colspan="6" class="text-center">Đang tải dữ liệu...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+            loadDanhSachDonHangCoTheHuy();
+        }
 
         // 1. Đơn hàng cần giao
         async function loadAssignedOrders() {
@@ -722,12 +762,17 @@
                     <div class="order-item row align-items-center">
                         <div class="col-md-2 fw-bold">#${ma}</div>
                         <div class="col-md-3">
-                            <i class="fas fa-user me-1"></i> ${tenKhachHang}<br>
-                            <small class="text-muted"><i class="fas fa-phone me-1"></i> ${sdtKhachHang}</small>
+                            <i class="fas fa-user me-1"></i> Khách: ${tenKhachHang}<br>
+                            <small class="text-muted">
+                                <i class="fas fa-phone me-1"></i> SĐT: ${sdtKhachHang}
+                            </small>
                         </div>
                         <div class="col-md-3">
-                            <i class="fas fa-map-marker-alt me-1"></i> ${shortenAddress(diaChiGiao)}
-                            <br><small class="text-muted"><i class="fas fa-calendar me-1"></i> ${formatDate(ngayGui)}</small>
+                            <i class="fas fa-map-marker-alt me-1"></i> Địa chỉ: ${shortenAddress(diaChiGiao)}
+                            <br>
+                            <small class="text-muted">
+                                <i class="fas fa-calendar me-1"></i> Ngày gửi: ${formatDate(ngayGui)}
+                            </small>
                         </div>
                         <div class="col-md-2">
                             <span class="badge ${getBadgeClass(trangThai)}">${trangThai}</span>
@@ -768,14 +813,14 @@
                     <div class="order-list">
                         ${orders.length ? orders.map(order => `
                             <div class="order-item row align-items-center">
-                                <div class="col-md-2 fw-bold">#${order.ma}</div>
+                                <div class="col-md-2 fw-bold">${order.ma}</div>
                                 <div class="col-md-3">
-                                    <i class="fas fa-user me-1"></i> ${order.tenKhachHang}<br>
-                                    <small class="text-muted"><i class="fas fa-phone me-1"></i> ${order.sdtKhachHang || 'N/A'}</small>
+                                    <i class="fas fa-user me-1"></i> Khách: ${order.tenKhachHang}<br>
+                                    <small class="text-muted"><i class="fas fa-phone me-1"></i> Số điện thoại:  ${order.sdtKhachHang || 'N/A'}</small>
                                 </div>
                                 <div class="col-md-3">
-                                    <i class="fas fa-map-marker-alt me-1"></i> ${shortenAddress(order.diaChiGiao)}
-                                    <br><small class="text-muted"><i class="fas fa-calendar me-1"></i> ${formatDate(order.ngayGui)}</small>
+                                    <i class="fas fa-map-marker-alt me-1"></i> Địa chỉ giao hàng: ${shortenAddress(order.diaChiGiao)}
+                                    <br><small class="text-muted"><i class="fas fa-calendar me-1"></i> Ngày gửi: ${formatDate(order.ngayGui)}</small>
                                 </div>
                                 <div class="col-md-2">
                                     <span class="badge ${getBadgeClass(order.trangThai)}">${order.trangThai}</span>
@@ -822,11 +867,11 @@
                             <div class="order-item row align-items-center">
                                 <div class="col-md-2 fw-bold">#${order.ma}</div>
                                 <div class="col-md-3">
-                                    <i class="fas fa-user me-1"></i> ${order.tenKhachHang}<br>
-                                    <small class="text-muted"><i class="fas fa-phone me-1"></i> ${order.sdtKhachHang || 'N/A'}</small>
+                                    <i class="fas fa-user me-1"></i> Khách: ${order.tenKhachHang}<br>
+                                    <small class="text-muted"><i class="fas fa-phone me-1"></i> Số điện thoại: ${order.sdtKhachHang || 'N/A'}</small>
                                 </div>
                                 <div class="col-md-2">
-                                    <i class="fas fa-calendar me-1"></i> ${formatDate(order.ngayNhan || order.ngayGui)}
+                                    <i class="fas fa-calendar me-1"></i> Ngày nhận: ${formatDate(order.ngayNhan || order.ngayGui)}
                                 </div>
                                 <div class="col-md-3">
                                     <div><strong>TT thanh toán:</strong>
@@ -1243,52 +1288,106 @@
         // 4. Đơn hàng & Tiền thu hộ (COD)
         async function loadCODOrders() {
             setPageTitle('Đơn hàng & Tiền thu hộ');
-            document.getElementById('mainContent').innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>';
+            document.getElementById('mainContent').innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div><p>Đang tải dữ liệu...</p></div>';
+
             try {
-                const res = await fetch(`${apiBaseUrl}/NVGH/COD?MaNhanVien=${currentUser.maNhanVien}`);
-                const orders = res.ok ? await res.json() : [];
+                // Force refresh data from server to get latest status
+                const res = await fetch(`${apiBaseUrl}/NVGH/COD?MaNhanVien=${currentUser.maNhanVien}&_=${Date.now()}`);
+
+                if (!res.ok) {
+                    throw new Error("Lỗi khi lấy dữ liệu từ server");
+                }
+
+                const orders = await res.json();
+                console.log("COD orders loaded:", orders);
+
+                // Calculate total COD amount (only include amounts not yet collected)
                 let totalCOD = 0;
-                orders.forEach(o => { if (o.tienThuHo) totalCOD += o.tienThuHo; });
+                orders.forEach(o => {
+                    // Only add to total if there's money to collect AND it hasn't been collected yet
+                    if (o.tienThuHo && o.trangThaiThuHo !== 'Đã thu')
+                        totalCOD += o.tienThuHo;
+                });
+
+
+                // Render the orders list with collection status
                 document.getElementById('mainContent').innerHTML = `
-                                    <div class="card mb-3">
-                                        <div class="card-body d-flex justify-content-between">
-                                            <div><b>Tổng số đơn COD:</b> <span class="badge bg-primary">${orders.length}</span></div>
-                                            <div><b>Tổng tiền cần thu:</b> <span class="text-danger fw-bold">${formatCurrency(totalCOD)}</span></div>
-                                        </div>
-                                    </div>
-                                    <div class="order-list">
-                                        ${orders.length ? orders.map(renderCODOrderItem).join('') : '<div class="alert alert-info">Không có đơn hàng COD nào</div>'}
-                                    </div>
-                                `;
-            } catch {
-                document.getElementById('mainContent').innerHTML = '<div class="alert alert-danger">Lỗi tải danh sách COD</div>';
+            <div class="card mb-3">
+                <div class="card-body d-flex justify-content-between">
+                    <div><b>Tổng số đơn COD:</b> <span class="badge bg-primary">${orders.length}</span></div>
+                    <div><b>Tổng tiền cần nạp:</b> <span class="text-danger fw-bold">${formatCurrency(totalCOD)}</span></div>
+                    <button class="btn btn-sm btn-outline-primary" onclick="refreshCODData()">
+                        <i class="fas fa-sync-alt"></i> Làm mới dữ liệu
+                    </button>
+                </div>
+            </div>
+            <div class="order-list">
+                ${orders.length ? orders.map(renderCODOrderItem).join('') : '<div class="alert alert-info">Không có đơn hàng COD nào</div>'}
+            </div>
+        `;
+            } catch (error) {
+                console.error("Error loading COD orders:", error);
+                document.getElementById('mainContent').innerHTML = `
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle"></i> Lỗi tải danh sách COD: ${error.message}
+                <div class="mt-2">
+                    <button class="btn btn-outline-danger" onclick="loadCODOrders()">
+                        <i class="fas fa-sync"></i> Thử lại
+                    </button>
+                </div>
+            </div>
+        `;
             }
         }
+
+        // Function to refresh the COD data
+        function refreshCODData() {
+            loadCODOrders();
+        }
+
+        // Fixed function to render COD order item with correct collection status
         function renderCODOrderItem(order) {
+            // Get trạng thái thu hộ directly from the order object
+            // IMPORTANT: Use trangThaiThuHo field from API response for correct status
+            const trangThaiThuHo = order.trangThaiThuHo || 'Chưa thu';
+
+            // Choose badge color based on collection status
+            let statusBadgeClass;
+            switch (trangThaiThuHo) {
+                case 'Đã thu':
+                    statusBadgeClass = 'badge-success';
+                    break;
+                case 'Đã nộp':
+                    statusBadgeClass = 'badge-primary';
+                    break;
+                case 'Chưa thu':
+                default:
+                    statusBadgeClass = 'badge-danger';
+                    break;
+            }
+
             return `
-        <div class="order-item row align-items-center">
-            <div class="col-md-2 fw-bold">#${order.ma}</div>
+        <div class="order-item row align-items-center mb-3">
+            <div class="col-md-2 fw-bold">${order.ma || order.maDonHang}</div>
             <div class="col-md-3">
-                <i class="fas fa-user me-1"></i> ${order.tenKhachHang}<br>
-                <small class="text-muted"><i class="fas fa-phone me-1"></i> ${order.sdtKhachHang || 'N/A'}</small>
+                <i class="fas fa-user me-1"></i> Khách: ${order.tenKhachHang}<br>
+                <small class="text-muted"><i class="fas fa-phone me-1"></i>Số điện thoại: ${order.sdtKhachHang || 'N/A'}</small>
             </div>
             <div class="col-md-3">
-                <i class="fas fa-map-marker-alt me-1"></i> ${shortenAddress(order.diaChiGiao)}
-                <br><small class="text-muted"><i class="fas fa-calendar me-1"></i> ${formatDate(order.ngayGui)}</small>
+                <i class="fas fa-map-marker-alt me-1"></i>Địa chỉ giao hàng: ${shortenAddress(order.diaChiGiao)}
+                <br><small class="text-muted"><i class="fas fa-calendar me-1"></i>Ngày gửi: ${formatDate(order.ngayGui)}</small>
             </div>
             <div class="col-md-2">
                 <span class="badge badge-warning">${formatCurrency(order.tienThuHo || 0)}</span>
             </div>
             <div class="col-md-2 text-end">
-                <!-- Sửa từ daThanhToan thành daNopTien -->
-                <span class="badge ${order.daNopTien ? 'badge-success' : 'badge-danger'}">
-                    ${order.daNopTien ? 'Đã thu' : 'Chưa thu'}
+                <span class="badge ${statusBadgeClass}">
+                    ${trangThaiThuHo}
                 </span>
             </div>
         </div>
     `;
         }
-
 
         // 5. Lịch sử giao hàng
         async function loadOrderHistory() {
@@ -1582,6 +1681,97 @@
                 }
             });
         }
+
+
+        async function loadDanhSachDonHangCoTheHuy() {
+            try {
+                // Lấy danh sách đơn hàng chưa giao (trạng thái khác "Đã giao")
+                const response = await fetch(`${apiBaseUrl}/DonHang?excludeTrangThai=Đã giao`);
+                if (!response.ok) throw new Error('Không thể tải danh sách đơn hàng');
+
+                const donHangList = await response.json();
+                const tbody = document.getElementById('huyDonTableBody');
+
+                // Chỉ lấy các trạng thái cần hiển thị
+                const allowedStatuses = [
+                    'đang giao',
+                    'khách hẹn lại ngày giao',
+                    'khách không nhận hàng',
+                    'không tiếp nhận',
+                    'đã duyệt'
+                ];
+                const filteredList = donHangList.filter(dh =>
+                    allowedStatuses.includes((dh.trangThaiDonHang || '').toLowerCase())
+                );
+
+                if (!Array.isArray(filteredList) || filteredList.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center">Không có đơn hàng nào có thể hủy</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = filteredList.map((dh, idx) => `
+                                <tr>
+                                    <td>${idx + 1}</td>
+                                    <td>${dh.maDonHang}</td>
+                                    <td>${dh.tenKhachHang || ''}</td>
+                                    <td>${dh.ngayGui ? new Date(dh.ngayGui).toLocaleDateString('vi-VN') : ''}</td>
+                                    <td>
+                                        <span class="badge ${getBadgeClass(dh.trangThaiDonHang)}">
+                                            ${dh.trangThaiDonHang}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-danger" onclick="huyDonGiaoHang('${dh.maDonHang}')"
+                                            ${(dh.trangThaiDonHang || '').toLowerCase() === 'không tiếp nhận' ? 'disabled' : ''}>
+                                            <i class="fas fa-ban"></i> Hủy đơn
+                                        </button>
+                                    </td>
+                                </tr>
+                            `).join('');
+
+            } catch (error) {
+                const tbody = document.getElementById('huyDonTableBody');
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Lỗi: ${error.message}</td></tr>`;
+            }
+        }
+
+        async function huyDonGiaoHang(maDonHang) {
+            if (!confirm('Bạn có chắc chắn muốn hủy đơn hàng này?')) return;
+            try {
+                // Lấy mã nhân viên từ localStorage hoặc biến currentUser
+                const maNhanVien = currentUser?.maNhanVien || '';
+                const response = await fetch(`${apiBaseUrl}/DonHang/${maDonHang}/Huy?maNhanVien=${maNhanVien}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    alert(errorText || 'Không thể hủy đơn hàng');
+                    return;
+                }
+                alert('Đã hủy đơn hàng thành công!');
+                loadDanhSachDonHangCoTheHuy();
+            } catch (error) {
+                alert('Lỗi: ' + error.message);
+            }
+        }
+
+        async function hienThiSoLanHuyConLai() {
+            const maNhanVien = currentUser?.maNhanVien || '';
+            if (!maNhanVien) return;
+
+            try {
+                const res = await fetch(`${apiBaseUrl}/DonHang/SoLanHuyConLai?maNhanVien=${maNhanVien}`);
+                if (!res.ok) throw new Error('Không thể lấy số lần hủy còn lại');
+                const data = await res.json();
+                document.getElementById('soLanHuyConLai').innerHTML =
+                    `<span class="text-info">Bạn còn <b>${data.soLanConLai}</b> lần hủy đơn trong tuần này.</span>`;
+            } catch (e) {
+                document.getElementById('soLanHuyConLai').innerHTML = '';
+            }
+        }
+
         // Helper
         function formatDate(dateString) {
             if (!dateString) return 'N/A';
@@ -1603,17 +1793,19 @@
         }
         function getBadgeClass(status) {
             switch ((status || '').toLowerCase()) {
-                case 'mới': case 'chờ nhận': case 'đã nhận': return 'badge-primary';
+                case 'mới': case 'đã duyệt': case 'đã nhận': return 'badge-primary';
                 case 'đang giao': return 'badge-warning';
                 case 'đã giao': return 'badge-success';
-                case 'thất bại': case 'đã hủy': case 'không nhận hàng': return 'badge-danger';
+                case 'thất bại': case 'đã hủy': case 'khách không nhận hàng': case 'khách hẹn lại ngày giao':
+                case 'không tiếp nhận':
+                    return 'badge-danger';
                 default: return 'badge-secondary';
             }
         }
         function logout() {
             if (confirm('Bạn có chắc chắn muốn đăng xuất?')) {
-                localStorage.removeItem('userInfo'); // Xóa thông tin người dùng
-                window.location.href = '/login.html'; // Chuyển về trang đăng nhập
+                localStorage.removeItem('userInfo'); 
+                window.location.href = '/login.html'; 
             }
         }
     </script>

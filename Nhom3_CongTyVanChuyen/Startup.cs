@@ -13,6 +13,7 @@ using Nhom3_CongTyVanChuyen.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 
 namespace MyWebApiApp
@@ -39,6 +40,11 @@ namespace MyWebApiApp
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "MyWebApiApp", Version = "v1" });
             });
+            services.AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
+                });
 
             // Add Dependency Injection for DbContext (nếu có)
             // services.AddDbContext<MyDbContext>(options => ...);

@@ -1,6 +1,6 @@
 ﻿namespace Nhom3_CongTyVanChuyen.Dtos
 {
-    public class TaoDonHangDto
+    public class SuaDonHangDto
     {
         public string TenDonHang { get; set; }
         public double TienThuHo { get; set; }
