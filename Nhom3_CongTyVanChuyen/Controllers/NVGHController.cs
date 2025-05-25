@@ -449,7 +449,7 @@ namespace Nhom3_CongTyVanChuyen.Controllers
                 if (donHang == null)
                     return NotFound($"Không tìm thấy đơn hàng với mã {model.MaDonHang}");
 
-                var trangThaiMoi = model.TrangThaiMoi.Trim();
+                var trangThaiMoi = model.TrangThaiMoi.Trim().ToLower();
 
                 // Cập nhật trạng thái đơn hàng
                 donHang.TrangThaiDonHang = trangThaiMoi;

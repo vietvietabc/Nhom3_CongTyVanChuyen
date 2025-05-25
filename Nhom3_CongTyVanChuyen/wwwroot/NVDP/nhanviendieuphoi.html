@@ -916,7 +916,8 @@
                     const phiGiao = PHI_CO_BAN + (PHI_MOI_MON * soLuong) + (PHI_KG * trongLuong) + PHI_THE_TICH;
 
                     // Làm tròn lên đến nghìn gần nhất
-                    return Math.ceil(phiGiao / 1000) * 1000;
+                    return Math.ceil((phiGiao * 0.5) / 1000) * 1000;
+
                 }
 
                 // Hàm lấy giá trị input theo id, xử lý an toàn
@@ -1336,24 +1337,7 @@
                     }
                     return null; // hoặc '' nếu muốn
                 }
-                // Hàm tính phí giao hàng theo số lượng, trọng lượng, kích thước (giữ nguyên của bạn)
-                function tinhPhiGiaoHang(soLuong, trongLuong, kichThuoc) {
-                    const PHI_CO_BAN = 20000; // 20k VND phí cơ bản
-                    const PHI_MOI_MON = 5000; // 5k VND mỗi món
-                    const PHI_KG = 10000;      // 10k VND mỗi kg
 
-                    let theTich = 0;
-                    if (kichThuoc) {
-                        const dims = kichThuoc.toLowerCase().split('x').map(s => parseFloat(s.trim()));
-                        if (dims.length === 3 && dims.every(d => !isNaN(d))) {
-                            theTich = dims[0] * dims[1] * dims[2]; // cm³
-                        }
-                    }
-
-                    const PHI_THE_TICH = 2000 * (theTich / 1000);
-                    const phiGiao = PHI_CO_BAN + (PHI_MOI_MON * soLuong) + (PHI_KG * trongLuong) + PHI_THE_TICH;
-                    return Math.ceil(phiGiao / 1000) * 1000;
-                }
 
                 function getVal(id) {
                     const el = document.getElementById(id);
@@ -1449,8 +1433,25 @@
             <!-- ĐANG GIAO -->
             <div id="donHangsDangGiao" style="display: none;">
                 <div class="card shadow-sm mb-4">
-                    <div class="card-header bg-info text-white">
+                    <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
                         <h5 class="mb-0"><i class="bi bi-truck"></i> Đơn hàng đang giao</h5>
+                        <div class="d-flex align-items-center gap-2">
+                            <label for="trangThaiDangGiao" class="form-label mb-0 me-2 text-white">Trạng thái:</label>
+                            <select id="trangThaiDangGiao" class="form-select form-select-sm" style="width: auto;">
+                                <option value="">-- Chọn trạng thái --</option>
+                                <option value="đang giao">Đang giao</option>
+                                <option value="đã giao">Đã giao</option>
+
+
+                                <option value="đã duyệt">Đã duyệt</option>
+                                <option value="trả về kho">Trả về kho</option>
+                                <option value="khách hẹn lại ngày giao">Khách hẹn lại ngày giao</option>
+
+                            </select>
+                            <button id="btnResetDangGiao" class="btn btn-sm btn-light text-info border-white">
+                                <i class="bi bi-arrow-clockwise"></i> Reset
+                            </button>
+                        </div>
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive" style="overflow-x: auto;">
@@ -1493,9 +1494,22 @@
             <!-- DS ĐƠN HÀNG ĐẶC BIỆT -->
             <div id="donHangsDacBiet" style="display: none;">
                 <div class="card shadow-sm mb-4">
-                    <div class="card-header bg-danger text-white">
+                    <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
                         <h5 class="mb-0"><i class="bi bi-star-fill"></i> Danh sách đơn hàng đặc biệt</h5>
+                        <div class="d-flex align-items-center gap-2">
+                            <label for="trangThaiDacBiet" class="form-label mb-0 me-2">Trạng thái:</label>
+                            <select id="trangThaiDacBiet" class="form-select form-select-sm" style="width: auto;">
+                                <option value="">-- Chọn trạng thái --</option>
+                                <option value="Không tiếp nhận">Không tiếp nhận</option>
+                                <option value="Khách không nhận hàng">Khách không nhận hàng</option>
+                            </select>
+                            <button id="btnResetDacBiet" class="btn btn-sm btn-light text-danger border-white">
+                                <i class="bi bi-arrow-clockwise"></i> Reset
+                            </button>
+                        </div>
                     </div>
+
+
                     <div class="card-body p-0">
                         <div style="overflow-x: auto; width: 100%;">
                             <table class="table table-striped table-hover mb-0">
@@ -1750,17 +1764,17 @@
                         khachHangs.forEach(kh => {
                             const row = document.createElement("tr");
                             row.innerHTML = `
-                                                                                                                                                                                                                            <td>${kh.maKhachHang}</td>
-                                                                                                                                                                                                                            <td>${kh.tenKhachHang}</td>
-                                                                                                                                                                                                                                <td>${kh.ngaySinh ? kh.ngaySinh.split("T")[0] : "---"}</td>
-                                                                                                                                                                                                                            <td>${kh.sdt}</td>
-                                                                                                                                                                                                                            <td>${kh.diaChiChiTiet}</td>
-                                                                                                                                                                                                                            <td>
-                                                                                                                                                                                                                                <button class="btn btn-sm btn-primary" onclick='hienChiTietKH(${JSON.stringify(kh).replace(/'/g, "&apos;")})'>
-                                                                                                                                                                                                                                    <i class="bi bi-eye"></i> Xem chi tiết
-                                                                                                                                                                                                                                </button>
-                                                                                                                                                                                                                            </td>
-                                                                                                                                                                                                                        `;
+                                                                                                                                                                                                                <td>${kh.maKhachHang}</td>
+                                                                                                                                                                                                                <td>${kh.tenKhachHang}</td>
+                                                                                                                                                                                                                    <td>${kh.ngaySinh ? kh.ngaySinh.split("T")[0] : "---"}</td>
+                                                                                                                                                                                                                <td>${kh.sdt}</td>
+                                                                                                                                                                                                                <td>${kh.diaChiChiTiet}</td>
+                                                                                                                                                                                                                <td>
+                                                                                                                                                                                                                    <button class="btn btn-sm btn-primary" onclick='hienChiTietKH(${JSON.stringify(kh).replace(/'/g, "&apos;")})'>
+                                                                                                                                                                                                                        <i class="bi bi-eye"></i> Xem chi tiết
+                                                                                                                                                                                                                    </button>
+                                                                                                                                                                                                                </td>
+                                                                                                                                                                                                            `;
                             tableBody.appendChild(row);
                         });
                     } catch (error) {
@@ -1770,13 +1784,13 @@
                 }
                 function hienChiTietKH(kh) {
                     const chiTiet = `
-                                                                                                                                                                                                    <p><strong>Mã KH:</strong> ${kh.maKhachHang}</p>
-                                                                                                                                                                                                    <p><strong>Họ tên:</strong> ${kh.tenKhachHang}</p>
-                                                                                                                                                                                                    <p><strong>SĐT:</strong> ${kh.sdt}</p>
-                                                                                                                                                                                                    <p><strong>Email:</strong> ${kh.email}</p>
-                                                                                                                                                                                                    <p><strong>Ngày sinh:</strong> ${kh.ngaySinh ? kh.ngaySinh.split("T")[0] : "---"}</p>
-                                                                                                                                                                                                    <p><strong>CCCD:</strong> ${kh.cccd}</p>
-                                                                                                                                                                                                    <p><strong>Địa chỉ chi tiết:</strong> ${kh.diaChiChiTiet}</p>
+                                                                                                                                                                                        <p><strong>Mã KH:</strong> ${kh.maKhachHang}</p>
+                                                                                                                                                                                        <p><strong>Họ tên:</strong> ${kh.tenKhachHang}</p>
+                                                                                                                                                                                        <p><strong>SĐT:</strong> ${kh.sdt}</p>
+                                                                                                                                                                                        <p><strong>Email:</strong> ${kh.email}</p>
+                                                                                                                                                                                        <p><strong>Ngày sinh:</strong> ${kh.ngaySinh ? kh.ngaySinh.split("T")[0] : "---"}</p>
+                                                                                                                                                                                        <p><strong>CCCD:</strong> ${kh.cccd}</p>
+                                                                                                                                                                                        <p><strong>Địa chỉ chi tiết:</strong> ${kh.diaChiChiTiet}</p>
 `;
                     document.getElementById("chiTietNoiDungKH").innerHTML = chiTiet;
                     const modal = new bootstrap.Modal(document.getElementById("modalChiTietKH"));
@@ -1804,28 +1818,28 @@
                         donHangs.forEach(donHang => {
                             const row = document.createElement("tr");
                             row.innerHTML = `
-                                                                                                                                                                                                                                                                    <td>${donHang.maDonHang}</td>
-                                                                                                                                                                                                                                                                    <td>${donHang.tenDonHang}</td>
-                                                                                                                                                                                                                                                                        <td>${donHang.tenKhachHang}</td>
-                                                                                                                                                                                                                                                                    <td>${donHang.diaChiNguoiNhan}</td>
-                                                                                                                                                                                                                                                                    <td>${donHang.phiGiaoHang.toLocaleString()} đ</td>
-                                                                                                                                                                                                                                                                    <td>${new Date(donHang.ngayGui).toLocaleDateString()}</td>
-                                                                                                                                                                                                                                                                    <td>${donHang.trangThaiDonHang}</td>
-                                                                                                                                                                                                                                                                    <td>
-                                                                                                                                                                                                                                                                        <button class="btn btn-sm btn-info me-1" onclick='hienChiTietDonHang(${JSON.stringify(donHang)})'>
-                                                                                                                                                                                                                                                                            <i class="bi bi-eye"></i> Xem chi tiết
-                                                                                                                                                                                                                                                                        </button>
-                                                                                                                                                                                                                                                                        <button class="btn btn-success btn-sm me-1" onclick="duyetDonHang('${donHang.maDonHang}')">
-                                                                                                                                                                                                                                                                            <i class="bi bi-check-circle"></i>Duyệt
-                                                                                                                                                                                                                                                                        </button>
-                                                                                                                                                                                                                                                                        <button class="btn btn-warning btn-sm me-1" onclick="suaDonHang('${donHang.maDonHang}')">
-                                                                                                                                                                                                                                                                            <i class="bi bi-pencil-square"></i>
-                                                                                                                                                                                                                                                                        </button>
-                                                                                                                                                                                                                                                                        <button class="btn btn-danger btn-sm" onclick="huyDonHang('${donHang.maDonHang}')">
-                                                                                                                                                                                                                                                                            <i class="bi bi-trash"></i>
-                                                                                                                                                                                                                                                                        </button>
-                                                                                                                                                                                                                                                                    </td>
-                                                                                                                                                                                                                                                                `;
+                                                                                                                                                                                                                                                        <td>${donHang.maDonHang}</td>
+                                                                                                                                                                                                                                                        <td>${donHang.tenDonHang}</td>
+                                                                                                                                                                                                                                                            <td>${donHang.tenKhachHang}</td>
+                                                                                                                                                                                                                                                        <td>${donHang.diaChiNguoiNhan}</td>
+                                                                                                                                                                                                                                                        <td>${donHang.phiGiaoHang.toLocaleString()} đ</td>
+                                                                                                                                                                                                                                                        <td>${new Date(donHang.ngayGui).toLocaleDateString()}</td>
+                                                                                                                                                                                                                                                        <td>${donHang.trangThaiDonHang}</td>
+                                                                                                                                                                                                                                                        <td>
+                                                                                                                                                                                                                                                            <button class="btn btn-sm btn-info me-1" onclick='hienChiTietDonHang(${JSON.stringify(donHang)})'>
+                                                                                                                                                                                                                                                                <i class="bi bi-eye"></i> Xem chi tiết
+                                                                                                                                                                                                                                                            </button>
+                                                                                                                                                                                                                                                            <button class="btn btn-success btn-sm me-1" onclick="duyetDonHang('${donHang.maDonHang}')">
+                                                                                                                                                                                                                                                                <i class="bi bi-check-circle"></i>Duyệt
+                                                                                                                                                                                                                                                            </button>
+                                                                                                                                                                                                                                                            <button class="btn btn-warning btn-sm me-1" onclick="suaDonHang('${donHang.maDonHang}')">
+                                                                                                                                                                                                                                                                <i class="bi bi-pencil-square"></i>
+                                                                                                                                                                                                                                                            </button>
+                                                                                                                                                                                                                                                            <button class="btn btn-danger btn-sm" onclick="huyDonHang('${donHang.maDonHang}')">
+                                                                                                                                                                                                                                                                <i class="bi bi-trash"></i>
+                                                                                                                                                                                                                                                            </button>
+                                                                                                                                                                                                                                                        </td>
+                                                                                                                                                                                                                                                    `;
                             tableBody.appendChild(row);
                         });
                     } catch (error) {
@@ -1850,19 +1864,19 @@
                         donHangs.forEach(donHang => {
                             const row = document.createElement("tr");
                             row.innerHTML = `
-                                                                                                                                                                                                                        <td>${donHang.maDonHang}</td>
-                                                                                                                                                                                                                        <td>${donHang.tenDonHang}</td>
-                                                                                                                                                                                                                        <td>${donHang.tenKhachHang}</td>
-                                                                                                                                                                                                                        <td>${donHang.diaChiNguoiNhan}</td>
-                                                                                                                                                                                                                        <td>${donHang.phiGiaoHang.toLocaleString()} đ</td>
-                                                                                                                                                                                                                        <td>${new Date(donHang.ngayGui).toLocaleDateString()}</td>
-                                                                                                                                                                                                                        <td>${donHang.trangThaiDonHang}</td>
-                                                                                                                                                                                                                        <td>
-                                                                                                                                                                                                                            <button class="btn btn-sm btn-info" onclick='hienChiTietDonHang(${JSON.stringify(donHang)})'>
-                                                                                                                                                                                                                                <i class="bi bi-eye"></i> Xem chi tiết
-                                                                                                                                                                                                                            </button>
-                                                                                                                                                                                                                        </td>
-                                                                                                                                                                                                                    `;
+                                                                                                                                                                                                            <td>${donHang.maDonHang}</td>
+                                                                                                                                                                                                            <td>${donHang.tenDonHang}</td>
+                                                                                                                                                                                                            <td>${donHang.tenKhachHang}</td>
+                                                                                                                                                                                                            <td>${donHang.diaChiNguoiNhan}</td>
+                                                                                                                                                                                                            <td>${donHang.phiGiaoHang.toLocaleString()} đ</td>
+                                                                                                                                                                                                            <td>${new Date(donHang.ngayGui).toLocaleDateString()}</td>
+                                                                                                                                                                                                            <td>${donHang.trangThaiDonHang}</td>
+                                                                                                                                                                                                            <td>
+                                                                                                                                                                                                                <button class="btn btn-sm btn-info" onclick='hienChiTietDonHang(${JSON.stringify(donHang)})'>
+                                                                                                                                                                                                                    <i class="bi bi-eye"></i> Xem chi tiết
+                                                                                                                                                                                                                </button>
+                                                                                                                                                                                                            </td>
+                                                                                                                                                                                                        `;
                             tableBody.appendChild(row);
                         });
                     } catch (error) {
@@ -1916,31 +1930,31 @@
                         const tableBody = document.getElementById("table-body-duyet");
                         tableBody.innerHTML = '';
                         thead.innerHTML = `
-                                                                                                                                                                                                                                                                        <tr>
-                                                                                                                                                                                                                                                                            <th><input type="checkbox" onclick="toggleSelectAll(this)"></th>
-                                                                                                                                                                                                                                                                            <th>Mã Đơn Hàng</th>
-                                                                                                                                                                                                                                                                            <th>Mã Vận Đơn</th>
-                                                                                                                                                                                                                                                                            <th>Tên Đơn Hàng</th>
-                                                                                                                                                                                                                                                                            <th>Địa Chỉ Người Nhận</th>
-                                                                                                                                                                                                                                                                            <th>Phí Giao Hàng</th>
-                                                                                                                                                                                                                                                                            <th>Ngày Gửi</th>
-                                                                                                                                                                                                                                                                            <th>Trạng Thái</th>
-                                                                                                                                                                                                                                                                            <th>Hành động</th>
-                                                                                                                                                                                                                                                                        </tr>
-                                                                                                                                                                                                                                                                    `;
+                                                                                                                                                                                                                                                            <tr>
+                                                                                                                                                                                                                                                                <th><input type="checkbox" onclick="toggleSelectAll(this)"></th>
+                                                                                                                                                                                                                                                                <th>Mã Đơn Hàng</th>
+                                                                                                                                                                                                                                                                <th>Mã Vận Đơn</th>
+                                                                                                                                                                                                                                                                <th>Tên Đơn Hàng</th>
+                                                                                                                                                                                                                                                                <th>Địa Chỉ Người Nhận</th>
+                                                                                                                                                                                                                                                                <th>Phí Giao Hàng</th>
+                                                                                                                                                                                                                                                                <th>Ngày Gửi</th>
+                                                                                                                                                                                                                                                                <th>Trạng Thái</th>
+                                                                                                                                                                                                                                                                <th>Hành động</th>
+                                                                                                                                                                                                                                                            </tr>
+                                                                                                                                                                                                                                                        `;
                         donHangs.forEach(donHang => {
                             const row = document.createElement("tr");
                             row.innerHTML = `
-                                                                                                                                                                                                                                                                    <td><input type="checkbox" class="donhang-checkbox" value="${donHang.maDonHang}"></td>
-                                                                                                                                                                                                                                                                    <td>${donHang.maDonHang}</td>
-                                                                                                                                                                                                                                                                    <td>${donHang.maVanDon}</td>
-                                                                                                                                                                                                                                                                    <td>${donHang.tenDonHang}</td>
-                                                                                                                                                                                                                                                                    <td>${donHang.diaChiNguoiNhan}</td>
-                                                                                                                                                                                                                                                                    <td>${donHang.phiGiaoHang.toLocaleString()} đ</td>
-                                                                                                                                                                                                                                                                    <td>${new Date(donHang.ngayGui).toLocaleDateString()}</td>
-                                                                                                                                                                                                                                                                    <td>${donHang.trangThaiDonHang}</td>
-                                                                                                                                                                                                                                                                    <td><button class="btn btn-sm btn-info" onclick='hienChiTietPC(${JSON.stringify(donHang)})'><i class="bi bi-eye"></i>Xem chi tiết</button></td>
-                                                                                                                                                                                                                                                                `;
+                                                                                                                                                                                                                                                        <td><input type="checkbox" class="donhang-checkbox" value="${donHang.maDonHang}"></td>
+                                                                                                                                                                                                                                                        <td>${donHang.maDonHang}</td>
+                                                                                                                                                                                                                                                        <td>${donHang.maVanDon}</td>
+                                                                                                                                                                                                                                                        <td>${donHang.tenDonHang}</td>
+                                                                                                                                                                                                                                                        <td>${donHang.diaChiNguoiNhan}</td>
+                                                                                                                                                                                                                                                        <td>${donHang.phiGiaoHang.toLocaleString()} đ</td>
+                                                                                                                                                                                                                                                        <td>${new Date(donHang.ngayGui).toLocaleDateString()}</td>
+                                                                                                                                                                                                                                                        <td>${donHang.trangThaiDonHang}</td>
+                                                                                                                                                                                                                                                        <td><button class="btn btn-sm btn-info" onclick='hienChiTietPC(${JSON.stringify(donHang)})'><i class="bi bi-eye"></i>Xem chi tiết</button></td>
+                                                                                                                                                                                                                                                    `;
                             tableBody.appendChild(row);
                         });
                         document.getElementById("assign-btn").classList.remove("d-none");
@@ -1951,36 +1965,36 @@
                 }
                 function hienChiTietPC(donHang) {
                     const chiTietNoiDung = `
-                                                                                                                                                                                                                                                        <div class="container-fluid">
-                 <div class="row">
-                     <div class="col-md-6">
-                         <h6 class="text-primary">Thông tin Khách Hàng</h6>
-                         <p><strong>Tên:</strong> ${donHang.tenKhachHang}</p>
-                         <p><strong>SĐT:</strong> ${donHang.sdtKhachHang}</p>
-                         <p><strong>Địa chỉ:</strong> ${donHang.diaChiKhachHang}</p>
-                     </div>
-                     <div class="col-md-6">
-                         <h6 class="text-success">Thông tin Người Nhận</h6>
-                         <p><strong>Tên:</strong> ${donHang.hoTenNguoiNhan}</p>
-                         <p><strong>SĐT:</strong> ${donHang.sdtNguoiNhan}</p>
-                         <p><strong>Địa chỉ:</strong> ${donHang.diaChiNguoiNhan || "---"}</p>
-                     </div>
-                 </div>
-                 <hr>
-                   <div class="row">
-                 <div class="col-md-6">
-                 <p><strong>Mã Đơn Hàng:</strong> ${donHang.maDonHang}</p>
+                                                                                                                                                                                                                                            <div class="container-fluid">
+     <div class="row">
+         <div class="col-md-6">
+             <h6 class="text-primary">Thông tin Khách Hàng</h6>
+             <p><strong>Tên:</strong> ${donHang.tenKhachHang}</p>
+             <p><strong>SĐT:</strong> ${donHang.sdtKhachHang}</p>
+             <p><strong>Địa chỉ:</strong> ${donHang.diaChiKhachHang}</p>
+         </div>
+         <div class="col-md-6">
+             <h6 class="text-success">Thông tin Người Nhận</h6>
+             <p><strong>Tên:</strong> ${donHang.hoTenNguoiNhan}</p>
+             <p><strong>SĐT:</strong> ${donHang.sdtNguoiNhan}</p>
+             <p><strong>Địa chỉ:</strong> ${donHang.diaChiNguoiNhan || "---"}</p>
+         </div>
+     </div>
+     <hr>
+       <div class="row">
+     <div class="col-md-6">
+     <p><strong>Mã Đơn Hàng:</strong> ${donHang.maDonHang}</p>
 
-                 <p><strong>Tên Đơn Hàng:</strong> ${donHang.tenDonHang}</p>
-                 <p><strong>Phí Giao Hàng:</strong> ${donHang.phiGiaoHang.toLocaleString()} đ</p>
-                 </div>
-                  <div class="col-md-6">
+     <p><strong>Tên Đơn Hàng:</strong> ${donHang.tenDonHang}</p>
+     <p><strong>Phí Giao Hàng:</strong> ${donHang.phiGiaoHang.toLocaleString()} đ</p>
+     </div>
+      <div class="col-md-6">
 
 
-                 <p><strong>Ngày Gửi:</strong> ${new Date(donHang.ngayGui).toLocaleDateString()}</p>
-                 <p><strong>Trạng Thái:</strong> ${donHang.trangThaiDonHang}</p>
-                 </div></div>
-                                                            `;
+     <p><strong>Ngày Gửi:</strong> ${new Date(donHang.ngayGui).toLocaleDateString()}</p>
+     <p><strong>Trạng Thái:</strong> ${donHang.trangThaiDonHang}</p>
+     </div></div>
+                                                `;
                     document.getElementById("chiTietNoiDung").innerHTML = chiTietNoiDung;
                     const modal = new bootstrap.Modal(document.getElementById("modalChiTiet"));
                     modal.show();
@@ -2022,13 +2036,13 @@
                                     data.forEach(nv => {
                                         const tr = document.createElement("tr");
                                         tr.innerHTML = `
-                                                                                                                                                                                                                                        <td class="text-center">
-                                                                                                                                                                                                                                            <input type="radio" name="nhanVien" value="${nv.maNhanVien || nv.MaNhanVien}">
-                                                                                                                                                                                                                                        </td>
-                                                                                                                                                                                                                                        <td>${nv.tenNhanVien || nv.TenNhanVien}</td>
-                                                                                                                                                                                                                                        <td>${nv.diaChi || nv.DiaChi}</td>
-                                                                                                                                                                                                                                        <td>${nv.sdt || nv.SDT}</td>
-                                                                                                                                                                                                                                    `;
+                                                                                                                                                                                                                            <td class="text-center">
+                                                                                                                                                                                                                                <input type="radio" name="nhanVien" value="${nv.maNhanVien || nv.MaNhanVien}">
+                                                                                                                                                                                                                            </td>
+                                                                                                                                                                                                                            <td>${nv.tenNhanVien || nv.TenNhanVien}</td>
+                                                                                                                                                                                                                            <td>${nv.diaChi || nv.DiaChi}</td>
+                                                                                                                                                                                                                            <td>${nv.sdt || nv.SDT}</td>
+                                                                                                                                                                                                                        `;
                                         tb.appendChild(tr);
                                     });
 
@@ -2145,16 +2159,16 @@
                         donHangs.forEach(dh => {
                             const row = document.createElement("tr");
                             row.innerHTML = `
-                                                                                                                                                                                                                                                                <td><input type="checkbox" class="donhang-checkbox" value="${dh.maDonHang}"></td>
-                                                                                                                                                                                                                                                                <td>${dh.maDonHang}</td>
-                                                                                                                                                                                                                                                                <td>${dh.maVanDon}</td>
-                                                                                                                                                                                                                                                                <td>${dh.tenDonHang}</td>
-                                                                                                                                                                                                                                                                <td>${dh.diaChiNguoiNhan}</td>
-                                                                                                                                                                                                                                                                <td>${dh.phiGiaoHang.toLocaleString()} đ</td>
-                                                                                                                                                                                                                                                                <td>${new Date(dh.ngayGui).toLocaleDateString()}</td>
-                                                                                                                                                                                                                                                                <td>${dh.trangThaiDonHang}</td>
-                                                                                                                                                                                                                                                                <td><button class="btn btn-sm btn-info" onclick='hienChiTietPC(${JSON.stringify(dh)})'>Xem chi tiết</button></td>
-                                                                                                                                                                                                                                                            `;
+                                                                                                                                                                                                                                                    <td><input type="checkbox" class="donhang-checkbox" value="${dh.maDonHang}"></td>
+                                                                                                                                                                                                                                                    <td>${dh.maDonHang}</td>
+                                                                                                                                                                                                                                                    <td>${dh.maVanDon}</td>
+                                                                                                                                                                                                                                                    <td>${dh.tenDonHang}</td>
+                                                                                                                                                                                                                                                    <td>${dh.diaChiNguoiNhan}</td>
+                                                                                                                                                                                                                                                    <td>${dh.phiGiaoHang.toLocaleString()} đ</td>
+                                                                                                                                                                                                                                                    <td>${new Date(dh.ngayGui).toLocaleDateString()}</td>
+                                                                                                                                                                                                                                                    <td>${dh.trangThaiDonHang}</td>
+                                                                                                                                                                                                                                                    <td><button class="btn btn-sm btn-info" onclick='hienChiTietPC(${JSON.stringify(dh)})'>Xem chi tiết</button></td>
+                                                                                                                                                                                                                                                `;
                             tbody.appendChild(row);
                         });
                         // Hiện lại nút phân công nếu có dữ liệu
@@ -2187,28 +2201,37 @@
                     document.getElementById("donHangsChuaDuyet").style.display = "none";
                     document.getElementById("donHangsDaDuyet").style.display = "none";
                     document.getElementById("donHangsDacBiet").style.display = "none";
+
+                    const trangThai = document.getElementById("trangThaiDangGiao").value;
+
+                    let url = "https://localhost:7113/api/donhang/danggiaohang";
+                    if (trangThai) {
+                        url = `https://localhost:7113/api/donhang/LocDonHangTheoTrangThai?trangThai=${encodeURIComponent(trangThai)}`;
+                    }
+
                     try {
-                        const response = await fetch("https://localhost:7113/api/donhang/danggiaohang");
+                        const response = await fetch(url);
                         const donHangs = await response.json();
                         const tableBody = document.getElementById("table-body-danggiaohang");
                         tableBody.innerHTML = '';
+
                         donHangs.forEach(donHang => {
                             const row = document.createElement("tr");
                             row.innerHTML = `
-                                                                                                                                                                                                                                                                        <td>${donHang.maDonHang}</td>
-                                                                                                                                                                                                                                                                        <td>${donHang.maVanDon}</td>
-                                                                                                                                                                                                                                                                        <td>${donHang.tenDonHang}</td>
-                                                                                                                                                                                                                                                                        <td>${donHang.tenNhanVien}</td>
-                                                                                                                                                                                                                                                                        <td>${donHang.diaChiNguoiNhan}</td>
-                                                                                                                                                                                                                                                                        <td>${donHang.phiGiaoHang.toLocaleString()} đ</td>
-                                                                                                                                                                                                                                                                        <td>${new Date(donHang.ngayGui).toLocaleDateString()}</td>
-                                                                                                                                                                                                                                                                        <td>${donHang.trangThaiDonHang}</td>
-                                                                                                                                                                                                                                                                        <td>
-                                                                                                                                                                                                                                                                            <button class="btn btn-sm btn-primary" onclick='hienChiTietDangGiao(${JSON.stringify(donHang)})'>
-                                                                                                                                                                                                                                                                                <i class="bi bi-eye"></i>Xem chi tiết
-                                                                                                                                                                                                                                                                            </button>
-                                                                                                                                                                                                                                                                        </td>
-                                                                                                                                                                                                                                                                    `;
+                <td>${donHang.maDonHang}</td>
+                <td>${donHang.maVanDon}</td>
+                <td>${donHang.tenDonHang}</td>
+                <td>${donHang.tenNhanVien}</td>
+                <td>${donHang.diaChiNguoiNhan}</td>
+                <td>${donHang.phiGiaoHang.toLocaleString()} đ</td>
+                <td>${new Date(donHang.ngayGui).toLocaleDateString()}</td>
+                <td>${donHang.trangThaiDonHang}</td>
+                <td>
+                    <button class="btn btn-sm btn-primary" onclick='hienChiTietDangGiao(${JSON.stringify(donHang)})'>
+                        <i class="bi bi-eye"></i> Xem chi tiết
+                    </button>
+                </td>
+            `;
                             tableBody.appendChild(row);
                         });
                     } catch (error) {
@@ -2216,143 +2239,182 @@
                         console.error(error);
                     }
                 }
+
+                // Sự kiện cho nút reset
+                document.getElementById("trangThaiDangGiao").addEventListener("change", fetchDonHangsDangGiao);
+
+                document.getElementById("btnResetDangGiao").addEventListener("click", () => {
+                    document.getElementById("trangThaiDangGiao").value = "";
+                    fetchDonHangsDangGiao();
+                });
+
                 function hienChiTietDangGiao(donHang) {
                     const chiTiet = `
-                                                                                                                                                                                                                                                                    <div class="container-fluid">
-                                                                                                                                                                                                                                                                        <div class="row">
-                                                                                                                                                                                                                                                                            <!-- Cột 1: Thông tin Khách Hàng -->
-                                                                                                                                                                                                                                                                            <div class="col-md-6">
-                                                                                                                                                                                                                                                                                <h6 class="text-primary">Thông tin Khách Hàng</h6>
-                                                                                                                                                                                                                                                                                <p><strong>Tên Khách Hàng:</strong> ${donHang.tenKhachHang || '---'}</p>
-                                                                                                                                                                                                                                                                                <p><strong>SĐT Khách Hàng:</strong> ${donHang.sdtKhachHang}</p>
-                                                                                                                                                                                                                                                                                <p><strong>Địa Chỉ Khách Hàng:</strong> ${donHang.diaChiKhachHang}</p>
-                                                                                                                                                                                                                                                                            </div>
+                                                                                                                                                                                                                                                        <div class="container-fluid">
+                                                                                                                                                                                                                                                            <div class="row">
+                                                                                                                                                                                                                                                                <!-- Cột 1: Thông tin Khách Hàng -->
+                                                                                                                                                                                                                                                                <div class="col-md-6">
+                                                                                                                                                                                                                                                                    <h6 class="text-primary">Thông tin Khách Hàng</h6>
+                                                                                                                                                                                                                                                                    <p><strong>Tên Khách Hàng:</strong> ${donHang.tenKhachHang || '---'}</p>
+                                                                                                                                                                                                                                                                    <p><strong>SĐT Khách Hàng:</strong> ${donHang.sdtKhachHang}</p>
+                                                                                                                                                                                                                                                                    <p><strong>Địa Chỉ Khách Hàng:</strong> ${donHang.diaChiKhachHang}</p>
+                                                                                                                                                                                                                                                                </div>
 
-                                                                                                                                                                                                                                                                            <!-- Cột 2: Thông tin Người Nhận -->
-                                                                                                                                                                                                                                                                            <div class="col-md-6">
-                                                                                                                                                                                                                                                                                <h6 class="text-success">Thông tin Người Nhận</h6>
-                                                                                                                                                                                                                                                                                <p><strong>Tên Người Nhận:</strong> ${donHang.hoTenNguoiNhan}</p>
-                                                                                                                                                                                                                                                                                <p><strong>SĐT Người Nhận:</strong> ${donHang.sdtNguoiNhan}</p>
-                                                                                                                                                                                                                                                                                <p><strong>Địa Chỉ Người Nhận:</strong> ${donHang.diaChiNguoiNhan || '---'}</p>
-                                                                                                                                                                                                                                                                            </div>
-                                                                                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                                                                                <!-- Cột 2: Thông tin Người Nhận -->
+                                                                                                                                                                                                                                                                <div class="col-md-6">
+                                                                                                                                                                                                                                                                    <h6 class="text-success">Thông tin Người Nhận</h6>
+                                                                                                                                                                                                                                                                    <p><strong>Tên Người Nhận:</strong> ${donHang.hoTenNguoiNhan}</p>
+                                                                                                                                                                                                                                                                    <p><strong>SĐT Người Nhận:</strong> ${donHang.sdtNguoiNhan}</p>
+                                                                                                                                                                                                                                                                    <p><strong>Địa Chỉ Người Nhận:</strong> ${donHang.diaChiNguoiNhan || '---'}</p>
+                                                                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                                                            </div>
 
-                                                                                                                                                                                                                                                                        <hr>
+                                                                                                                                                                                                                                                            <hr>
 
-                                                                                                                                                                                                                                                                        <!-- Dòng bổ sung: thông tin đơn hàng -->
-                                                                                                                                                                                                                                                                        <div class="row mt-2">
-                                                                                                                                                                                                                                                                            <div class="col-md-6">
-                                                                                                                                                                                                                                                                                <p><strong>Nhân Viên GH:</strong> ${donHang.tenNhanVien}</p>
-                                                                                                                                                                                                                                                                                <p><strong>Mã Đơn Hàng:</strong> ${donHang.maDonHang}</p>
-                                                                                                                                                                                                                                                                            <p><strong>Mã Đơn Hàng:</strong> ${donHang.maVanDon}</p>
-                                                                                                                                                                                                                                                                                <p><strong>Tên Đơn Hàng:</strong> ${donHang.tenDonHang}</p>
-                                                                                                                                                                                                                                                                            </div>
-                                                                                                                                                                                                                                                                            <div class="col-md-6">
-                                                                                                                                                                                                                                                                                <p><strong>Phí Giao Hàng:</strong> ${donHang.phiGiaoHang} VNĐ</p>
-                                                                                                                                                                                                                                                                                <p><strong>Ngày Gửi:</strong> ${donHang.ngayGui}</p>
-                                                                                                                                                                                                                                                                                <p><strong>Trạng Thái:</strong> ${donHang.trangThaiDonHang}</p>
-                                                                                                                                                                                                                                                                            </div>
-                                                                                                                                                                                                                                                                        </div>
-                                                                                                                                                                                                                                                                    </div>
-                                                                                                                                                                                                                                                                                 `;
+                                                                                                                                                                                                                                                            <!-- Dòng bổ sung: thông tin đơn hàng -->
+                                                                                                                                                                                                                                                            <div class="row mt-2">
+                                                                                                                                                                                                                                                                <div class="col-md-6">
+                                                                                                                                                                                                                                                                    <p><strong>Nhân Viên GH:</strong> ${donHang.tenNhanVien}</p>
+                                                                                                                                                                                                                                                                    <p><strong>Mã Đơn Hàng:</strong> ${donHang.maDonHang}</p>
+                                                                                                                                                                                                                                                                <p><strong>Mã Đơn Hàng:</strong> ${donHang.maVanDon}</p>
+                                                                                                                                                                                                                                                                    <p><strong>Tên Đơn Hàng:</strong> ${donHang.tenDonHang}</p>
+                                                                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                                                                <div class="col-md-6">
+                                                                                                                                                                                                                                                                    <p><strong>Phí Giao Hàng:</strong> ${donHang.phiGiaoHang} VNĐ</p>
+                                                                                                                                                                                                                                                                    <p><strong>Ngày Gửi:</strong> ${donHang.ngayGui}</p>
+                                                                                                                                                                                                                                                                    <p><strong>Trạng Thái:</strong> ${donHang.trangThaiDonHang}</p>
+                                                                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                                                            </div>
+                                                                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                                                                                     `;
                     document.getElementById("chiTietNoiDungDangGiao").innerHTML = chiTiet;
                     const modal = new bootstrap.Modal(document.getElementById("modalChiTietDangGiao"));
                     modal.show();
                 }
                 /// DS ĐẶC BIỆT
                 async function fetchDonHangsDacBiet() {
+                    // Ẩn các phần khác, chỉ hiện phần đặc biệt
                     document.getElementById("khachhang").style.display = "none";
                     document.getElementById("thongke-tab").style.display = "none";
                     document.getElementById("donHangsDangGiao").style.display = "none";
                     document.getElementById("donHangsChuaDuyet").style.display = "none";
                     document.getElementById("donHangsDaDuyet").style.display = "none";
                     document.getElementById("donHangsDacBiet").style.display = "block";
+
+                    const trangThai = document.getElementById("trangThaiDacBiet").value;
+
+                    let url = "https://localhost:7113/api/donhang/DSDonHangDacBiet";
+                    if (trangThai) {
+                        url = `https://localhost:7113/api/donhang/LocDonHangTheoTrangThai?trangThai=${encodeURIComponent(trangThai)}`;
+                    }
+
                     try {
-                        const response = await fetch("https://localhost:7113/api/donhang/DSDonHangDacBiet");
+                        const response = await fetch(url);
                         const donHangs = await response.json();
+
                         const thead = document.getElementById("thead-dacbiet");
                         const tableBody = document.getElementById("table-body-dacbiet");
                         tableBody.innerHTML = '';
+
                         thead.innerHTML = `
-                                                                                                                                                                                                                                                                    <tr>
-                                                                                                                                                                                                                                                                        <th>Mã Đơn Hàng</th>
-                                                                                                                                                                                                                                                                        <th>Mã Vận Đơn</th>
-                                                                                                                                                                                                                                                                        <th>Tên Đơn Hàng</th>
-                                                                                                                                                                                                                                                                        <th>Địa Chỉ Người Nhận</th>
-                                                                                                                                                                                                                                                                        <th>Phí Giao Hàng</th>
-                                                                                                                                                                                                                                                                        <th>Ngày Gửi</th>
-                                                                                                                                                                                                                                                                        <th>Trạng Thái</th>
-                                                                                                                                                                                                                                                                        <th>Hành động</th>
-                                                                                                                                                                                                                                                                    </tr>
-                                                                                                                                                                                                                                                                `;
+            <tr>
+                <th>Mã Đơn Hàng</th>
+                <th>Mã Vận Đơn</th>
+                <th>Tên Đơn Hàng</th>
+                <th>Địa Chỉ Người Nhận</th>
+                <th>Phí Giao Hàng</th>
+                <th>Ngày Gửi</th>
+                <th>Trạng Thái</th>
+                <th>Hành động</th>
+            </tr>
+        `;
+
+                        if (donHangs.length === 0) {
+                            const row = document.createElement("tr");
+                            row.innerHTML = `<td colspan="8" class="text-center">Không có đơn hàng phù hợp.</td>`;
+                            tableBody.appendChild(row);
+                            return;
+                        }
+
                         donHangs.forEach(donHang => {
                             const row = document.createElement("tr");
                             row.innerHTML = `
-                                                                                                                                                                                                                                                                    <td>${donHang.maDonHang}</td>
-                                                                                                                                                                                                                                                                    <td>${donHang.maVanDon}</td>
-                                                                                                                                                                                                                                                                    <td>${donHang.tenDonHang}</td>
-                                                                                                                                                                                                                                                                    <td>${donHang.diaChiNguoiNhan || '---'}</td>
-                                                                                                                                                                                                                                                                    <td>${donHang.phiGiaoHang.toLocaleString()} đ</td>
-                                                                                                                                                                                                                                                                    <td>${new Date(donHang.ngayGui).toLocaleDateString()}</td>
-                                                                                                                                                                                                                                                                    <td>${donHang.trangThaiDonHang}</td>
-                                                                                                                                                                                                                                                                    <td>
-                                                                                                                                                                                                                                                                      <button class="btn btn-sm btn-warning" onclick='hienChiTietDB(${JSON.stringify(donHang)})'>
-                                                                                                                                                                                                                                                                        <i class="bi bi-tools"></i> Xử lý
-                                                                                                                                                                                                                                                                      </button>
-                                                                                                                                                                                                                                                                    </td>                                                                                                                             `;
+                <td>${donHang.maDonHang}</td>
+                <td>${donHang.maVanDon}</td>
+                <td>${donHang.tenDonHang}</td>
+                <td>${donHang.diaChiNguoiNhan || '---'}</td>
+                <td>${donHang.phiGiaoHang.toLocaleString()} đ</td>
+                <td>${new Date(donHang.ngayGui).toLocaleDateString()}</td>
+                <td>${donHang.trangThaiDonHang}</td>
+                <td>
+                    <button class="btn btn-sm btn-warning" onclick='hienChiTietDB(${JSON.stringify(donHang)})'>
+                        <i class="bi bi-tools"></i> Xử lý
+                    </button>
+                </td>
+            `;
                             tableBody.appendChild(row);
                         });
+
                     } catch (error) {
                         alert("Không thể tải danh sách đơn hàng đặc biệt.");
                         console.error(error);
                     }
                 }
+
+
+                document.getElementById("trangThaiDacBiet").addEventListener("change", fetchDonHangsDacBiet);
+
+                document.getElementById("btnResetDacBiet").addEventListener("click", () => {
+                    document.getElementById("trangThaiDacBiet").value = "";
+                    fetchDonHangsDacBiet();
+                });
+
                 function hienChiTietDB(donHang) {
                     const chiTiet = `
-                                                                                                                                                                                                                                                                    <div class="container-fluid">
-                                                                                                                                                                                                                                                                        <div class="row">
-                                                                                                                                                                                                                                                                            <div class="col-md-6">
-                                                                                                                                                                                                                                                                                <h6 class="text-primary">Thông tin Khách Hàng</h6>
-                                                                                                                                                                                                                                                                                <p><strong>Tên:</strong> ${donHang.tenKhachHang}</p>
-                                                                                                                                                                                                                                                                                <p><strong>SĐT:</strong> ${donHang.sdtKhachHang}</p>
-                                                                                                                                                                                                                                                                                <p><strong>Địa chỉ:</strong> ${donHang.diaChiKhachHang}</p>
-                                                                                                                                                                                                                                                                            </div>
-                                                                                                                                                                                                                                                                            <div class="col-md-6">
-                                                                                                                                                                                                                                                                                <h6 class="text-success">Thông tin Người Nhận</h6>
-                                                                                                                                                                                                                                                                                <p><strong>Tên:</strong> ${donHang.hoTenNguoiNhan}</p>
-                                                                                                                                                                                                                                                                                <p><strong>SĐT:</strong> ${donHang.sdtNguoiNhan}</p>
-                                                                                                                                                                                                                                                                                <p><strong>Địa chỉ:</strong> ${donHang.diaChiNguoiNhan || "---"}</p>
-                                                                                                                                                                                                                                                                            </div>
-                                                                                                                                                                                                                                                                        </div>
-                                                                                                                                                                                                                                                                        <hr>
-                                                                                                                                                                                                                                                                          <div class="row">
-                                                                                                                                                                                                                                                                        <div class="col-md-6">
-                                                                                                                                                                                                                                                                        <p><strong>Mã Đơn Hàng:</strong> ${donHang.maDonHang}</p>
-                                                                                                                                                                                                                                                                        <p><strong>Mã Vận Đơn:</strong> ${donHang.maVanDon}</p>
-                                                                                                                                                                                                                                                                        <p><strong>Tên Đơn Hàng:</strong> ${donHang.tenDonHang}</p>
-                                                                                                                                                                                                                                                                        <p><strong>Phí Giao Hàng:</strong> ${donHang.phiGiaoHang.toLocaleString()} đ</p>
-                                                                                                                                                                                                                                                                        </div>
-                                                                                                                                                                                                                                                                         <div class="col-md-6">
-                                                                                                                                                                                                                                                                         <p><strong>Tên NVGH:</strong> ${(donHang.tenNhanVien)}</p>
-                                                                                                                                                                                                                                                                         <p><strong>SĐT NVGH:</strong> ${(donHang.sdtNhanvien)}</p>
-                                                                                                                                                                                                                                                                        <p><strong>Ngày Gửi:</strong> ${new Date(donHang.ngayGui).toLocaleDateString()}</p>
-                                                                                                                                                                                                                                                                        <p><strong>Trạng Thái:</strong> ${donHang.trangThaiDonHang}</p>
-                                                                                                                                                                                                                                                                        </div>
-                                                                                                                                                                                                                                                                           <hr>
-                                                                                                                                                                                                                                                                             <p><strong>Lý do:</strong> ${donHang.lyDo || 'Không có'}</p></div>
-                                                                                                                                                                                                                                                                    </div>
-                                                                                                                                                                                                                                                                `;
+                                                                                                                                                                                                                                                        <div class="container-fluid">
+                                                                                                                                                                                                                                                            <div class="row">
+                                                                                                                                                                                                                                                                <div class="col-md-6">
+                                                                                                                                                                                                                                                                    <h6 class="text-primary">Thông tin Khách Hàng</h6>
+                                                                                                                                                                                                                                                                    <p><strong>Tên:</strong> ${donHang.tenKhachHang}</p>
+                                                                                                                                                                                                                                                                    <p><strong>SĐT:</strong> ${donHang.sdtKhachHang}</p>
+                                                                                                                                                                                                                                                                    <p><strong>Địa chỉ:</strong> ${donHang.diaChiKhachHang}</p>
+                                                                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                                                                <div class="col-md-6">
+                                                                                                                                                                                                                                                                    <h6 class="text-success">Thông tin Người Nhận</h6>
+                                                                                                                                                                                                                                                                    <p><strong>Tên:</strong> ${donHang.hoTenNguoiNhan}</p>
+                                                                                                                                                                                                                                                                    <p><strong>SĐT:</strong> ${donHang.sdtNguoiNhan}</p>
+                                                                                                                                                                                                                                                                    <p><strong>Địa chỉ:</strong> ${donHang.diaChiNguoiNhan || "---"}</p>
+                                                                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                                                            </div>
+                                                                                                                                                                                                                                                            <hr>
+                                                                                                                                                                                                                                                              <div class="row">
+                                                                                                                                                                                                                                                            <div class="col-md-6">
+                                                                                                                                                                                                                                                            <p><strong>Mã Đơn Hàng:</strong> ${donHang.maDonHang}</p>
+                                                                                                                                                                                                                                                            <p><strong>Mã Vận Đơn:</strong> ${donHang.maVanDon}</p>
+                                                                                                                                                                                                                                                            <p><strong>Tên Đơn Hàng:</strong> ${donHang.tenDonHang}</p>
+                                                                                                                                                                                                                                                            <p><strong>Phí Giao Hàng:</strong> ${donHang.phiGiaoHang.toLocaleString()} đ</p>
+                                                                                                                                                                                                                                                            </div>
+                                                                                                                                                                                                                                                             <div class="col-md-6">
+                                                                                                                                                                                                                                                             <p><strong>Tên NVGH:</strong> ${(donHang.tenNhanVien)}</p>
+                                                                                                                                                                                                                                                             <p><strong>SĐT NVGH:</strong> ${(donHang.sdtNhanvien)}</p>
+                                                                                                                                                                                                                                                            <p><strong>Ngày Gửi:</strong> ${new Date(donHang.ngayGui).toLocaleDateString()}</p>
+                                                                                                                                                                                                                                                            <p><strong>Trạng Thái:</strong> ${donHang.trangThaiDonHang}</p>
+                                                                                                                                                                                                                                                            </div>
+                                                                                                                                                                                                                                                               <hr>
+                                                                                                                                                                                                                                                                 <p><strong>Lý do:</strong> ${donHang.lyDo || 'Không có'}</p></div>
+                                                                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                                                                    `;
                     document.getElementById("noiDungChiTietDacBiet").innerHTML = chiTiet;
                     let footer = "";
                     if (donHang.trangThaiDonHang === "khách không nhận hàng") {
                         footer = `<button class="btn btn-danger" onclick="capNhatTrangThaiTuDong('${donHang.maDonHang}')">Trả về kho</button>
-                                  <button class="btn btn-secondary" onclick="huyYeuCau('${donHang.maDonHang}')">Hủy yêu cầu</button>
+                                                                                                                    <button class="btn btn-secondary" onclick="huyYeuCau('${donHang.maDonHang}')">Hủy yêu cầu</button>
 `;
                     } else if (donHang.trangThaiDonHang === "không tiếp nhận") {
                         footer = `
-                                                                                                                                                                                                                                                            <button class="btn btn-primary" onclick="capNhatTrangThaiTuDong('${donHang.maDonHang}')">Phân công lại</button>
-                                                                                                                                                                                                                                                            <button class="btn btn-secondary" onclick="huyYeuCau('${donHang.maDonHang}')">Hủy yêu cầu</button>
-                                                                                                                                                                                                                                                        `;
+                                                                                                                                                                                                                                                <button class="btn btn-primary" onclick="capNhatTrangThaiTuDong('${donHang.maDonHang}')">Phân công lại</button>
+                                                                                                                                                                                                                                                <button class="btn btn-secondary" onclick="huyYeuCau('${donHang.maDonHang}')">Hủy yêu cầu</button>
+                                                                                                                                                                                                                                            `;
                     }
                     document.getElementById("footerChiTietDacBiet").innerHTML = footer;
                     const modal = new bootstrap.Modal(document.getElementById("modalChiTietDacBiet"));
@@ -2436,44 +2498,44 @@
                 ///HÀM DÙNG CHO CHƯA DUYỆT VÀ ĐÃ DUYỆT
                 function hienChiTietDonHang(donHang) {
                     const chiTiet = `
-                                                                                                                                                                                                                                                        <div class="container-fluid">
-                                                                                                                                                                                                                                                            <div class="row">
-                                                                                                                                                                                                                                                                <!-- Cột 1: Thông tin Khách Hàng -->
-                                                                                                                                                                                                                                                                <div class="col-md-6">
-                                                                                                                                                                                                                                                                    <h6 class="text-primary">Thông tin Khách Hàng</h6>
-                                                                                                                                                                                                                                                                    <p><strong>Tên Khách Hàng:</strong> ${donHang.tenKhachHang || '---'}</p>
-                                                                                                                                                                                                                                                                    <p><strong>SĐT Khách Hàng:</strong> ${donHang.sdtKhachHang}</p>
-                                                                                                                                                                                                                                                                    <p><strong>Địa Chỉ Khách Hàng:</strong> ${donHang.diaChiKhachHang}</p>
-                                                                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                                            <div class="container-fluid">
+                                                                                                                                                                                                                                                <div class="row">
+                                                                                                                                                                                                                                                    <!-- Cột 1: Thông tin Khách Hàng -->
+                                                                                                                                                                                                                                                    <div class="col-md-6">
+                                                                                                                                                                                                                                                        <h6 class="text-primary">Thông tin Khách Hàng</h6>
+                                                                                                                                                                                                                                                        <p><strong>Tên Khách Hàng:</strong> ${donHang.tenKhachHang || '---'}</p>
+                                                                                                                                                                                                                                                        <p><strong>SĐT Khách Hàng:</strong> ${donHang.sdtKhachHang}</p>
+                                                                                                                                                                                                                                                        <p><strong>Địa Chỉ Khách Hàng:</strong> ${donHang.diaChiKhachHang}</p>
+                                                                                                                                                                                                                                                    </div>
 
-                                                                                                                                                                                                                                                                <!-- Cột 2: Thông tin Người Nhận -->
-                                                                                                                                                                                                                                                                <div class="col-md-6">
-                                                                                                                                                                                                                                                                    <h6 class="text-success">Thông tin Người Nhận</h6>
-                                                                                                                                                                                                                                                                    <p><strong>Tên Người Nhận:</strong> ${donHang.hoTenNguoiNhan}</p>
-                                                                                                                                                                                                                                                                    <p><strong>SĐT Người Nhận:</strong> ${donHang.sdtNguoiNhan}</p>
-                                                                                                                                                                                                                                                                    <p><strong>Địa Chỉ Người Nhận:</strong> ${donHang.diaChiNguoiNhan || '---'}</p>
-                                                                                                                                                                                                                                                                </div>
-                                                                                                                                                                                                                                                            </div>
-                                                                                                                                                                                                                                                            <hr>
-                                                                                                                                                                                                                                                            <!-- Dòng bổ sung: thông tin đơn hàng -->
-                                                                                                                                                                                                                                                            <div class="row mt-2">
-                                                                                                                                                                                                                                                                <div class="col-md-6">
-                                                                                                                                                                                                                                                                    <p><strong>Mã Đơn Hàng:</strong> ${donHang.maDonHang}</p>
-                                                                                                                                                                                                                                                                    ${donHang.trangThaiDonHang === "chờ phân công" || donHang.daDuyet === true
+                                                                                                                                                                                                                                                    <!-- Cột 2: Thông tin Người Nhận -->
+                                                                                                                                                                                                                                                    <div class="col-md-6">
+                                                                                                                                                                                                                                                        <h6 class="text-success">Thông tin Người Nhận</h6>
+                                                                                                                                                                                                                                                        <p><strong>Tên Người Nhận:</strong> ${donHang.hoTenNguoiNhan}</p>
+                                                                                                                                                                                                                                                        <p><strong>SĐT Người Nhận:</strong> ${donHang.sdtNguoiNhan}</p>
+                                                                                                                                                                                                                                                        <p><strong>Địa Chỉ Người Nhận:</strong> ${donHang.diaChiNguoiNhan || '---'}</p>
+                                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                                                <hr>
+                                                                                                                                                                                                                                                <!-- Dòng bổ sung: thông tin đơn hàng -->
+                                                                                                                                                                                                                                                <div class="row mt-2">
+                                                                                                                                                                                                                                                    <div class="col-md-6">
+                                                                                                                                                                                                                                                        <p><strong>Mã Đơn Hàng:</strong> ${donHang.maDonHang}</p>
+                                                                                                                                                                                                                                                        ${donHang.trangThaiDonHang === "chờ phân công" || donHang.daDuyet === true
                             ? `<p><strong>Mã Vận Đơn:</strong> ${donHang.maVanDon}</p>`
                             : ""
                         }
-                                                                                                                                                                                                                                                                <p><strong>Tên Đơn Hàng:</strong> ${donHang.tenDonHang}</p>
-                                                                                                                                                                                                                                                                   </div>
-                                                                                                                                                                                                                                                            <div class="col-md-6">
+                                                                                                                                                                                                                                                    <p><strong>Tên Đơn Hàng:</strong> ${donHang.tenDonHang}</p>
+                                                                                                                                                                                                                                                       </div>
+                                                                                                                                                                                                                                                <div class="col-md-6">
 
-                                                                                                                                                                                                                                                                <p><strong>Phí Giao Hàng:</strong> ${donHang.phiGiaoHang} VNĐ</p>
-                                                                                                                                                                                                                                                                <p><strong>Ngày Gửi:</strong> ${donHang.ngayGui}</p>
-                                                                                                                                                                                                                                                                <p><strong>Trạng Thái:</strong> ${donHang.trangThaiDonHang}</p>
-                                                                                                                                                                                                                                                            </div>
-                                                                                                                                                                                                                                                        </div>
-                                                                                                                                                                                                                                                    </div>
-                                                                                                                                                                                                                                                          `;
+                                                                                                                                                                                                                                                    <p><strong>Phí Giao Hàng:</strong> ${donHang.phiGiaoHang} VNĐ</p>
+                                                                                                                                                                                                                                                    <p><strong>Ngày Gửi:</strong> ${donHang.ngayGui}</p>
+                                                                                                                                                                                                                                                    <p><strong>Trạng Thái:</strong> ${donHang.trangThaiDonHang}</p>
+                                                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                                            </div>
+                                                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                                                              `;
                     document.getElementById("noiDungChiTietDonHang").innerHTML = chiTiet;
                     const modal = new bootstrap.Modal(document.getElementById("modalChiTietDonHang"));
                     modal.show();

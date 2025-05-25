@@ -83,6 +83,28 @@ namespace Nhom3_CongTyVanChuyen.Controllers
             return Ok(new { message = $"Đơn hàng {maDonHang} đã được chuyển sang trạng thái 'không tiếp nhận'." });
         }
 
+        [HttpGet("SoLanHuyConLai")]
+        public async Task<IActionResult> GetSoLanHuyConLai([FromQuery] string maNhanVien)
+        {
+            if (string.IsNullOrEmpty(maNhanVien))
+                return BadRequest("Thiếu mã nhân viên.");
+            var startOfWeek = DateTime.Now.Date.AddDays(-(int)DateTime.Now.DayOfWeek + 1); // Thứ 2 đầu tuần
+            var endOfWeek = startOfWeek.AddDays(7);
+
+            var huyTrongTuan = await _context.DonHangs
+                .Where(dh =>
+                    dh.MaNhanVien == maNhanVien &&
+                    dh.TrangThaiDonHang.ToLower() == "không tiếp nhận" &&
+                    dh.NgayGui >= startOfWeek && dh.NgayGui < endOfWeek
+                )
+                .CountAsync();
+
+            int soLanConLai = 3 - huyTrongTuan;
+            if (soLanConLai < 0) soLanConLai = 0;
+
+            return Ok(new { soLanConLai });
+        }
+
         [HttpGet("choduyet")]
         public async Task<IActionResult> GetDonHangsChuaDuyet()
         {
@@ -137,6 +159,7 @@ namespace Nhom3_CongTyVanChuyen.Controllers
 
             return Ok(donHangs);
         }
+
 
         [HttpDelete("xoa/{maDonHang}")]
         public async Task<IActionResult> XoaDonHang(string maDonHang)
@@ -285,7 +308,7 @@ namespace Nhom3_CongTyVanChuyen.Controllers
                             .ThenInclude(sn => sn.PhuongXa)
                                 .ThenInclude(px => px.QuanHuyen)
                                     .ThenInclude(qh => qh.TinhThanhPho)
-              .Where(dh => dh.TrangThaiDonHang == "Đã duyệt" || dh.TrangThaiDonHang == "trả về kho" || dh.TrangThaiDonHang == "đang giao" || dh.TrangThaiDonHang == "Khách hẹn lại ngày giao")
+              .Where(dh => dh.TrangThaiDonHang == "Đã duyệt" || dh.TrangThaiDonHang == "trả về kho" || dh.TrangThaiDonHang == "khách hẹn lại ngày giao")
                 .ToListAsync();
 
             var donHangs = donHangsRaw.Select(dh =>
@@ -399,7 +422,7 @@ namespace Nhom3_CongTyVanChuyen.Controllers
         [HttpGet("DSDonHangDacBiet")]
         public async Task<IActionResult> GetDonHangsDacBiet()
         {
-            var excludedStatuses = new[] { "đã giao", "chờ duyệt", "chờ phân công", "đang giao", "Đã duyệt", "trả về kho" };
+            var excludedStatuses = new[] { "đã giao", "chờ duyệt", "chờ phân công", "đang giao", "Đã duyệt", "trả về kho", "khách hẹn lại ngày giao" };
 
             var donHangsRaw = await _context.DonHangs
                   .Include(dh => dh.NhanVien)
@@ -525,7 +548,6 @@ namespace Nhom3_CongTyVanChuyen.Controllers
         [HttpGet("GetNhanVienPhuHopDiaChi/{maDonHang}")]
         public IActionResult GetNhanVienPhuHopDiaChi(string maDonHang)
         {
-            // Lấy đơn hàng, bao gồm KhachHang, NguoiNhan và địa chỉ người nhận (không lấy số nhà)
             var donHang = _context.DonHangs
                 .Include(d => d.KhachHang)
                     .ThenInclude(kh => kh.NguoiNhans)
@@ -550,37 +572,60 @@ namespace Nhom3_CongTyVanChuyen.Controllers
             if (qh == null || tp == null)
                 return BadRequest("Địa chỉ người nhận không đầy đủ.");
 
-            // Mã tỉnh, quận, phường của người nhận
             var maPhuongXa = px.MaPhuongXa;
             var maQuanHuyen = qh.MaQuanHuyen;
             var maTinhTP = tp.MaTinhTP;
 
-            // Lấy danh sách nhân viên giao hàng có địa chỉ phường, quận, tỉnh trùng với người nhận
-            var nhanViensPhuHop = _context.NhanViens
+            // Bước 1: tìm theo phường
+            var nhanViens = _context.NhanViens
                 .Include(nv => nv.VaiTro)
                 .Include(nv => nv.SoNha)
                     .ThenInclude(sn => sn.PhuongXa)
                         .ThenInclude(p => p.QuanHuyen)
                             .ThenInclude(q => q.TinhThanhPho)
-                .Where(nv =>
-                        nv.VaiTro.TenVaiTro == "Nhân viên giao hàng" &&
-                    nv.SoNha.PhuongXa.MaPhuongXa == maPhuongXa &&
-                    nv.SoNha.PhuongXa.QuanHuyen.MaQuanHuyen == maQuanHuyen &&
-                    nv.SoNha.PhuongXa.QuanHuyen.TinhThanhPho.MaTinhTP == maTinhTP
-                )
-                .Select(nv => new
-                {
-                    nv.MaNhanVien,
-                    nv.TenNhanVien,
-                    nv.SDT,  // số điện thoại nhân viên
-                    DiaChi = nv.SoNha.DiaChiSoNha + ", " +
-                 nv.SoNha.PhuongXa.TenPhuongXa + ", " +
-                 nv.SoNha.PhuongXa.QuanHuyen.TenQuanHuyen + ", " +
-                 nv.SoNha.PhuongXa.QuanHuyen.TinhThanhPho.TenTinhTP
-                })
+                .Where(nv => nv.VaiTro.TenVaiTro == "Nhân viên giao hàng")
                 .ToList();
 
-            return Ok(nhanViensPhuHop);
+            // Ưu tiên theo Phường
+            var nhanVienPhuong = nhanViens
+                .Where(nv => nv.SoNha?.PhuongXa?.MaPhuongXa == maPhuongXa)
+                .ToList();
+
+            if (nhanVienPhuong.Any())
+                return Ok(MapNhanViens(nhanVienPhuong));
+
+            // Nếu không có, thử theo Quận
+            var nhanVienQuan = nhanViens
+                .Where(nv => nv.SoNha?.PhuongXa?.QuanHuyen?.MaQuanHuyen == maQuanHuyen)
+                .ToList();
+
+            if (nhanVienQuan.Any())
+                return Ok(MapNhanViens(nhanVienQuan));
+
+            // Nếu không có, thử theo Tỉnh
+            var nhanVienTinh = nhanViens
+                .Where(nv => nv.SoNha?.PhuongXa?.QuanHuyen?.TinhThanhPho?.MaTinhTP == maTinhTP)
+                .ToList();
+
+            if (nhanVienTinh.Any())
+                return Ok(MapNhanViens(nhanVienTinh));
+
+            return Ok(new List<object>());
+        }
+
+        // Hàm phụ để chuẩn hóa dữ liệu trả về
+        private List<object> MapNhanViens(List<NhanVien> nhanViens)
+        {
+            return nhanViens.Select(nv => new
+            {
+                nv.MaNhanVien,
+                nv.TenNhanVien,
+                nv.SDT,
+                DiaChi = nv.SoNha.DiaChiSoNha + ", " +
+                         nv.SoNha.PhuongXa.TenPhuongXa + ", " +
+                         nv.SoNha.PhuongXa.QuanHuyen.TenQuanHuyen + ", " +
+                         nv.SoNha.PhuongXa.QuanHuyen.TinhThanhPho.TenTinhTP
+            }).ToList<object>();
         }
 
 
@@ -661,6 +706,8 @@ namespace Nhom3_CongTyVanChuyen.Controllers
 
             return Ok(donHangs);
         }
+
+
 
 
 
@@ -1026,6 +1073,7 @@ namespace Nhom3_CongTyVanChuyen.Controllers
             }
         }
 
+
         [HttpGet("{maDonHang}")]
         public async Task<IActionResult> GetDonHangTheoMa(string maDonHang)
         {
@@ -1121,7 +1169,71 @@ namespace Nhom3_CongTyVanChuyen.Controllers
             }
         }
 
+        [HttpGet("LocDonHangTheoTrangThai")]
+        public async Task<IActionResult> LocDonHangTheoTrangThai([FromQuery] string trangThai)
+        {
+            if (string.IsNullOrEmpty(trangThai))
+                return BadRequest("Vui lòng truyền trạng thái đơn hàng.");
+
+            var donHangsRaw = await _context.DonHangs
+                .Include(dh => dh.KhachHang)
+                    .ThenInclude(kh => kh.SoNha)
+                        .ThenInclude(sn => sn.PhuongXa)
+                            .ThenInclude(px => px.QuanHuyen)
+                                .ThenInclude(qh => qh.TinhThanhPho)
+                .Include(dh => dh.KhachHang)
+                    .ThenInclude(kh => kh.NguoiNhans)
+                        .ThenInclude(nn => nn.SoNha)
+                            .ThenInclude(sn => sn.PhuongXa)
+                                .ThenInclude(px => px.QuanHuyen)
+                                    .ThenInclude(qh => qh.TinhThanhPho)
+                .Where(dh => dh.TrangThaiDonHang == trangThai)
+                .ToListAsync(); // Chuyển thành LINQ to Objects từ đây
+
+            var donHangs = donHangsRaw.Select(dh =>
+            {
+                var nguoiNhan = dh.KhachHang?.NguoiNhans?.FirstOrDefault();
+
+                string diaChiNguoiNhan = "Không xác định";
+                if (nguoiNhan?.SoNha?.PhuongXa?.QuanHuyen?.TinhThanhPho != null)
+                {
+                    diaChiNguoiNhan = nguoiNhan.SoNha.DiaChiSoNha + ", " +
+                                      nguoiNhan.SoNha.PhuongXa.TenPhuongXa + ", " +
+                                      nguoiNhan.SoNha.PhuongXa.QuanHuyen.TenQuanHuyen + ", " +
+                                      nguoiNhan.SoNha.PhuongXa.QuanHuyen.TinhThanhPho.TenTinhTP;
+                }
+
+                string diaChiKhachHang = "Không xác định";
+                if (dh.KhachHang?.SoNha?.PhuongXa?.QuanHuyen?.TinhThanhPho != null)
+                {
+                    diaChiKhachHang = dh.KhachHang.SoNha.DiaChiSoNha + ", " +
+                                      dh.KhachHang.SoNha.PhuongXa.TenPhuongXa + ", " +
+                                      dh.KhachHang.SoNha.PhuongXa.QuanHuyen.TenQuanHuyen + ", " +
+                                      dh.KhachHang.SoNha.PhuongXa.QuanHuyen.TinhThanhPho.TenTinhTP;
+                }
+
+                return new
+                {
+                    maDonHang = dh.MaDonHang,
+                    maVanDon = dh.MaVanDon,
+                    tenDonHang = dh.TenDonHang,
+                    tenKhachHang = dh.KhachHang?.TenKhachHang ?? "Không xác định",
+                    sdtKhachHang = dh.KhachHang?.SDT ?? "Không xác định",
+                    diaChiKhachHang = diaChiKhachHang,
+                    hoTenNguoiNhan = nguoiNhan?.HoTen ?? "Không xác định",
+                    sdtNguoiNhan = nguoiNhan?.SDT ?? "Không xác định",
+                    diaChiNguoiNhan = diaChiNguoiNhan,
+                    phiGiaoHang = dh.PhiGiaoHang,
+                    ngayGui = dh.NgayGui,
+                    trangThaiDonHang = dh.TrangThaiDonHang
+                };
+            }).ToList();
+
+            return Ok(donHangs);
+        }
+
 
 
     }
+
 }
