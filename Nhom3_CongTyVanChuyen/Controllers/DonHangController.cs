@@ -83,28 +83,6 @@ namespace Nhom3_CongTyVanChuyen.Controllers
             return Ok(new { message = $"Đơn hàng {maDonHang} đã được chuyển sang trạng thái 'không tiếp nhận'." });
         }
 
-        [HttpGet("SoLanHuyConLai")]
-        public async Task<IActionResult> GetSoLanHuyConLai([FromQuery] string maNhanVien)
-        {
-            if (string.IsNullOrEmpty(maNhanVien))
-                return BadRequest("Thiếu mã nhân viên.");
-            var startOfWeek = DateTime.Now.Date.AddDays(-(int)DateTime.Now.DayOfWeek + 1); // Thứ 2 đầu tuần
-            var endOfWeek = startOfWeek.AddDays(7);
-
-            var huyTrongTuan = await _context.DonHangs
-                .Where(dh =>
-                    dh.MaNhanVien == maNhanVien &&
-                    dh.TrangThaiDonHang.ToLower() == "không tiếp nhận" &&
-                    dh.NgayGui >= startOfWeek && dh.NgayGui < endOfWeek
-                )
-                .CountAsync();
-
-            int soLanConLai = 3 - huyTrongTuan;
-            if (soLanConLai < 0) soLanConLai = 0;
-
-            return Ok(new { soLanConLai });
-        }
-
         [HttpGet("choduyet")]
         public async Task<IActionResult> GetDonHangsChuaDuyet()
         {
@@ -159,7 +137,6 @@ namespace Nhom3_CongTyVanChuyen.Controllers
 
             return Ok(donHangs);
         }
-
 
         [HttpDelete("xoa/{maDonHang}")]
         public async Task<IActionResult> XoaDonHang(string maDonHang)

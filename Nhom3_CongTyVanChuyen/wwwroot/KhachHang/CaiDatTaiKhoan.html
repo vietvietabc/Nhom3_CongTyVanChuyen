@@ -629,7 +629,7 @@
                         <span>Tạo đơn</span>
                     </a>
                     <ul class="sub-menu">
-                        <li><a href="#">Tạo đơn lẻ</a></li>
+                        <li><a href="TaoDon.html">Tạo đơn lẻ</a></li>
                         <li><a href="#">Nhập excel</a></li>
                     </ul>
                 </li>
@@ -1534,6 +1534,14 @@
             while (districtSelect.options.length > 1) districtSelect.remove(1);
             while (wardSelect.options.length > 1) wardSelect.remove(1);
 
+            // Thêm dữ liệu tỉnh/thành phố mặc định
+            const defaultCities = [
+                { maTinhTP: "HN", tenTinhTP: "Hà Nội" },
+                { maTinhTP: "HCM", tenTinhTP: "Hồ Chí Minh" },
+                { maTinhTP: "DN", tenTinhTP: "Đà Nẵng" },
+                { maTinhTP: "HP", tenTinhTP: "Hải Phòng" },
+                { maTinhTP: "CT", tenTinhTP: "Cần Thơ" }
+            ];
 
             defaultCities.forEach(city => {
                 const option = document.createElement("option");

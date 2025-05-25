@@ -1757,21 +1757,6 @@
             }
         }
 
-        async function hienThiSoLanHuyConLai() {
-            const maNhanVien = currentUser?.maNhanVien || '';
-            if (!maNhanVien) return;
-
-            try {
-                const res = await fetch(`${apiBaseUrl}/DonHang/SoLanHuyConLai?maNhanVien=${maNhanVien}`);
-                if (!res.ok) throw new Error('Không thể lấy số lần hủy còn lại');
-                const data = await res.json();
-                document.getElementById('soLanHuyConLai').innerHTML =
-                    `<span class="text-info">Bạn còn <b>${data.soLanConLai}</b> lần hủy đơn trong tuần này.</span>`;
-            } catch (e) {
-                document.getElementById('soLanHuyConLai').innerHTML = '';
-            }
-        }
-
         // Helper
         function formatDate(dateString) {
             if (!dateString) return 'N/A';

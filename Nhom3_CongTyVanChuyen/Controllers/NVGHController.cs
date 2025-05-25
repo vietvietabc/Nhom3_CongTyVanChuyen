@@ -434,39 +434,42 @@ namespace Nhom3_CongTyVanChuyen.Controllers
         [HttpPost("UpdateStatus")]
         public ActionResult UpdateStatus([FromBody] UpdateStatusModel model)
         {
-            // Log request để debug
-            System.Diagnostics.Debug.WriteLine($"Received UpdateStatus request: MaDonHang={model?.MaDonHang}, TrangThaiMoi={model?.TrangThaiMoi}");
-
             try
             {
-                // Validate đầu vào
                 if (model == null)
-                {
                     return BadRequest("Dữ liệu không hợp lệ");
-                }
 
                 if (string.IsNullOrEmpty(model.MaDonHang))
-                {
                     return BadRequest("Thiếu mã đơn hàng");
-                }
 
                 if (string.IsNullOrEmpty(model.TrangThaiMoi))
-                {
                     return BadRequest("Thiếu trạng thái mới");
-                }
 
                 var donHang = _context.DonHangs.FirstOrDefault(d => d.MaDonHang == model.MaDonHang);
                 if (donHang == null)
-                {
                     return NotFound($"Không tìm thấy đơn hàng với mã {model.MaDonHang}");
+
+                var trangThaiMoi = model.TrangThaiMoi.Trim();
+
+                // Cập nhật trạng thái đơn hàng
+                donHang.TrangThaiDonHang = trangThaiMoi;
+
+                // Nếu là trạng thái "đã giao" thì cập nhật ngày nhận
+                if (trangThaiMoi.Equals("đã giao", StringComparison.OrdinalIgnoreCase))
+                {
+                    donHang.NgayNhan = DateTime.Now;
                 }
 
-                // Lưu lại trạng thái cũ để ghi log
-                var trangThaiCu = donHang.TrangThaiDonHang;
-
-                // Cập nhật trạng thái mới (luôn viết thường)
-                var trangThaiMoiLower = model.TrangThaiMoi.ToLower();
-                donHang.TrangThaiDonHang = trangThaiMoiLower;
+                // Reset thông tin thanh toán nếu các trạng thái đặc biệt
+                if (trangThaiMoi.Equals("khách hẹn lại ngày giao", StringComparison.OrdinalIgnoreCase)
+                    || trangThaiMoi.Equals("đang giao", StringComparison.OrdinalIgnoreCase)
+                    || trangThaiMoi.Equals("khách không nhận hàng", StringComparison.OrdinalIgnoreCase))
+                {
+                    donHang.TrangThaiThanhToan = "chưa thanh toán";
+                    donHang.NgayThanhToan = null;
+                    donHang.PhuongThucThanhToan = null;
+                    donHang.TrangThaiThuHo = null;
+                }
 
                 // Cập nhật ghi chú nếu có
                 if (!string.IsNullOrEmpty(model.GhiChu))
@@ -474,58 +477,21 @@ namespace Nhom3_CongTyVanChuyen.Controllers
                     donHang.GhiChu = model.GhiChu;
                 }
 
-                // Xử lý dựa trên trạng thái mới (so sánh viết thường)
-                switch (trangThaiMoiLower)
-                {
-                    case "đã giao":
-                        // Nếu đơn hàng đã giao, cập nhật ngày nhận
-                        donHang.NgayNhan = DateTime.Now;
-                        break;
-
-                    case "khách hẹn lại ngày giao":
-                    case "đang giao":
-                    case "khách không nhận hàng":
-                        // Reset thông tin thanh toán
-                        donHang.TrangThaiThanhToan = "chưa thanh toán";
-                        donHang.NgayThanhToan = null;
-                        donHang.PhuongThucThanhToan = null;
-                        donHang.TrangThaiThuHo = null;
-
-                        // Ghi log vào GhiChu nếu chưa có ghi chú
-                        if (string.IsNullOrEmpty(model.GhiChu))
-                        {
-                            donHang.GhiChu = $"Đơn hàng chuyển sang trạng thái '{trangThaiMoiLower}' vào {DateTime.Now}. Đặt lại thông tin thanh toán.";
-                        }
-                        else
-                        {
-                            donHang.GhiChu = model.GhiChu + $"\n[Hệ thống]: Đặt lại thông tin thanh toán do chuyển trạng thái.";
-                        }
-                        break;
-                }
-
                 _context.SaveChanges();
-                System.Diagnostics.Debug.WriteLine($"Successfully updated order {model.MaDonHang} status from {trangThaiCu} to {trangThaiMoiLower}");
 
-                // Trả về thông tin chi tiết
                 return Ok(new
                 {
                     message = "Cập nhật trạng thái đơn hàng thành công",
-                    trangThaiCu = trangThaiCu,
-                    trangThaiMoi = trangThaiMoiLower,
-                    daCapNhatThanhToan = trangThaiMoiLower == "khách hẹn lại ngày giao" ||
-                                        trangThaiMoiLower == "đang giao" ||
-                                        trangThaiMoiLower == "khách không nhận hàng"
+                    maDonHang = donHang.MaDonHang,
+                    trangThaiMoi = donHang.TrangThaiDonHang
                 });
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error in UpdateStatus: {ex.Message}");
                 return StatusCode(500, $"Lỗi khi cập nhật trạng thái đơn hàng: {ex.Message}");
             }
         }
 
-
-        // Model cho việc cập nhật trạng thái
         public class UpdateStatusModel
         {
             public string MaDonHang { get; set; }
