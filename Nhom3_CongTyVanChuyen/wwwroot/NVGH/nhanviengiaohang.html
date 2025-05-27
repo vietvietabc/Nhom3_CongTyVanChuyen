@@ -418,6 +418,7 @@
                 .searchbar button:hover {
                     background-color: #2980b9;
                 }
+
     </style>
 </head>
 <body>
@@ -564,6 +565,22 @@
         </div>
     </div>
 
+    <!-- Modal Chi Tiết Đơn Hàng -->
+    <div class="modal fade" id="modalChiTietDonHang" tabindex="-1" aria-labelledby="modalChiTietDonHangLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title" id="modalChiTietDonHangLabel">Chi tiết đơn hàng</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+                <div class="modal-body" id="noiDungChiTietDonHang">
+                    <!-- Nội dung chi tiết sẽ cập nhật bằng JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <!-- Modal cập nhật thanh toán -->
     <div class="modal fade" id="updatePaymentModal" tabindex="-1" aria-labelledby="updatePaymentModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -663,33 +680,33 @@
 
             const mainContent = document.getElementById('mainContent');
             mainContent.innerHTML = `
-                <div class="card shadow mb-4">
-                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                        <h6 class="m-0 font-weight-bold text-danger">Danh sách đơn hàng có thể hủy</h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-bordered" width="100%" cellspacing="0">
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Mã đơn hàng</th>
-                                        <th>Khách hàng</th>
-                                        <th>Ngày gửi</th>
-                                        <th>Trạng thái</th>
-                                        <th>Thao tác</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="huyDonTableBody">
-                                    <tr>
-                                        <td colspan="6" class="text-center">Đang tải dữ liệu...</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                                <h6 class="m-0 font-weight-bold text-danger">Danh sách đơn hàng có thể hủy</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered" width="100%" cellspacing="0">
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Mã đơn hàng</th>
+                                                <th>Khách hàng</th>
+                                                <th>Ngày gửi</th>
+                                                <th>Trạng thái</th>
+                                                <th>Thao tác</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="huyDonTableBody">
+                                            <tr>
+                                                <td colspan="6" class="text-center">Đang tải dữ liệu...</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-            `;
+                    `;
             loadDanhSachDonHangCoTheHuy();
         }
 
@@ -721,15 +738,15 @@
 
                 // Cập nhật UI
                 document.getElementById('mainContent').innerHTML = `
-                        <div class="searchbar mb-3">
-                            <i class="fas fa-search"></i>
-                            <input type="text" id="searchOrderInput" placeholder="Tìm kiếm đơn hàng...">
-                            <button onclick="searchAssignedOrders()">Tìm kiếm</button>
-                        </div>
-                        <div class="order-list">
-                            ${orders.length ? orders.map(renderOrderItem).join('') : '<div class="alert alert-info">Không có đơn hàng nào</div>'}
-                        </div>
-                    `;
+                                <div class="searchbar mb-3">
+                                    <i class="fas fa-search"></i>
+                                    <input type="text" id="searchOrderInput" placeholder="Tìm kiếm đơn hàng...">
+                                    <button onclick="searchAssignedOrders()">Tìm kiếm</button>
+                                </div>
+                                <div class="order-list">
+                                    ${orders.length ? orders.map(renderOrderItem).join('') : '<div class="alert alert-info">Không có đơn hàng nào</div>'}
+                                </div>
+                            `;
 
                 document.getElementById('searchOrderInput')?.addEventListener('keypress', function (e) {
                     if (e.key === 'Enter') searchAssignedOrders();
@@ -737,10 +754,10 @@
             } catch (error) {
                 console.error("Lỗi:", error);
                 document.getElementById('mainContent').innerHTML = `
-                        <div class="alert alert-danger">
-                            <strong>Lỗi:</strong> ${error.message || 'Không thể tải danh sách đơn hàng'}
-                        </div>
-                    `;
+                                <div class="alert alert-danger">
+                                    <strong>Lỗi:</strong> ${error.message || 'Không thể tải danh sách đơn hàng'}
+                                </div>
+                            `;
             }
         }
         function searchAssignedOrders() {
@@ -754,31 +771,31 @@
             const ma = order.maDonHang || order.ma;
             const tenKhachHang = order.tenKhachHang || '';
             const sdtKhachHang = order.sdtKhachHang || order.khachHang?.soDienThoai || 'N/A';
-            const diaChiGiao = order.diaChiGiao || order.khachHang?.diaChi || 'N/A';
+            const diaChiSoNha = order.diaChiSoNha || order.diaChiChiTiet || order.diaChiGiao || order.khachHang?.diaChi || 'N/A';
             const ngayGui = order.ngayGui;
             const trangThai = order.trangThaiDonHang || order.trangThai;
 
             return `
-                    <div class="order-item row align-items-center">
-                        <div class="col-md-2 fw-bold">#${ma}</div>
-                        <div class="col-md-3">
-                            <i class="fas fa-user me-1"></i> Khách: ${tenKhachHang}<br>
-                            <small class="text-muted">
-                                <i class="fas fa-phone me-1"></i> SĐT: ${sdtKhachHang}
-                            </small>
-                        </div>
-                        <div class="col-md-3">
-                            <i class="fas fa-map-marker-alt me-1"></i> Địa chỉ: ${shortenAddress(diaChiGiao)}
-                            <br>
-                            <small class="text-muted">
-                                <i class="fas fa-calendar me-1"></i> Ngày gửi: ${formatDate(ngayGui)}
-                            </small>
-                        </div>
-                        <div class="col-md-2">
-                            <span class="badge ${getBadgeClass(trangThai)}">${trangThai}</span>
-                        </div>
-                    </div>
-                `;
+                            <div class="order-item row align-items-center">
+                                <div class="col-md-2 fw-bold">#${ma}</div>
+                                <div class="col-md-3">
+                                    <i class="fas fa-user me-1"></i> Khách: ${tenKhachHang}<br>
+                                    <small class="text-muted">
+                                        <i class="fas fa-phone me-1"></i> SĐT: ${sdtKhachHang}
+                                    </small>
+                                </div>
+                                <div class="col-md-3">
+                                    <i class="fas fa-map-marker-alt me-1"></i> Địa chỉ: ${shortenAddress(diaChiSoNha)}
+                                    <br>
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar me-1"></i> Ngày gửi: ${formatDate(ngayGui)}
+                                    </small>
+                                </div>
+                                <div class="col-md-2">
+                                    <span class="badge ${getBadgeClass(trangThai)}">${trangThai}</span>
+                                </div>
+                            </div>
+                        `;
         }
 
         // 2. Cập nhật trạng thái đơn
@@ -787,62 +804,167 @@
             document.getElementById('mainContent').innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>';
 
             try {
-                // Kiểm tra người dùng đăng nhập
+                // Check for user login
                 if (!currentUser || !currentUser.maNhanVien) {
                     console.error("Không tìm thấy thông tin người dùng");
                     document.getElementById('mainContent').innerHTML = '<div class="alert alert-warning">Vui lòng đăng nhập lại để tiếp tục</div>';
                     return;
                 }
 
-                console.log("Đang tải đơn hàng cho nhân viên:", currentUser.maNhanVien);
+                // Get orders with specific statuses only
+                const res = await fetch(`${apiBaseUrl}/NVGH/OrdersForStatusUpdate?MaNhanVien=${currentUser.maNhanVien}`);
 
-                // Sử dụng endpoint GetAllOrders với MaNhanVien
-                const res = await fetch(`${apiBaseUrl}/NVGH/GetAllOrders?MaNhanVien=${currentUser.maNhanVien}`);
-
-                // Xử lý lỗi nếu có
                 if (!res.ok) {
                     throw new Error("Lỗi khi lấy dữ liệu từ server");
                 }
 
-                // Xử lý dữ liệu thành công
-                const orders = await res.json();
-                console.log("Đơn hàng nhận được:", orders);
+                const filteredOrders = await res.json();
+                console.log("Đơn hàng đã lọc:", filteredOrders);
 
-                // Hiển thị danh sách đơn hàng
+                // Display filtered orders with payment information
                 document.getElementById('mainContent').innerHTML = `
-                    <div class="order-list">
-                        ${orders.length ? orders.map(order => `
-                            <div class="order-item row align-items-center">
-                                <div class="col-md-2 fw-bold">${order.ma}</div>
-                                <div class="col-md-3">
-                                    <i class="fas fa-user me-1"></i> Khách: ${order.tenKhachHang}<br>
-                                    <small class="text-muted"><i class="fas fa-phone me-1"></i> Số điện thoại:  ${order.sdtKhachHang || 'N/A'}</small>
+            <div class="order-list">
+                ${filteredOrders.length ? filteredOrders.map(order => `
+                    <div class="order-item d-flex flex-wrap flex-md-nowrap align-items-center gap-3 justify-content-between p-3 mb-3 ${order.tienThuHo > 0 ? 'border-left border-warning' : ''}">
+                        <div class="fw-bold text-primary" style="min-width:100px;">${order.ma}</div>
+                        <div class="order-info flex-grow-1">
+                            <div><i class="fas fa-user me-1"></i>${order.tenKhachHang}</div>
+                            <div class="text-muted small"><i class="fas fa-phone me-1"></i>${order.sdtKhachHang || 'N/A'}</div>
+                            <div class="text-muted small"><i class="fas fa-map-marker-alt me-1"></i>${shortenAddress(order.diaChiGiao)}</div>
+                            <div class="text-muted small"><i class="fas fa-calendar me-1"></i>${formatDate(order.ngayGui)}</div>
+                        </div>
+                        
+                        <div class="d-flex flex-column align-items-end me-3">
+                            <span class="badge ${getBadgeClass(order.trangThai)} px-3 py-2" style="font-size:0.9rem;">${order.trangThai}</span>
+                            ${order.tienThuHo > 0 ? `
+                                <div class="mt-2 text-danger fw-bold">
+                                    <i class="fas fa-money-bill-wave"></i> Cần thu: ${formatCurrency(order.tienThuHo)}
                                 </div>
-                                <div class="col-md-3">
-                                    <i class="fas fa-map-marker-alt me-1"></i> Địa chỉ giao hàng: ${shortenAddress(order.diaChiGiao)}
-                                    <br><small class="text-muted"><i class="fas fa-calendar me-1"></i> Ngày gửi: ${formatDate(order.ngayGui)}</small>
+                            ` : ''}
+                            ${order.tienThuHo > 0 && order.phiGiaoHang > 0 ? `
+                                <div class="mt-1 text-muted small">
+                                    <div>Phí giao: ${formatCurrency(order.phiGiaoHang)}</div>
+                                    <div class="text-danger">Tổng thu: ${formatCurrency(order.tienThuHo + order.phiGiaoHang)}</div>
                                 </div>
-                                <div class="col-md-2">
-                                    <span class="badge ${getBadgeClass(order.trangThai)}">${order.trangThai}</span>
-                                </div>
-                                <div class="col-md-2 text-end">
-                                    <button class="btn btn-sm btn-primary" onclick="openUpdateStatusModal('${order.ma}')">
-                                        <i class="fas fa-edit"></i> Cập nhật
-                                    </button>
-                                </div>
-                            </div>
-                        `).join('') : '<div class="alert alert-info">Không có đơn hàng nào được phân công cho bạn</div>'}
+                            ` : ''}
+                        </div>
+                        
+                        <div class="d-flex gap-2 ms-auto">
+                            <button class="btn btn-sm btn-info" onclick="openOrderDetailModal('${order.ma}')">
+                                <i class="fas fa-eye"></i> Xem chi tiết
+                            </button>
+                            <button class="btn btn-sm btn-primary" onclick="openUpdateStatusModal('${order.ma}')">
+                                <i class="fas fa-edit"></i> Cập nhật
+                            </button>
+                        </div>
                     </div>
-                `;
+                `).join('') : '<div class="alert alert-info">Không có đơn hàng nào với trạng thái cần hiển thị</div>'}
+            </div>
+        `;
             } catch (error) {
                 console.error("Lỗi:", error);
                 document.getElementById('mainContent').innerHTML = `
-                    <div class="alert alert-danger">
-                        <i class="fas fa-exclamation-triangle"></i> Lỗi: ${error.message}
-                    </div>
-                `;
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle"></i> Lỗi: ${error.message}
+            </div>
+        `;
             }
         }
+
+        function openOrderDetailModal(maDonHang) {
+            try {
+                // Show loading
+                document.getElementById('noiDungChiTietDonHang').innerHTML = '<div class="text-center py-3"><div class="spinner-border text-primary"></div> Đang tải...</div>';
+                const modal = new bootstrap.Modal(document.getElementById('modalChiTietDonHang'));
+                modal.show();
+
+                // Fetch order details
+                fetch(`${apiBaseUrl}/NVGH/${maDonHang}`)
+                    .then(res => {
+                        if (!res.ok) {
+                            throw new Error(`Error ${res.status}: ${res.statusText}`);
+                        }
+                        return res.json();
+                    })
+                    .then(data => {
+                        console.log("Order details data:", data); // Add this for debugging
+
+                        // Check if we have recipient data
+                        if (!data.tenNguoiNhan || data.tenNguoiNhan === "Không có thông tin") {
+                            console.warn("Missing recipient information for order:", maDonHang);
+                        }
+
+                        hienChiTietDonHang(data);
+                    })
+                    .catch(err => {
+                        document.getElementById('noiDungChiTietDonHang').innerHTML =
+                            `<div class="alert alert-danger">Lỗi: ${err.message}</div>`;
+                    });
+            } catch (err) {
+                document.getElementById('noiDungChiTietDonHang').innerHTML =
+                    `<div class="alert alert-danger">Lỗi: ${err.message}</div>`;
+            }
+        }
+
+
+        function hienChiTietDonHang(donHang) {
+            // Lấy thông tin khách hàng
+            const tenKhachHang = donHang.tenKhachHang || (donHang.khachHang && donHang.khachHang.tenKhachHang) || '---';
+            const sdtKhachHang = donHang.sdtKhachHang || (donHang.khachHang && donHang.khachHang.soDienThoai) || '---';
+            const diaChiKhachHang = donHang.diaChiSoNha || donHang.diaChiKhachHang || (donHang.khachHang && donHang.khachHang.diaChi) || '---';
+
+            // Lấy thông tin người nhận
+            const tenNguoiNhan = donHang.tenNguoiNhan || donHang.hoTenNguoiNhan || (donHang.nguoiNhan && donHang.nguoiNhan.tenNguoiNhan) || '---';
+            const sdtNguoiNhan = donHang.sdtNguoiNhan || (donHang.nguoiNhan && donHang.nguoiNhan.soDienThoai) || '---';
+            const diaChiNguoiNhan = donHang.diaChiNguoiNhan || (donHang.nguoiNhan && donHang.nguoiNhan.diaChi) || '---';
+
+            // Lấy thông tin đơn hàng
+            const maDonHang = donHang.maDonHang || donHang.ma || '---';
+            const maVanDon = donHang.maVanDon || '---';
+            const tenDonHang = donHang.tenDonHang || '---';
+            const phiGiaoHang = (donHang.phiGiaoHang != null && !isNaN(donHang.phiGiaoHang)) ? formatCurrency(donHang.phiGiaoHang) : '---';
+            const ngayGui = donHang.ngayGui ? formatDate(donHang.ngayGui) : '---';
+            const trangThai = donHang.trangThaiDonHang || donHang.trangThai || '---';
+
+            const chiTiet = `
+        <div class="container-fluid">
+            <div class="row">
+                <!-- Cột 1: Thông tin Khách Hàng -->
+                <div class="col-md-6">
+                    <h6 class="text-primary">Thông tin Khách Hàng</h6>
+                    <p><strong>Tên Khách Hàng:</strong> ${tenKhachHang}</p>
+                    <p><strong>SĐT Khách Hàng:</strong> ${sdtKhachHang}</p>
+                    <p><strong>Địa Chỉ Khách Hàng:</strong> ${diaChiKhachHang}</p>
+                </div>
+                <!-- Cột 2: Thông tin Người Nhận -->
+                <div class="col-md-6">
+                    <h6 class="text-success">Thông tin Người Nhận</h6>
+                    <p><strong>Tên Người Nhận:</strong> ${tenNguoiNhan}</p>
+                    <p><strong>SĐT Người Nhận:</strong> ${sdtNguoiNhan}</p>
+                    <p><strong>Địa Chỉ Người Nhận:</strong> ${diaChiNguoiNhan}</p>
+                </div>
+            </div>
+            <hr>
+            <div class="row mt-2">
+                <div class="col-md-6">
+                    <p><strong>Mã Đơn Hàng:</strong> ${maDonHang}</p>
+                    <p><strong>Mã Vận Đơn:</strong> ${maVanDon}</p>
+                    <p><strong>Tên Đơn Hàng:</strong> ${tenDonHang}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Phí Giao Hàng:</strong> ${phiGiaoHang}</p>
+                    <p><strong>Ngày Gửi:</strong> ${ngayGui}</p>
+                    <p><strong>Trạng Thái:</strong> ${trangThai}</p>
+                </div>
+            </div>
+        </div>
+    `;
+            document.getElementById("noiDungChiTietDonHang").innerHTML = chiTiet;
+            const modal = new bootstrap.Modal(document.getElementById("modalChiTietDonHang"));
+            modal.show();
+        }
+
+
 
         // 3. Cập nhật thanh toán
         async function loadUpdatePaymentStatus() {
@@ -862,56 +984,86 @@
 
                 // Hiển thị danh sách đơn hàng
                 document.getElementById('mainContent').innerHTML = `
-                    <div class="order-list">
-                        ${orders.length ? orders.map(order => `
-                            <div class="order-item row align-items-center">
-                                <div class="col-md-2 fw-bold">#${order.ma}</div>
-                                <div class="col-md-3">
-                                    <i class="fas fa-user me-1"></i> Khách: ${order.tenKhachHang}<br>
-                                    <small class="text-muted"><i class="fas fa-phone me-1"></i> Số điện thoại: ${order.sdtKhachHang || 'N/A'}</small>
-                                </div>
-                                <div class="col-md-2">
-                                    <i class="fas fa-calendar me-1"></i> Ngày nhận: ${formatDate(order.ngayNhan || order.ngayGui)}
-                                </div>
-                                <div class="col-md-3">
-                                    <div><strong>TT thanh toán:</strong>
-                                        <span class="badge ${order.daThanhToan ? 'bg-success' : 'bg-warning'}">
-                                            ${order.trangThaiThanhToan || 'Chưa thanh toán'}
-                                        </span>
+                            <div class="order-list">
+                                ${orders.length ? orders.map(order => `
+                                    <div class="order-item row align-items-center">
+                                        <div class="col-md-2 fw-bold">#${order.ma}</div>
+                                        <div class="col-md-3">
+                                            <i class="fas fa-user me-1"></i> Khách: ${order.tenKhachHang}<br>
+                                            <small class="text-muted"><i class="fas fa-phone me-1"></i> Số điện thoại: ${order.sdtKhachHang || 'N/A'}</small>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <i class="fas fa-calendar me-1"></i> Ngày nhận: ${formatDate(order.ngayNhan || order.ngayGui)}
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div><strong>TT thanh toán:</strong>
+                                                <span class="badge ${order.daThanhToan ? 'bg-success' : 'bg-warning'}">
+                                                    ${order.trangThaiThanhToan || 'Chưa thanh toán'}
+                                                </span>
+                                            </div>
+                                            <div><small class="text-muted">Phương thức: ${order.phuongThucThanhToan || 'Chưa có'}</small></div>
+                                        </div>
+                                        <div class="col-md-2 text-end">
+                                            <button class="btn btn-sm btn-success" onclick="openUpdatePaymentModal('${order.ma}')">
+                                                <i class="fas fa-credit-card"></i> Cập nhật
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div><small class="text-muted">Phương thức: ${order.phuongThucThanhToan || 'Chưa có'}</small></div>
-                                </div>
-                                <div class="col-md-2 text-end">
-                                    <button class="btn btn-sm btn-success" onclick="openUpdatePaymentModal('${order.ma}')">
-                                        <i class="fas fa-credit-card"></i> Cập nhật
-                                    </button>
-                                </div>
+                                `).join('') : '<div class="alert alert-info">Không có đơn nào cần cập nhật thanh toán</div>'}
                             </div>
-                        `).join('') : '<div class="alert alert-info">Không có đơn nào cần cập nhật thanh toán</div>'}
-                    </div>
-                `;
+                        `;
             } catch (error) {
                 console.error("Lỗi:", error);
                 document.getElementById('mainContent').innerHTML = `
-                    <div class="alert alert-danger">
-                        <i class="fas fa-exclamation-triangle"></i> Lỗi: ${error.message || 'Không thể tải danh sách đơn hàng'}
-                    </div>
-                `;
+                            <div class="alert alert-danger">
+                                <i class="fas fa-exclamation-triangle"></i> Lỗi: ${error.message || 'Không thể tải danh sách đơn hàng'}
+                            </div>
+                        `;
             }
         }
 
-        // Hàm mở modal cập nhật trạng thái
-        function openUpdateStatusModal(maDonHang) {
-            // Lưu mã đơn hàng vào input hidden trong modal
-            document.getElementById('updateOrderId').value = maDonHang;
+        function openUpdateStatusModal(orderId) {
+            // Check network status first
+            if (!prepareForUpdate()) return;
 
-            // Reset form
-            document.getElementById('orderStatus').value = 'Đang giao';
-            document.getElementById('statusNote').value = '';
-
-            // Hiển thị modal bằng Bootstrap
+            // Open modal and update data
             const modal = new bootstrap.Modal(document.getElementById('updateStatusModal'));
-            modal.show();
+            document.getElementById('statusOrderId').value = orderId;
+
+            // Get order information to display
+            fetch(`${apiBaseUrl}/NVGH/${orderId}`)
+                .then(res => res.json())
+                .then(data => {
+                    // Display order info in modal
+                    document.getElementById('orderInfoDisplay').innerHTML = `
+                <div class="card bg-light">
+                    <div class="card-body p-3">
+                        <h6 class="card-title">Thông tin đơn hàng: ${orderId}</h6>
+                        <p class="mb-1"><strong>Khách hàng:</strong> ${data.tenKhachHang}</p>
+                        <p class="mb-1"><strong>Trạng thái hiện tại:</strong> <span class="badge bg-secondary">${data.trangThaiDonHang}</span></p>
+                        ${data.tienThuHo > 0 ? `
+                        <p class="mb-1 text-danger"><strong>Tiền thu hộ:</strong> ${formatCurrency(data.tienThuHo)}</p>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+
+                    // Select current status in dropdown
+                    const statusSelect = document.getElementById('statusSelect');
+                    for (let i = 0; i < statusSelect.options.length; i++) {
+                        if (statusSelect.options[i].value.toLowerCase() === data.trangThaiDonHang.toLowerCase()) {
+                            statusSelect.selectedIndex = i;
+                            break;
+                        }
+                    }
+
+                    // Show modal
+                    modal.show();
+                })
+                .catch(error => {
+                    console.error('Lỗi khi lấy thông tin đơn hàng:', error);
+                    alert('Không thể lấy thông tin đơn hàng. Vui lòng thử lại sau.');
+                });
         }
 
         // Sửa hàm xử lý khi nhấn nút "Cập nhật" trong modal trạng thái
@@ -1084,14 +1236,14 @@
                 .then(data => {
                     // Hiển thị thông tin đơn trong modal
                     document.getElementById('orderInfoDisplay').innerHTML = `
-                <div class="card bg-light">
-                    <div class="card-body p-3">
-                        <h6 class="card-title">Thông tin đơn hàng: ${orderId}</h6>
-                        <p class="mb-1"><strong>Khách hàng:</strong> ${data.tenKhachHang}</p>
-                        <p class="mb-1"><strong>Trạng thái hiện tại:</strong> <span class="badge bg-secondary">${data.trangThaiDonHang}</span></p>
-                    </div>
-                </div>
-            `;
+                        <div class="card bg-light">
+                            <div class="card-body p-3">
+                                <h6 class="card-title">Thông tin đơn hàng: ${orderId}</h6>
+                                <p class="mb-1"><strong>Khách hàng:</strong> ${data.tenKhachHang}</p>
+                                <p class="mb-1"><strong>Trạng thái hiện tại:</strong> <span class="badge bg-secondary">${data.trangThaiDonHang}</span></p>
+                            </div>
+                        </div>
+                    `;
 
                     // Chọn trạng thái hiện tại trong dropdown
                     const statusSelect = document.getElementById('statusSelect');
@@ -1121,11 +1273,11 @@
 
             if (specialStatuses.includes(selectedStatus)) {
                 warningDiv.innerHTML = `
-                <div class="alert alert-warning mt-2">
-                    <i class="fas fa-exclamation-triangle"></i> Lưu ý: Khi chuyển sang trạng thái "${selectedStatus}",
-                    thông tin thanh toán sẽ được đặt lại về "Chưa thanh toán".
-                </div>
-            `;
+                        <div class="alert alert-warning mt-2">
+                            <i class="fas fa-exclamation-triangle"></i> Lưu ý: Khi chuyển sang trạng thái "${selectedStatus}",
+                            thông tin thanh toán sẽ được đặt lại về "Chưa thanh toán".
+                        </div>
+                    `;
                 warningDiv.style.display = 'block';
             } else {
                 warningDiv.style.display = 'none';
@@ -1184,44 +1336,44 @@
 
                 // Cập nhật nội dung modal với dữ liệu đơn hàng
                 modalBody.innerHTML = `
-                <div class="mb-3 p-2 bg-light rounded">
-                    <div class="mb-1"><strong>Mã đơn hàng:</strong> ${maDonHang}</div>
-                    <div class="mb-1"><strong>Khách hàng:</strong> ${order.tenKhachHang}</div>
-                    ${order.tienThuHo ? `<div class="mb-1"><strong>Tiền thu hộ:</strong> ${formatCurrency(order.tienThuHo)}</div>` : ''}
-                </div>
-                <input type="hidden" id="paymentOrderId" value="${maDonHang}">
-                <div class="mb-3">
-                    <label for="paymentStatus" class="form-label">Trạng thái thanh toán</label>
-                    <select class="form-select" id="paymentStatus">
-                        <option value="Đã thanh toán" ${order.trangThaiThanhToan === 'Đã thanh toán' ? 'selected' : ''}>Đã thanh toán</option>
-                        <option value="Chưa thanh toán" ${order.trangThaiThanhToan === 'Chưa thanh toán' || !order.trangThaiThanhToan ? 'selected' : ''}>Chưa thanh toán</option>
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label for="paymentMethod" class="form-label">Phương thức thanh toán</label>
-                    <select class="form-select" id="paymentMethod">
-                        <option value="Tiền mặt" ${order.phuongThucThanhToan === 'Tiền mặt' ? 'selected' : ''}>Tiền mặt</option>
-                        <option value="Chuyển khoản" ${order.phuongThucThanhToan === 'Chuyển khoản' ? 'selected' : ''}>Chuyển khoản</option>
-                        <option value="COD" ${order.phuongThucThanhToan === 'COD' ? 'selected' : ''}>COD</option>
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label for="paymentNote" class="form-label">Ghi chú</label>
-                    <textarea class="form-control" id="paymentNote" rows="3" placeholder="Nhập ghi chú nếu có">${order.ghiChu || ''}</textarea>
-                </div>
-            `;
+                        <div class="mb-3 p-2 bg-light rounded">
+                            <div class="mb-1"><strong>Mã đơn hàng:</strong> ${maDonHang}</div>
+                            <div class="mb-1"><strong>Khách hàng:</strong> ${order.tenKhachHang}</div>
+                            ${order.tienThuHo ? `<div class="mb-1"><strong>Tiền thu hộ:</strong> ${formatCurrency(order.tienThuHo)}</div>` : ''}
+                        </div>
+                        <input type="hidden" id="paymentOrderId" value="${maDonHang}">
+                        <div class="mb-3">
+                            <label for="paymentStatus" class="form-label">Trạng thái thanh toán</label>
+                            <select class="form-select" id="paymentStatus">
+                                <option value="Đã thanh toán" ${order.trangThaiThanhToan === 'Đã thanh toán' ? 'selected' : ''}>Đã thanh toán</option>
+                                <option value="Chưa thanh toán" ${order.trangThaiThanhToan === 'Chưa thanh toán' || !order.trangThaiThanhToan ? 'selected' : ''}>Chưa thanh toán</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="paymentMethod" class="form-label">Phương thức thanh toán</label>
+                            <select class="form-select" id="paymentMethod">
+                                <option value="Tiền mặt" ${order.phuongThucThanhToan === 'Tiền mặt' ? 'selected' : ''}>Tiền mặt</option>
+                                <option value="Chuyển khoản" ${order.phuongThucThanhToan === 'Chuyển khoản' ? 'selected' : ''}>Chuyển khoản</option>
+                                <option value="COD" ${order.phuongThucThanhToan === 'COD' ? 'selected' : ''}>COD</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="paymentNote" class="form-label">Ghi chú</label>
+                            <textarea class="form-control" id="paymentNote" rows="3" placeholder="Nhập ghi chú nếu có">${order.ghiChu || ''}</textarea>
+                        </div>
+                    `;
 
             } catch (error) {
                 console.error("Lỗi:", error);
                 // Hiển thị lỗi trong modal thay vì alert
                 document.querySelector('#updatePaymentModal .modal-body').innerHTML = `
-                <div class="alert alert-danger">
-                    <i class="fas fa-exclamation-triangle"></i> ${error.message || "Không thể lấy thông tin đơn hàng"}
-                </div>
-                <div class="text-center">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                </div>
-            `;
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle"></i> ${error.message || "Không thể lấy thông tin đơn hàng"}
+                        </div>
+                        <div class="text-center">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        </div>
+                    `;
             }
         }
 
@@ -1312,31 +1464,31 @@
 
                 // Render the orders list with collection status
                 document.getElementById('mainContent').innerHTML = `
-            <div class="card mb-3">
-                <div class="card-body d-flex justify-content-between">
-                    <div><b>Tổng số đơn COD:</b> <span class="badge bg-primary">${orders.length}</span></div>
-                    <div><b>Tổng tiền cần nạp:</b> <span class="text-danger fw-bold">${formatCurrency(totalCOD)}</span></div>
-                    <button class="btn btn-sm btn-outline-primary" onclick="refreshCODData()">
-                        <i class="fas fa-sync-alt"></i> Làm mới dữ liệu
-                    </button>
-                </div>
-            </div>
-            <div class="order-list">
-                ${orders.length ? orders.map(renderCODOrderItem).join('') : '<div class="alert alert-info">Không có đơn hàng COD nào</div>'}
-            </div>
-        `;
+                    <div class="card mb-3">
+                        <div class="card-body d-flex justify-content-between">
+                            <div><b>Tổng số đơn COD:</b> <span class="badge bg-primary">${orders.length}</span></div>
+                            <div><b>Tổng tiền cần nạp:</b> <span class="text-danger fw-bold">${formatCurrency(totalCOD)}</span></div>
+                            <button class="btn btn-sm btn-outline-primary" onclick="refreshCODData()">
+                                <i class="fas fa-sync-alt"></i> Làm mới dữ liệu
+                            </button>
+                        </div>
+                    </div>
+                    <div class="order-list">
+                        ${orders.length ? orders.map(renderCODOrderItem).join('') : '<div class="alert alert-info">Không có đơn hàng COD nào</div>'}
+                    </div>
+                `;
             } catch (error) {
                 console.error("Error loading COD orders:", error);
                 document.getElementById('mainContent').innerHTML = `
-            <div class="alert alert-danger">
-                <i class="fas fa-exclamation-triangle"></i> Lỗi tải danh sách COD: ${error.message}
-                <div class="mt-2">
-                    <button class="btn btn-outline-danger" onclick="loadCODOrders()">
-                        <i class="fas fa-sync"></i> Thử lại
-                    </button>
-                </div>
-            </div>
-        `;
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i> Lỗi tải danh sách COD: ${error.message}
+                        <div class="mt-2">
+                            <button class="btn btn-outline-danger" onclick="loadCODOrders()">
+                                <i class="fas fa-sync"></i> Thử lại
+                            </button>
+                        </div>
+                    </div>
+                `;
             }
         }
 
@@ -1350,6 +1502,7 @@
             // Get trạng thái thu hộ directly from the order object
             // IMPORTANT: Use trangThaiThuHo field from API response for correct status
             const trangThaiThuHo = order.trangThaiThuHo || 'Chưa thu';
+            const diaChiGiao = order.diaChiSoNha || order.diaChiChiTiet || order.diaChiGiao || order.khachHang?.diaChi || 'N/A';
 
             // Choose badge color based on collection status
             let statusBadgeClass;
@@ -1367,26 +1520,27 @@
             }
 
             return `
-        <div class="order-item row align-items-center mb-3">
-            <div class="col-md-2 fw-bold">${order.ma || order.maDonHang}</div>
-            <div class="col-md-3">
-                <i class="fas fa-user me-1"></i> Khách: ${order.tenKhachHang}<br>
-                <small class="text-muted"><i class="fas fa-phone me-1"></i>Số điện thoại: ${order.sdtKhachHang || 'N/A'}</small>
-            </div>
-            <div class="col-md-3">
-                <i class="fas fa-map-marker-alt me-1"></i>Địa chỉ giao hàng: ${shortenAddress(order.diaChiGiao)}
-                <br><small class="text-muted"><i class="fas fa-calendar me-1"></i>Ngày gửi: ${formatDate(order.ngayGui)}</small>
-            </div>
-            <div class="col-md-2">
-                <span class="badge badge-warning">${formatCurrency(order.tienThuHo || 0)}</span>
-            </div>
-            <div class="col-md-2 text-end">
-                <span class="badge ${statusBadgeClass}">
-                    ${trangThaiThuHo}
-                </span>
-            </div>
-        </div>
-    `;
+                <div class="order-item row align-items-center mb-3">
+                    <div class="col-md-2 fw-bold">${order.ma || order.maDonHang}</div>
+                    <div class="col-md-3">
+                        <i class="fas fa-user me-1"></i> Khách: ${order.tenKhachHang}<br>
+                        <small class="text-muted"><i class="fas fa-phone me-1"></i>Số điện thoại: ${order.sdtKhachHang || 'N/A'}</small>
+                    </div>
+                    <div class="col-md-3">
+                        <i class="fas fa-map-marker-alt me-1"></i>Địa chỉ giao hàng: ${shortenAddress(order.diaChiSoNha || order.diaChiChiTiet || order.diaChiGiao
+            )}
+                        <br><small class="text-muted"><i class="fas fa-calendar me-1"></i>Ngày gửi: ${formatDate(order.ngayGui)}</small>
+                    </div>
+                    <div class="col-md-2">
+                        <span class="badge badge-warning">${formatCurrency(order.tienThuHo || 0)}</span>
+                    </div>
+                    <div class="col-md-2 text-end">
+                        <span class="badge ${statusBadgeClass}">
+                            ${trangThaiThuHo}
+                        </span>
+                    </div>
+                </div>
+            `;
         }
 
         // 5. Lịch sử giao hàng
@@ -1397,36 +1551,36 @@
                 const res = await fetch(`${apiBaseUrl}/NVGH/History?MaNhanVien=${currentUser.maNhanVien}`);
                 const orders = res.ok ? await res.json() : [];
                 document.getElementById('mainContent').innerHTML = `
-                                    <div class="card">
-                                        <div class="card-header"><b>Lịch sử đơn hàng</b></div>
-                                        <div class="card-body table-responsive">
-                                            <table class="table table-hover">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Mã đơn</th>
-                                                        <th>Khách hàng</th>
-                                                        <th>Ngày nhận</th>
-                                                        <th>Ngày giao</th>
-                                                        <th>Trạng thái</th>
-                                                        <th>Tiền thu hộ</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    ${orders.length ? orders.map(o => `
-                                                        <tr>
-                                                            <td>${o.ma}</td>
-                                                            <td>${o.tenKhachHang}</td>
-                                                            <td>${formatDate(o.ngayNhan)}</td>
-                                                            <td>${formatDate(o.ngayGiao)}</td>
-                                                            <td><span class="badge ${getBadgeClass(o.trangThai)}">${o.trangThai}</span></td>
-                                                            <td>${o.tienThuHo ? formatCurrency(o.tienThuHo) : 'Không có'}</td>
-                                                        </tr>
-                                                    `).join('') : '<tr><td colspan="6" class="text-center">Không có dữ liệu</td></tr>'}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                `;
+                                            <div class="card">
+                                                <div class="card-header"><b>Lịch sử đơn hàng</b></div>
+                                                <div class="card-body table-responsive">
+                                                    <table class="table table-hover">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Mã đơn</th>
+                                                                <th>Khách hàng</th>
+                                                                <th>Ngày nhận</th>
+                                                                <th>Ngày giao</th>
+                                                                <th>Trạng thái</th>
+                                                                <th>Tiền thu hộ</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            ${orders.length ? orders.map(o => `
+                                                                <tr>
+                                                                    <td>${o.ma}</td>
+                                                                    <td>${o.tenKhachHang}</td>
+                                                                    <td>${formatDate(o.ngayNhan)}</td>
+                                                                    <td>${formatDate(o.ngayGiao)}</td>
+                                                                    <td><span class="badge ${getBadgeClass(o.trangThai)}">${o.trangThai}</span></td>
+                                                                    <td>${o.tienThuHo ? formatCurrency(o.tienThuHo) : 'Không có'}</td>
+                                                                </tr>
+                                                            `).join('') : '<tr><td colspan="6" class="text-center">Không có dữ liệu</td></tr>'}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        `;
             } catch {
                 document.getElementById('mainContent').innerHTML = '<div class="alert alert-danger">Lỗi tải lịch sử đơn hàng</div>';
             }
@@ -1440,32 +1594,32 @@
                 const res = await fetch(`${apiBaseUrl}/NhanVien/${currentUser.maNhanVien}`);
                 const profile = res.ok ? await res.json() : {};
                 document.getElementById('mainContent').innerHTML = `
-                                    <div class="card">
-                                        <div class="card-header"><b>Thông tin cá nhân</b></div>
-                                        <div class="card-body row">
-                                            <div class="col-md-3 text-center">
-                                                <div class="avatar mx-auto mb-3" style="width: 120px; height: 120px; font-size: 2.5rem;">
-                                                    ${getUserInitials(profile.tenNhanVien)}
+                                            <div class="card">
+                                                <div class="card-header"><b>Thông tin cá nhân</b></div>
+                                                <div class="card-body row">
+                                                    <div class="col-md-3 text-center">
+                                                        <div class="avatar mx-auto mb-3" style="width: 120px; height: 120px; font-size: 2.5rem;">
+                                                            ${getUserInitials(profile.tenNhanVien)}
+                                                        </div>
+                                                        <h5>${profile.tenNhanVien}</h5>
+                                                        <p class="text-muted">Nhân viên giao hàng</p>
+                                                    </div>
+                                                    <div class="col-md-9">
+                                                        <div class="row mb-2">
+                                                            <div class="col-md-6"><b>Mã nhân viên:</b> ${profile.maNhanVien}</div>
+                                                            <div class="col-md-6"><b>Email:</b> ${profile.email || 'Chưa cập nhật'}</div>
+                                                        </div>
+                                                        <div class="row mb-2">
+                                                            <div class="col-md-6"><b>Số điện thoại:</b> ${profile.sdt || 'Chưa cập nhật'}</div>
+                                                            <div class="col-md-6"><b>CCCD:</b> ${profile.cccd || 'Chưa cập nhật'}</div>
+                                                        </div>
+                                                        <div class="row mb-2">
+                                                            <div class="col-12"><b>Địa chỉ:</b> ${profile.diaChiChiTiet || 'Chưa cập nhật'}</div>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <h5>${profile.tenNhanVien}</h5>
-                                                <p class="text-muted">Nhân viên giao hàng</p>
                                             </div>
-                                            <div class="col-md-9">
-                                                <div class="row mb-2">
-                                                    <div class="col-md-6"><b>Mã nhân viên:</b> ${profile.maNhanVien}</div>
-                                                    <div class="col-md-6"><b>Email:</b> ${profile.email || 'Chưa cập nhật'}</div>
-                                                </div>
-                                                <div class="row mb-2">
-                                                    <div class="col-md-6"><b>Số điện thoại:</b> ${profile.sdt || 'Chưa cập nhật'}</div>
-                                                    <div class="col-md-6"><b>CCCD:</b> ${profile.cccd || 'Chưa cập nhật'}</div>
-                                                </div>
-                                                <div class="row mb-2">
-                                                    <div class="col-12"><b>Địa chỉ:</b> ${profile.diaChiChiTiet || 'Chưa cập nhật'}</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                `;
+                                        `;
             } catch {
                 document.getElementById('mainContent').innerHTML = '<div class="alert alert-danger">Lỗi tải thông tin cá nhân</div>';
             }
@@ -1496,123 +1650,123 @@
                 let warningMessage = '';
                 if (data.thongBao) {
                     warningMessage = `
-                    <div class="alert alert-warning mb-4">
-                        <i class="fas fa-exclamation-circle"></i> ${data.thongBao}
-                    </div>
-                `;
+                            <div class="alert alert-warning mb-4">
+                                <i class="fas fa-exclamation-circle"></i> ${data.thongBao}
+                            </div>
+                        `;
                 }
 
                 // Hiển thị đơn chưa thanh toán nếu có
                 let pendingOrdersSection = '';
                 if (data.donChuaThanhToan && data.donChuaThanhToan.length > 0) {
                     pendingOrdersSection = `
-                    <div class="card mb-4">
-                        <div class="card-header bg-warning text-white">
-                            <i class="fas fa-clock"></i> Đơn hàng đã giao nhưng chưa thanh toán
-                        </div>
-                        <div class="card-body">
-                            <p class="text-muted">Các đơn dưới đây cần được thanh toán để tính vào thu nhập của bạn:</p>
-                            <div class="table-responsive">
-                                <table class="table table-sm table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>Mã đơn hàng</th>
-                                            <th>Ngày giao</th>
-                                            <th>Trạng thái thanh toán</th>
-                                            <th>Phí giao hàng</th>
-                                            <th>Thao tác</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        ${data.donChuaThanhToan.map(d => `
-                                            <tr>
-                                                <td>${d.ma}</td>
-                                                <td>${formatDate(d.ngayGiao)}</td>
-                                                <td><span class="badge bg-warning">${d.trangThaiThanhToan || 'Chưa thanh toán'}</span></td>
-                                                <td class="text-end">${formatCurrency(d.phiGiaoHang || 0)}</td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-primary" onclick="openUpdatePaymentModal('${d.ma}')">Cập nhật thanh toán</button>
-                                                </td>
-                                            </tr>
-                                        `).join('')}
-                                    </tbody>
-                                </table>
+                            <div class="card mb-4">
+                                <div class="card-header bg-warning text-white">
+                                    <i class="fas fa-clock"></i> Đơn hàng đã giao nhưng chưa thanh toán
+                                </div>
+                                <div class="card-body">
+                                    <p class="text-muted">Các đơn dưới đây cần được thanh toán để tính vào thu nhập của bạn:</p>
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Mã đơn hàng</th>
+                                                    <th>Ngày giao</th>
+                                                    <th>Trạng thái thanh toán</th>
+                                                    <th>Phí giao hàng</th>
+                                                    <th>Thao tác</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                ${data.donChuaThanhToan.map(d => `
+                                                    <tr>
+                                                        <td>${d.ma}</td>
+                                                        <td>${formatDate(d.ngayGiao)}</td>
+                                                        <td><span class="badge bg-warning">${d.trangThaiThanhToan || 'Chưa thanh toán'}</span></td>
+                                                        <td class="text-end">${formatCurrency(d.phiGiaoHang || 0)}</td>
+                                                        <td>
+                                                            <button class="btn btn-sm btn-primary" onclick="openUpdatePaymentModal('${d.ma}')">Cập nhật thanh toán</button>
+                                                        </td>
+                                                    </tr>
+                                                `).join('')}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                `;
+                        `;
                 }
 
                 // Hiển thị thông tin thu nhập
                 document.getElementById('mainContent').innerHTML = `
-                ${warningMessage}
+                        ${warningMessage}
 
-                <div class="row mb-4">
-                    <!-- Tổng thu nhập -->
-                    <div class="col-md-6">
-                        <div class="card h-100">
-                            <div class="card-body text-center">
-                                <h2 class="text-primary mb-0">${formatCurrency(data.tongThuNhap || 0)}</h2>
-                                <p class="text-muted">Tổng thu nhập từ phí giao hàng</p>
-                                <div class="d-flex justify-content-center">
-                                    <span class="badge bg-info me-2">
-                                        <i class="fas fa-box"></i> ${data.soDonHangDaGiao} đơn đã giao & thanh toán
-                                    </span>
-                                    <span class="badge bg-success">
-                                        <i class="fas fa-money-bill"></i> Trung bình: ${formatCurrency(data.soDonHangDaGiao > 0 ? data.tongThuNhap / data.soDonHangDaGiao : 0)}/đơn
-                                    </span>
+                        <div class="row mb-4">
+                            <!-- Tổng thu nhập -->
+                            <div class="col-md-6">
+                                <div class="card h-100">
+                                    <div class="card-body text-center">
+                                        <h2 class="text-primary mb-0">${formatCurrency(data.tongThuNhap || 0)}</h2>
+                                        <p class="text-muted">Tổng thu nhập từ phí giao hàng</p>
+                                        <div class="d-flex justify-content-center">
+                                            <span class="badge bg-info me-2">
+                                                <i class="fas fa-box"></i> ${data.soDonHangDaGiao} đơn đã giao & thanh toán
+                                            </span>
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-money-bill"></i> Trung bình: ${formatCurrency(data.soDonHangDaGiao > 0 ? data.tongThuNhap / data.soDonHangDaGiao : 0)}/đơn
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer text-center text-muted">
+                                        <small><i class="fas fa-info-circle"></i> Chỉ tính các đơn hàng đã giao và đã thanh toán</small>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="card-footer text-center text-muted">
-                                <small><i class="fas fa-info-circle"></i> Chỉ tính các đơn hàng đã giao và đã thanh toán</small>
+
+                            <!-- Biểu đồ thu nhập theo ngày -->
+                            <div class="col-md-6">
+                                <div class="card h-100">
+                                    <div class="card-header">
+                                        Thu nhập 7 ngày gần đây
+                                    </div>
+                                    <div class="card-body">
+                                        <canvas id="incomeChart" height="180"></canvas>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Biểu đồ thu nhập theo ngày -->
-                    <div class="col-md-6">
-                        <div class="card h-100">
+                        ${pendingOrdersSection}
+
+                        <!-- Đơn hàng gần đây -->
+                        <div class="card">
                             <div class="card-header">
-                                Thu nhập 7 ngày gần đây
+                                Đơn hàng đã giao và đã thanh toán gần đây
                             </div>
                             <div class="card-body">
-                                <canvas id="incomeChart" height="180"></canvas>
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Mã đơn hàng</th>
+                                                <th>Ngày giao</th>
+                                                <th>Phí giao hàng</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${data.donHangGanDay && data.donHangGanDay.length ? data.donHangGanDay.map(d => `
+                                                <tr>
+                                                    <td>${d.ma}</td>
+                                                    <td>${formatDate(d.ngayGiao)}</td>
+                                                    <td class="text-end">${formatCurrency(d.phiGiaoHang || 0)}</td>
+                                                </tr>
+                                            `).join('') : '<tr><td colspan="3" class="text-center">Chưa có đơn hàng đã giao và đã thanh toán</td></tr>'}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-
-                ${pendingOrdersSection}
-
-                <!-- Đơn hàng gần đây -->
-                <div class="card">
-                    <div class="card-header">
-                        Đơn hàng đã giao và đã thanh toán gần đây
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Mã đơn hàng</th>
-                                        <th>Ngày giao</th>
-                                        <th>Phí giao hàng</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${data.donHangGanDay && data.donHangGanDay.length ? data.donHangGanDay.map(d => `
-                                        <tr>
-                                            <td>${d.ma}</td>
-                                            <td>${formatDate(d.ngayGiao)}</td>
-                                            <td class="text-end">${formatCurrency(d.phiGiaoHang || 0)}</td>
-                                        </tr>
-                                    `).join('') : '<tr><td colspan="3" class="text-center">Chưa có đơn hàng đã giao và đã thanh toán</td></tr>'}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            `;
+                    `;
 
                 // Khởi tạo biểu đồ nếu có dữ liệu
                 if (data.thuNhapTheoNgay && data.thuNhapTheoNgay.length > 0) {
@@ -1629,10 +1783,10 @@
             } catch (error) {
                 console.error("Lỗi:", error);
                 document.getElementById('mainContent').innerHTML = `
-                <div class="alert alert-danger">
-                    <i class="fas fa-exclamation-triangle"></i> Lỗi: ${error.message || 'Không thể tải thông tin thu nhập'}
-                </div>
-            `;
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle"></i> Lỗi: ${error.message || 'Không thể tải thông tin thu nhập'}
+                        </div>
+                    `;
             }
         }
 
@@ -1682,7 +1836,6 @@
             });
         }
 
-
         async function loadDanhSachDonHangCoTheHuy() {
             try {
                 // Lấy danh sách đơn hàng chưa giao (trạng thái khác "Đã giao")
@@ -1710,24 +1863,24 @@
                 }
 
                 tbody.innerHTML = filteredList.map((dh, idx) => `
-                                <tr>
-                                    <td>${idx + 1}</td>
-                                    <td>${dh.maDonHang}</td>
-                                    <td>${dh.tenKhachHang || ''}</td>
-                                    <td>${dh.ngayGui ? new Date(dh.ngayGui).toLocaleDateString('vi-VN') : ''}</td>
-                                    <td>
-                                        <span class="badge ${getBadgeClass(dh.trangThaiDonHang)}">
-                                            ${dh.trangThaiDonHang}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-sm btn-danger" onclick="huyDonGiaoHang('${dh.maDonHang}')"
-                                            ${(dh.trangThaiDonHang || '').toLowerCase() === 'không tiếp nhận' ? 'disabled' : ''}>
-                                            <i class="fas fa-ban"></i> Hủy đơn
-                                        </button>
-                                    </td>
-                                </tr>
-                            `).join('');
+                                        <tr>
+                                            <td>${idx + 1}</td>
+                                            <td>${dh.maDonHang}</td>
+                                            <td>${dh.tenKhachHang || ''}</td>
+                                            <td>${dh.ngayGui ? new Date(dh.ngayGui).toLocaleDateString('vi-VN') : ''}</td>
+                                            <td>
+                                                <span class="badge ${getBadgeClass(dh.trangThaiDonHang)}">
+                                                    ${dh.trangThaiDonHang}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-sm btn-danger" onclick="huyDonGiaoHang('${dh.maDonHang}')"
+                                                    ${(dh.trangThaiDonHang || '').toLowerCase() === 'không tiếp nhận' ? 'disabled' : ''}>
+                                                    <i class="fas fa-ban"></i> Hủy đơn
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    `).join('');
 
             } catch (error) {
                 const tbody = document.getElementById('huyDonTableBody');
@@ -1789,8 +1942,8 @@
         }
         function logout() {
             if (confirm('Bạn có chắc chắn muốn đăng xuất?')) {
-                localStorage.removeItem('userInfo'); 
-                window.location.href = '/login.html'; 
+                localStorage.removeItem('userInfo');
+                window.location.href = '/login.html';
             }
         }
     </script>

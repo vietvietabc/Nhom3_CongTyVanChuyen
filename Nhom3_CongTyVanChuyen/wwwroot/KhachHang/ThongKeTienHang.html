@@ -1,0 +1,1659 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logistic - Thống kê tiền hàng</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Add Chart.js for better pie chart -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Reset CSS */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', Arial, sans-serif;
+        }
+
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary-color: #f59e0b;
+            --text-color: #1e293b;
+            --text-light: #64748b;
+            --bg-light: #f8fafc;
+            --bg-white: #ffffff;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --border-color: #e2e8f0;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --sidebar-width: 260px;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-color);
+            line-height: 1.5;
+        }
+
+        /* Header styles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 24px;
+            background-color: var(--bg-white);
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            height: 70px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+            .logo h1 {
+                font-size: 1.8rem;
+                color: var(--primary-color);
+                font-weight: 700;
+                letter-spacing: -0.5px;
+            }
+
+        .search-bar {
+            flex-grow: 1;
+            max-width: 500px;
+            margin: 0 24px;
+            position: relative;
+        }
+
+            .search-bar input {
+                width: 100%;
+                padding: 10px 16px 10px 40px;
+                border: 1px solid var(--border-color);
+                border-radius: 8px;
+                background-color: var(--bg-light);
+                font-size: 0.95rem;
+                transition: all 0.2s ease;
+            }
+
+                .search-bar input:focus {
+                    outline: none;
+                    border-color: var(--primary-color);
+                    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+                }
+
+            .search-bar i {
+                position: absolute;
+                left: 15px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: var(--text-light);
+            }
+
+        .user-actions {
+            display: flex;
+            align-items: center;
+        }
+
+        .notification {
+            position: relative;
+            margin-right: 24px;
+            cursor: pointer;
+        }
+
+            .notification i {
+                font-size: 1.25rem;
+                color: var(--text-light);
+                transition: color 0.2s ease;
+            }
+
+            .notification:hover i {
+                color: var(--primary-color);
+            }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--danger-color);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        .user-phone {
+            margin-right: 16px;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 6px 10px;
+            border-radius: 8px;
+            transition: background-color 0.2s ease;
+            position: relative;
+        }
+
+            .user-profile:hover {
+                background-color: var(--bg-light);
+            }
+
+        .user-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.1rem;
+            margin-right: 8px;
+        }
+
+        .dropdown-icon {
+            margin-left: 8px;
+            color: var(--text-light);
+            font-size: 0.8rem;
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 200px;
+            background-color: var(--bg-white);
+            border-radius: 8px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+            z-index: 101;
+            margin-top: 8px;
+            display: none;
+        }
+
+            .user-dropdown.show {
+                display: block;
+            }
+
+        .user-dropdown-item {
+            padding: 12px 16px;
+            color: var(--text-color);
+            font-size: 0.95rem;
+            transition: background-color 0.2s ease;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+            .user-dropdown-item:last-child {
+                border-bottom: none;
+            }
+
+            .user-dropdown-item:hover {
+                background-color: var(--bg-light);
+            }
+
+        /* Main layout */
+        .container {
+            display: flex;
+            min-height: 100vh;
+            padding-top: 70px;
+        }
+
+        /* Sidebar styles */
+        #sidebar {
+            position: fixed;
+            width: var(--sidebar-width);
+            height: calc(100vh - 70px);
+            background: linear-gradient(180deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            transition: all 0.3s;
+            z-index: 99;
+            box-shadow: var(--shadow-lg);
+            overflow-y: auto;
+            top: 70px;
+        }
+
+            #sidebar .sidebar-header {
+                padding: 20px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            #sidebar ul.components {
+                padding: 15px 0;
+                list-style: none;
+            }
+
+            #sidebar ul li {
+                margin-bottom: 2px;
+            }
+
+                #sidebar ul li a {
+                    padding: 12px 20px;
+                    display: flex;
+                    align-items: center;
+                    color: rgba(255, 255, 255, 0.85);
+                    border-left: 3px solid transparent;
+                    text-decoration: none;
+                    font-weight: 400;
+                    transition: all 0.2s ease;
+                    font-size: 0.95rem;
+                }
+
+                    #sidebar ul li a i {
+                        margin-right: 10px;
+                        font-size: 1.1rem;
+                        width: 24px;
+                        text-align: center;
+                    }
+
+                    #sidebar ul li a:hover {
+                        color: white;
+                        background: rgba(255, 255, 255, 0.1);
+                        border-left-color: white;
+                    }
+
+                #sidebar ul li.active > a {
+                    color: white;
+                    background: rgba(255, 255, 255, 0.15);
+                    border-left-color: var(--secondary-color);
+                    font-weight: 500;
+                }
+
+            #sidebar ul ul.sub-menu {
+                padding-left: 0;
+                list-style: none;
+            }
+
+                #sidebar ul ul.sub-menu a {
+                    padding: 10px 20px 10px 54px;
+                    font-size: 0.9rem;
+                    background: rgba(0, 0, 0, 0.1);
+                    transition: all 0.2s ease;
+                }
+
+                    #sidebar ul ul.sub-menu a:hover {
+                        background: rgba(0, 0, 0, 0.2);
+                    }
+
+                    #sidebar ul ul.sub-menu a.active {
+                        background: rgba(0, 0, 0, 0.3);
+                        color: white;
+                        font-weight: 500;
+                    }
+
+        /* Main content styles */
+        .main-content {
+            flex-grow: 1;
+            padding: 30px;
+            margin-left: var(--sidebar-width);
+            overflow-y: auto;
+        }
+
+        /* Page header */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .page-subtitle {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-top: 5px;
+        }
+
+        .page-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-dropdown {
+            position: relative;
+        }
+
+        .filter-select {
+            padding: 10px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--bg-white);
+            font-size: 0.9rem;
+            color: var(--text-color);
+            cursor: pointer;
+            min-width: 200px;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 12px center;
+            background-repeat: no-repeat;
+            background-size: 16px;
+        }
+
+        .date-range-picker {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--bg-white);
+            cursor: pointer;
+        }
+
+            .date-range-picker i {
+                color: var(--primary-color);
+            }
+
+            .date-range-picker span {
+                font-size: 0.9rem;
+                color: var(--text-color);
+            }
+
+        /* Summary cards */
+        .summary-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background-color: var(--bg-white);
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            padding: 24px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+            .summary-card:hover {
+                transform: translateY(-2px);
+                box-shadow: var(--shadow-lg);
+            }
+
+        .summary-card-title {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-light);
+            margin-bottom: 12px;
+        }
+
+        .summary-card-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+            .summary-card-value.primary {
+                color: var(--primary-color);
+            }
+
+            .summary-card-value.success {
+                color: var(--success-color);
+            }
+
+            .summary-card-value.warning {
+                color: var(--warning-color);
+            }
+
+        /* Chart and table section */
+        .content-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background-color: var(--bg-white);
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            padding: 24px;
+        }
+
+        .chart-title {
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 20px;
+        }
+
+        .chart-container {
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .pie-chart {
+            width: 300px;
+            height: 300px;
+        }
+
+        .empty-chart {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background-color: #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        /* Chart legend */
+        .chart-legend {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+
+        /* Table styles */
+        .table-card {
+            background-color: var(--bg-white);
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            padding: 24px;
+            overflow: hidden;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+            table th {
+                text-align: left;
+                padding: 12px 16px;
+                font-weight: 600;
+                font-size: 0.9rem;
+                color: var(--text-color);
+                border-bottom: 2px solid var(--border-color);
+                background-color: var(--bg-light);
+            }
+
+            table td {
+                padding: 12px 16px;
+                font-size: 0.9rem;
+                border-bottom: 1px solid var(--border-color);
+            }
+
+            table tr:last-child td {
+                border-bottom: none;
+            }
+
+            table tr:hover {
+                background-color: var(--bg-light);
+            }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+            .status-dot.delivered {
+                background-color: var(--success-color);
+            }
+
+            .status-dot.shipping {
+                background-color: var(--primary-color);
+            }
+
+            .status-dot.delivering {
+                background-color: var(--warning-color);
+            }
+
+            .status-dot.pending {
+                background-color: var(--text-light);
+            }
+
+            .status-dot.returned {
+                background-color: var(--danger-color);
+            }
+
+            .status-dot.processing {
+                background-color: #8b5cf6;
+            }
+
+            .status-dot.approved {
+                background-color: #06b6d4;
+            }
+
+            .status-dot.transferring {
+                background-color: #f97316;
+            }
+
+            .status-dot.completed {
+                background-color: #84cc16;
+            }
+
+            .status-dot.continue {
+                background-color: #ec4899;
+            }
+
+        .amount {
+            font-weight: 500;
+            text-align: right;
+        }
+
+        /* Loading state */
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .content-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 992px) {
+            :root {
+                --sidebar-width: 70px;
+            }
+
+            #sidebar ul li a span {
+                display: none;
+            }
+
+            #sidebar ul li a i {
+                margin-right: 0;
+                font-size: 1.3rem;
+            }
+
+            #sidebar ul li a {
+                justify-content: center;
+                padding: 15px 0;
+            }
+
+            #sidebar ul ul.sub-menu {
+                position: absolute;
+                left: 70px;
+                top: 0;
+                width: 200px;
+                background: var(--primary-dark);
+                z-index: 100;
+                display: none;
+            }
+
+            #sidebar ul li:hover > ul.sub-menu {
+                display: block;
+            }
+
+            #sidebar ul ul.sub-menu a {
+                padding: 10px 15px;
+            }
+
+            .user-phone {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 10px 15px;
+            }
+
+            .logo h1 {
+                font-size: 1.5rem;
+            }
+
+            .search-bar {
+                display: none;
+            }
+
+            .main-content {
+                padding: 20px 15px;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .page-controls {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            .summary-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Sub-menu styles */
+        .sub-menu {
+            display: none;
+        }
+
+        .footer {
+            margin-top: 40px;
+            padding: 20px 0;
+            text-align: center;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .refresh-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border: 1px solid var(--primary-color);
+            border-radius: 8px;
+            background-color: var(--primary-color);
+            color: white;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+            .refresh-btn:hover {
+                background-color: var(--primary-dark);
+                transform: translateY(-1px);
+            }
+
+            .refresh-btn.loading {
+                opacity: 0.7;
+                pointer-events: none;
+            }
+
+                .refresh-btn.loading i {
+                    animation: spin 1s linear infinite;
+                }
+
+        .debug-info {
+            background-color: #f0f9ff;
+            border: 1px solid #0ea5e9;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: #0c4a6e;
+        }
+
+        /* Enhanced status dot colors - UNIQUE for each status */
+        .status-dot.pending {
+            background-color: #6b7280; /* Chờ duyệt - Gray */
+        }
+
+        .status-dot.picked-up {
+            background-color: #059669; /* Đã lấy hàng - Emerald */
+        }
+
+        .status-dot.shipping {
+            background-color: #2563eb; /* Đang vận chuyển - Blue */
+        }
+
+        .status-dot.delivering {
+            background-color: #d97706; /* Đang giao hàng - Amber */
+        }
+
+        .status-dot.retry {
+            background-color: #dc2626; /* Chờ phát lại - Red */
+        }
+
+        .status-dot.success {
+            background-color: #16a34a; /* Giao thành công - Green */
+        }
+
+        .status-dot.processing {
+            background-color: #9ca3af; /* Chờ xử lý - Light Gray */
+        }
+
+        .status-dot.return-approved {
+            background-color: #991b1b; /* Đã duyệt hoàn - Dark Red */
+        }
+
+        .status-dot.returning {
+            background-color: #ea580c; /* Đang chuyển hoàn - Orange */
+        }
+
+        .status-dot.returned {
+            background-color: #65a30d; /* Đã trả - Lime */
+        }
+
+        .status-dot.continue {
+            background-color: #db2777; /* Phát tiếp - Pink */
+        }
+
+        .status-dot.delivered {
+            background-color: #15803d; /* Đã giao - Dark Green */
+        }
+
+        .status-dot.out-for-delivery {
+            background-color: #f59e0b; /* Đang giao - Amber */
+        }
+
+        .status-dot.rescheduled {
+            background-color: #ca8a04; /* Khách hẹn lại - Yellow */
+        }
+
+        .status-dot.rejected {
+            background-color: #ef4444; /* Khách không nhận - Red */
+        }
+
+        .status-dot.null-status {
+            background-color: #374151; /* NULL - Dark Gray */
+        }
+
+        .status-dot.empty-status {
+            background-color: #4b5563; /* EMPTY - Medium Gray */
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <h1>LOGISTIC</h1>
+        </div>
+        <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Tra cứu đơn hàng...">
+        </div>
+        <div class="user-actions">
+            <div class="notification">
+                <i class="fas fa-bell"></i>
+                <span class="notification-badge">6</span>
+            </div>
+            <div class="user-phone" id="user-phone">Đang tải...</div>
+            <div class="user-profile" id="user-profile">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <i class="fas fa-chevron-down dropdown-icon"></i>
+                <div class="user-dropdown" id="user-dropdown">
+                    <div class="user-dropdown-item" onclick="window.location.href='CaiDatTaiKhoan.html'">
+                        Cài đặt tài khoản
+                    </div>
+                    <div class="user-dropdown-item" onclick="logout()">
+                        Đăng xuất
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <nav id="sidebar">
+            <ul class="components">
+                <li id="nav-home">
+                    <a href="TrangChu2.html">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Trang chủ</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="menu-toggle">
+                        <i class="fas fa-file-alt"></i>
+                        <span>Tạo đơn</span>
+                    </a>
+                    <ul class="sub-menu">
+                        <li><a href="TaoDon.html">Tạo đơn lẻ</a></li>
+                        <li><a href="#">Nhập excel</a></li>
+                    </ul>
+                </li>
+                <li class="active">
+                    <a href="#" class="menu-toggle">
+                        <i class="fas fa-box"></i>
+                        <span>Quản lý</span>
+                    </a>
+                    <ul class="sub-menu" style="display: block;">
+                        <li><a href="QuanLyVanDon.html">Quản lý vận đơn</a></li>
+                        <li><a href="ThongKeTienHang.html" class="active">Thống kê tiền hàng</a></li>
+                        <li><a href="DanhSachNguoiNhan.html">Danh sách người nhận</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#">
+                        <i class="fas fa-calculator"></i>
+                        <span>Ước tính phí</span>
+                    </a>
+                </li>
+                <li id="nav-settings">
+                    <a href="CaiDatTaiKhoan.html">
+                        <i class="fas fa-cog"></i>
+                        <span>Cài đặt tài khoản</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="menu-toggle">
+                        <i class="fas fa-file-contract"></i>
+                        <span>Điều khoản chính sách</span>
+                    </a>
+                    <ul class="sub-menu">
+                        <li><a href="DieuKhoan.html">Điều khoản quy định</a></li>
+                        <li><a href="ChinhSach.html">Chính sách bảo mật thông tin</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Thống kê báo cáo</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Đăng xuất</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Debug Info -->
+            <div class="debug-info" id="debug-info" style="display: none;">
+                <strong>Debug Information:</strong><br>
+                <span id="debug-content">Loading...</span>
+            </div>
+
+            <!-- Page Header -->
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Tiền hàng theo trạng thái</h1>
+                    <p class="page-subtitle">(Tính theo ngày gửi)</p>
+                </div>
+                <div class="page-controls">
+                    <div class="filter-dropdown">
+                        <select class="filter-select" id="filter-type">
+                            <option value="all">Tất cả dữ liệu (không filter)</option>
+                            <option value="cod">COD gồm cước người nhận trả</option>
+                            <option value="cod-only">Chỉ tiền COD</option>
+                            <option value="shipping-only">Chỉ tiền cước</option>
+                        </select>
+                    </div>
+                    <button class="refresh-btn" id="refresh-btn" onclick="refreshData()">
+                        <i class="fas fa-sync-alt"></i>
+                        <span>Làm mới</span>
+                    </button>
+                    <button class="refresh-btn" onclick="toggleDebug()" style="background-color: #6b7280;">
+                        <i class="fas fa-bug"></i>
+                        <span>Debug</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="summary-section">
+                <div class="summary-card">
+                    <div class="summary-card-title">Số lượng đơn hàng</div>
+                    <div class="summary-card-value primary" id="total-orders-count">0</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-card-title">Tổng tiền thu hộ</div>
+                    <div class="summary-card-value success" id="total-cod-amount">0 ₫</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-card-title">Tổng tiền cước</div>
+                    <div class="summary-card-value warning" id="total-shipping-amount">0 ₫</div>
+                </div>
+            </div>
+
+            <!-- Chart and Table Section -->
+            <div class="content-section">
+                <!-- Enhanced Pie Chart -->
+                <div class="chart-card">
+                    <div class="chart-title">Phân bố đơn hàng theo trạng thái</div>
+                    <div class="chart-container">
+                        <div class="empty-chart" id="empty-chart-message" style="display: none;">
+                            <span>Chưa có dữ liệu</span>
+                        </div>
+                        <canvas id="status-pie-chart" width="300" height="300"></canvas>
+                    </div>
+                    <div class="chart-legend" id="chart-legend"></div>
+                </div>
+
+                <!-- Status Table -->
+                <div class="table-card">
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Trạng thái</th>
+                                    <th style="text-align: center;">Số đơn</th>
+                                    <th style="text-align: right;">Tiền thu hộ (VND)</th>
+                                    <th style="text-align: right;">Phí giao hàng (VND)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="status-table-body">
+                                <tr>
+                                    <td colspan="4" style="text-align: center; padding: 40px; color: var(--text-light);">
+                                        <div class="loading-spinner"></div> Đang tải dữ liệu...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer">
+                <p>&copy; 2025 Logistic. Tất cả quyền được bảo lưu.</p>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let currentCustomerId = null;
+        let pieChart = null;
+        let debugMode = false;
+        let chartLoaded = false; // Add this flag to track if chart has been loaded once
+
+        // Expanded status color mapping - UNIQUE COLORS for each status
+        const statusColors = {
+            'Chờ duyệt': '#6b7280',           // Gray-500
+            'Đã lấy hàng': '#059669',         // Emerald-600
+            'Đang vận chuyển': '#2563eb',     // Blue-600
+            'Đang giao hàng': '#d97706',      // Amber-600
+            'Chờ phát lại': '#dc2626',        // Red-600
+            'Giao thành công': '#16a34a',     // Green-600
+            'Chờ xử lý': '#9ca3af',           // Gray-400
+            'Đã duyệt hoàn': '#991b1b',       // Red-800
+            'Đang chuyển hoàn': '#ea580c',    // Orange-600
+            'Đã trả': '#65a30d',              // Lime-600
+            'Phát tiếp': '#db2777',           // Pink-600
+            'Đã giao': '#15803d',             // Green-700
+            'Đang giao': '#f59e0b',           // Amber-500
+            'Khách hẹn lại ngày giao': '#ca8a04', // Yellow-600
+            'Khách không nhận hàng': '#ef4444',   // Red-500
+            'NULL': '#374151',                // Gray-700
+            'EMPTY': '#4b5563'                // Gray-600
+        };
+
+        const statusDotClasses = {
+            'Chờ duyệt': 'pending',
+            'Đã lấy hàng': 'picked-up',
+            'Đang vận chuyển': 'shipping',
+            'Đang giao hàng': 'delivering',
+            'Chờ phát lại': 'retry',
+            'Giao thành công': 'success',
+            'Chờ xử lý': 'processing',
+            'Đã duyệt hoàn': 'return-approved',
+            'Đang chuyển hoàn': 'returning',
+            'Đã trả': 'returned',
+            'Phát tiếp': 'continue',
+            'Đã giao': 'delivered',
+            'Đang giao': 'out-for-delivery',
+            'Khách hẹn lại ngày giao': 'rescheduled',
+            'Khách không nhận hàng': 'rejected',
+            'NULL': 'null-status',
+            'EMPTY': 'empty-status'
+        };
+
+        // Function to generate dynamic colors for statuses not in predefined list
+        function generateStatusColor(status, index) {
+            if (statusColors[status]) {
+                return statusColors[status];
+            }
+
+            // Generate colors using HSL for better distribution
+            const hue = (index * 137.508) % 360; // Golden angle approximation
+            return `hsl(${hue}, 70%, 50%)`;
+        }
+
+        // Toggle debug mode
+        function toggleDebug() {
+            debugMode = !debugMode;
+            const debugInfo = document.getElementById('debug-info');
+            debugInfo.style.display = debugMode ? 'block' : 'none';
+
+            if (debugMode && currentCustomerId) {
+                loadRevenueStats(currentCustomerId, true);
+            }
+        }
+
+        // Update debug info
+        function updateDebugInfo(info) {
+            if (debugMode) {
+                document.getElementById('debug-content').innerHTML = info;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Initialize menu toggles
+            const menuItems = document.querySelectorAll('.menu-toggle');
+            menuItems.forEach(item => {
+                item.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const subMenu = this.nextElementSibling;
+                    if (subMenu && subMenu.classList.contains('sub-menu')) {
+                        if (subMenu.style.display === 'block') {
+                            subMenu.style.display = 'none';
+                        } else {
+                            subMenu.style.display = 'block';
+                        }
+                    }
+                });
+            });
+
+            // User profile dropdown
+            const userProfile = document.getElementById('user-profile');
+            userProfile.addEventListener('click', function (e) {
+                e.stopPropagation();
+                const dropdown = document.getElementById('user-dropdown');
+                dropdown.classList.toggle('show');
+            });
+
+            document.addEventListener('click', function (e) {
+                const dropdown = document.getElementById('user-dropdown');
+                if (dropdown.classList.contains('show') && !e.target.closest('#user-profile')) {
+                    dropdown.classList.remove('show');
+                }
+            });
+
+            // Filter change event
+            document.getElementById('filter-type').addEventListener('change', function () {
+                if (currentCustomerId) {
+                    loadRevenueStats(currentCustomerId, true);
+                }
+            });
+
+            // Get user data and load stats
+            const userEmail = sessionStorage.getItem("userEmail");
+            if (userEmail) {
+                fetchUserData(userEmail);
+            } else {
+                window.location.href = "TrangChu.html";
+            }
+        });
+
+        // Fetch user data
+        async function fetchUserData(email) {
+            try {
+                console.log('Fetching user data for email:', email);
+                const response = await fetch(`https://localhost:7113/api/KhachHangController2/GetByEmail?email=${encodeURIComponent(email)}`);
+
+                if (response.ok) {
+                    const userData = await response.json();
+                    console.log('User data received:', userData);
+
+                    if (userData && userData.sdt) {
+                        document.getElementById("user-phone").textContent = userData.sdt;
+
+                        if (userData.maKhachHang) {
+                            currentCustomerId = userData.maKhachHang;
+                            sessionStorage.setItem("maKhachHang", userData.maKhachHang);
+                            console.log('Loading revenue stats for customer:', userData.maKhachHang);
+                            loadRevenueStats(userData.maKhachHang, true);
+                        } else {
+                            console.error('No maKhachHang found in user data');
+                            showEmptyState();
+                        }
+                    } else {
+                        document.getElementById("user-phone").textContent = "Không có SDT";
+                        console.error('Invalid user data structure');
+                        showEmptyState();
+                    }
+                } else {
+                    const errorText = await response.text();
+                    console.error('Failed to fetch user data:', response.status, errorText);
+                    document.getElementById("user-phone").textContent = "Không có SDT";
+                    showEmptyState();
+                }
+            } catch (error) {
+                console.error("Lỗi khi kết nối máy chủ:", error);
+                document.getElementById("user-phone").textContent = "Không có SDT";
+                showEmptyState();
+            }
+        }
+
+        // Load revenue statistics - Chart only loads once, data updates continue
+        async function loadRevenueStats(maKhachHang, showLoading = true) {
+            try {
+                if (showLoading) {
+                    showLoadingState();
+                }
+
+                console.log('=== Loading ALL Revenue Stats (No Date Filter) ===');
+                console.log('Customer ID:', maKhachHang);
+
+                // Aggressive cache busting
+                const timestamp = new Date().getTime();
+                const random = Math.random().toString(36).substring(7);
+                const cacheBuster = `?_t=${timestamp}&_r=${random}`;
+
+                // Get ALL orders from database for this customer - NO DATE FILTERING
+                const response = await fetch(`https://localhost:7113/api/DonHangController2/GetByKhachHang/${encodeURIComponent(maKhachHang)}${cacheBuster}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache',
+                        'Expires': '0'
+                    }
+                });
+
+                console.log('API Response status:', response.status);
+
+                if (response.ok) {
+                    const allOrders = await response.json();
+                    console.log('=== RAW DATABASE DATA ===');
+                    console.log('Total orders from database:', allOrders.length);
+                    console.log('Raw orders data:', allOrders);
+
+                    // Debug info
+                    let debugInfo = `
+                            <strong>API URL:</strong> /api/DonHangController2/GetByKhachHang/${maKhachHang}<br>
+                            <strong>Customer ID:</strong> ${maKhachHang}<br>
+                            <strong>Total Orders from DB:</strong> ${allOrders.length}<br>
+                            <strong>Response Status:</strong> ${response.status}<br><br>
+                            <strong>Orders by Status:</strong><br>
+                        `;
+
+                    // Count by status for debug
+                    const statusCount = {};
+                    allOrders.forEach(order => {
+                        const status = order.trangThaiDonHang || 'NULL';
+                        statusCount[status] = (statusCount[status] || 0) + 1;
+                    });
+
+                    Object.keys(statusCount).forEach(status => {
+                        debugInfo += `${status}: ${statusCount[status]} orders<br>`;
+                    });
+
+                    updateDebugInfo(debugInfo);
+
+                    // NO DATE FILTERING - USE ALL DATA
+                    const filteredOrders = allOrders; // Use all orders, no filtering
+
+                    console.log('Using ALL orders (no date filter):', filteredOrders.length);
+
+                    // Group and sum by TrangThaiDonHang
+                    const groupedStats = groupOrdersByStatus(filteredOrders);
+                    console.log('Grouped stats result:', groupedStats);
+
+                    // Calculate totals
+                    const totalStats = calculateTotalStats(filteredOrders);
+                    console.log('Total stats:', totalStats);
+
+                    // Update UI
+                    updateSummaryCards(totalStats);
+                    updateStatusTable(groupedStats);
+
+                    // Only update pie chart on first load
+                    if (!chartLoaded) {
+                        updatePieChart(groupedStats);
+                        chartLoaded = true; // Mark chart as loaded
+                        console.log('=== PIE CHART LOADED (FIRST TIME ONLY) ===');
+                    } else {
+                        console.log('=== PIE CHART SKIPPED (ALREADY LOADED) ===');
+                    }
+
+                    console.log('=== Data Update Complete ===');
+                } else {
+                    const errorText = await response.text();
+                    console.error("Failed to load orders:", response.status, errorText);
+                    showErrorState(`Lỗi tải dữ liệu: ${response.status} - ${errorText}`);
+                }
+            } catch (error) {
+                console.error("Error loading revenue stats:", error);
+                showErrorState(`Lỗi kết nối: ${error.message}`);
+            } finally {
+                // Always remove loading state
+                const refreshBtn = document.getElementById('refresh-btn');
+                if (refreshBtn) {
+                    refreshBtn.classList.remove('loading');
+                }
+            }
+        }
+
+        // Show loading state
+        function showLoadingState() {
+            const tableBody = document.getElementById('status-table-body');
+            tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="4" style="text-align: center; padding: 40px; color: var(--text-light);">
+                            <div class="loading-spinner"></div> Đang tải TẤT CẢ dữ liệu từ database...
+                        </td>
+                    </tr>
+                `;
+
+            // Show loading on refresh button
+            const refreshBtn = document.getElementById('refresh-btn');
+            if (refreshBtn) {
+                refreshBtn.classList.add('loading');
+            }
+        }
+
+        // Show error state
+        function showErrorState(message) {
+            const tableBody = document.getElementById('status-table-body');
+            tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="4" style="text-align: center; padding: 40px; color: var(--danger-color);">
+                            <i class="fas fa-exclamation-triangle" style="margin-right: 8px;"></i>
+                            ${message}
+                            <br><br>
+                            <button onclick="refreshData()" style="padding: 8px 16px; background: var(--primary-color); color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                Thử lại
+                            </button>
+                        </td>
+                    </tr>
+                `;
+
+            // Remove loading state
+            const refreshBtn = document.getElementById('refresh-btn');
+            if (refreshBtn) {
+                refreshBtn.classList.remove('loading');
+            }
+        }
+
+        // Refresh data function
+        async function refreshData() {
+            console.log('=== MANUAL REFRESH TRIGGERED ===');
+            if (currentCustomerId) {
+                await loadRevenueStats(currentCustomerId, true);
+            }
+        }
+
+        // Group orders by TrangThaiDonHang - EXACT DATABASE VALUES
+        function groupOrdersByStatus(orders) {
+            console.log('=== Grouping Orders by Status (Exact DB Values) ===');
+            console.log('Input orders:', orders.length);
+
+            const grouped = {};
+
+            orders.forEach((order, index) => {
+                // Use EXACT value from database, including NULL
+                const status = order.trangThaiDonHang === null ? 'NULL' : (order.trangThaiDonHang || 'EMPTY');
+
+                console.log(`Order ${index + 1}: MaDonHang=${order.maDonHang}, Status="${status}", COD=${order.tienThuHo}, Shipping=${order.phiGiaoHang}`);
+
+                if (!grouped[status]) {
+                    grouped[status] = {
+                        trangThai: status,
+                        soDon: 0,
+                        tienThuHo: 0,
+                        tienCuoc: 0
+                    };
+                }
+
+                grouped[status].soDon += 1;
+                grouped[status].tienThuHo += parseFloat(order.tienThuHo) || 0;
+                grouped[status].tienCuoc += parseFloat(order.phiGiaoHang) || 0;
+
+                // Add DonGia from HangHoas
+                if (order.chiTietDonHangs && order.chiTietDonHangs.length > 0) {
+                    order.chiTietDonHangs.forEach(chiTiet => {
+                        if (chiTiet.hangHoa && chiTiet.hangHoa.donGia) {
+                            const additionalCost = parseFloat(chiTiet.hangHoa.donGia) * (parseInt(chiTiet.soLuong) || 1);
+                            grouped[status].tienCuoc += additionalCost;
+                            console.log(`Added product cost: ${additionalCost} for status ${status}`);
+                        }
+                    });
+                }
+            });
+
+            // Convert to array and sort by number of orders (descending)
+            const result = Object.values(grouped).sort((a, b) => b.soDon - a.soDon);
+            console.log('Final grouped result:', result);
+            return result;
+        }
+
+        // Calculate total stats - EXCLUDE "Khách không nhận hàng" from COD calculation
+        function calculateTotalStats(orders) {
+            console.log('=== Calculating Total Stats ===');
+            console.log('Input orders for calculation:', orders.length);
+
+            let tongSoDon = orders.length;
+            let tongTienThuHo = 0;
+            let tongTienCuoc = 0;
+
+            orders.forEach((order, index) => {
+                const codAmount = parseFloat(order.tienThuHo) || 0;
+                const shippingAmount = parseFloat(order.phiGiaoHang) || 0;
+
+                // ONLY add COD amount if status is NOT "Khách không nhận hàng"
+                if (order.trangThaiDonHang !== 'Khách không nhận hàng') {
+                    tongTienThuHo += codAmount;
+                    console.log(`Order ${index + 1}: ${order.maDonHang} - COD = ${codAmount} (INCLUDED)`);
+                } else {
+                    console.log(`Order ${index + 1}: ${order.maDonHang} - COD = ${codAmount} (EXCLUDED - Khách không nhận hàng)`);
+                }
+
+                // Always add shipping cost regardless of status
+                tongTienCuoc += shippingAmount;
+
+                console.log(`Order ${index + 1}: ${order.maDonHang} - Shipping = ${shippingAmount}`);
+
+                // Add DonGia from HangHoas
+                if (order.chiTietDonHangs && order.chiTietDonHangs.length > 0) {
+                    order.chiTietDonHangs.forEach(chiTiet => {
+                        if (chiTiet.hangHoa && chiTiet.hangHoa.donGia) {
+                            const productCost = parseFloat(chiTiet.hangHoa.donGia) * (parseInt(chiTiet.soLuong) || 1);
+                            tongTienCuoc += productCost;
+                            console.log(`Added product cost: ${productCost} for order ${index + 1}`);
+                        }
+                    });
+                }
+            });
+
+            const result = {
+                tongSoDon,
+                tongTienThuHo,
+                tongTienCuoc
+            };
+
+            console.log('Total stats result (COD excludes rejected orders):', result);
+            return result;
+        }
+
+        // Update summary cards
+        function updateSummaryCards(stats) {
+            console.log('Updating summary cards with:', stats);
+            document.getElementById('total-orders-count').textContent = stats.tongSoDon;
+            document.getElementById('total-cod-amount').textContent = formatCurrency(stats.tongTienThuHo);
+            document.getElementById('total-shipping-amount').textContent = formatCurrency(stats.tongTienCuoc);
+        }
+
+        // Update status table - SHOW EXACT DATABASE VALUES
+        function updateStatusTable(statusData) {
+            const tableBody = document.getElementById('status-table-body');
+
+            console.log('=== UPDATING STATUS TABLE ===');
+            console.log('Status data:', statusData);
+
+            if (!statusData || statusData.length === 0) {
+                tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="4" style="text-align: center; padding: 40px; color: var(--text-light);">
+                                Không có dữ liệu từ database
+                            </td>
+                        </tr>
+                    `;
+                return;
+            }
+
+            // Force DOM update by clearing first
+            tableBody.innerHTML = '';
+
+            // Add new content - SHOW EXACT STATUS FROM DATABASE
+            const newContent = statusData.map(item => {
+                const displayStatus = item.trangThai === 'NULL' ? 'Chưa có trạng thái' : item.trangThai;
+                const dotClass = statusDotClasses[item.trangThai] || 'pending';
+
+                return `
+                        <tr>
+                            <td>
+                                <div class="status-indicator">
+                                    <div class="status-dot ${dotClass}"></div>
+                                    ${displayStatus}
+                                </div>
+                            </td>
+                            <td style="text-align: center;">${item.soDon}</td>
+                            <td class="amount">${formatCurrency(item.tienThuHo)}</td>
+                            <td class="amount">${formatCurrency(item.tienCuoc)}</td>
+                        </tr>
+                    `;
+            }).join('');
+
+            tableBody.innerHTML = newContent;
+            console.log('Table updated with', statusData.length, 'status groups');
+        }
+
+        // Enhanced pie chart using Chart.js
+        function updatePieChart(statusData) {
+            const canvas = document.getElementById('status-pie-chart');
+            const emptyMessage = document.getElementById('empty-chart-message');
+            const legendContainer = document.getElementById('chart-legend');
+
+            // Filter out statuses with 0 orders
+            const nonZeroData = statusData.filter(item => item.soDon > 0);
+
+            if (nonZeroData.length === 0) {
+                canvas.style.display = 'none';
+                emptyMessage.style.display = 'flex';
+                legendContainer.innerHTML = '';
+                if (pieChart) {
+                    pieChart.destroy();
+                    pieChart = null;
+                }
+                return;
+            }
+
+            // Show canvas and hide empty state
+            canvas.style.display = 'block';
+            emptyMessage.style.display = 'none';
+
+            // Destroy existing chart
+            if (pieChart) {
+                pieChart.destroy();
+            }
+
+            // Prepare data for Chart.js
+            const labels = nonZeroData.map(item => item.trangThai === 'NULL' ? 'Chưa có trạng thái' : item.trangThai);
+            const data = nonZeroData.map(item => item.soDon);
+            const colors = nonZeroData.map((item, index) => generateStatusColor(item.trangThai, index));
+
+            // Create new pie chart
+            const ctx = canvas.getContext('2d');
+            pieChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: colors,
+                        borderColor: '#ffffff',
+                        borderWidth: 2,
+                        hoverBorderWidth: 3,
+                        hoverBorderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return `${label}: ${value} đơn (${percentage}%)`;
+                                }
+                            }
+                        }
+                    },
+                    animation: {
+                        animateRotate: true,
+                        duration: 1000
+                    }
+                }
+            });
+
+            // Create custom legend
+            updateChartLegend(nonZeroData);
+        }
+
+        // Update chart legend
+        function updateChartLegend(statusData) {
+            const legendContainer = document.getElementById('chart-legend');
+            const total = statusData.reduce((sum, item) => sum + item.soDon, 0);
+
+            legendContainer.innerHTML = statusData.map((item, index) => {
+                const percentage = ((item.soDon / total) * 100).toFixed(1);
+                const color = generateStatusColor(item.trangThai, index);
+                const displayStatus = item.trangThai === 'NULL' ? 'Chưa có trạng thái' : item.trangThai;
+
+                return `
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: ${color}"></div>
+                            <span>${displayStatus}: ${item.soDon} đơn (${percentage}%)</span>
+                        </div>
+                    `;
+            }).join('');
+        }
+
+        // Show empty state
+        function showEmptyState() {
+            document.getElementById('total-orders-count').textContent = '0';
+            document.getElementById('total-cod-amount').textContent = '0 ₫';
+            document.getElementById('total-shipping-amount').textContent = '0 ₫';
+
+            const tableBody = document.getElementById('status-table-body');
+            tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="4" style="text-align: center; padding: 40px; color: var(--text-light);">
+                            Không có dữ liệu từ database
+                        </td>
+                    </tr>
+                `;
+
+            const canvas = document.getElementById('status-pie-chart');
+            const emptyMessage = document.getElementById('empty-chart-message');
+            const legendContainer = document.getElementById('chart-legend');
+
+            canvas.style.display = 'none';
+            emptyMessage.style.display = 'flex';
+            legendContainer.innerHTML = '';
+
+            if (pieChart) {
+                pieChart.destroy();
+                pieChart = null;
+            }
+        }
+
+        // Format currency
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
+            }).format(amount);
+        }
+
+        // Logout function
+        function logout() {
+            sessionStorage.removeItem("userEmail");
+            sessionStorage.removeItem("maKhachHang");
+            window.location.href = "TrangChu.html";
+        }
+
+        let autoRefreshInterval;
+
+        function startAutoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+            }
+
+            autoRefreshInterval = setInterval(() => {
+                if (currentCustomerId) {
+                    console.log('=== AUTO REFRESH - Loading fresh data ===');
+                    loadRevenueStats(currentCustomerId, false);
+                }
+            }, 5000); 
+        }
+
+        function stopAutoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
+            }
+        }
+
+        window.addEventListener('load', function () {
+            startAutoRefresh();
+        });
+
+        window.addEventListener('beforeunload', function () {
+            stopAutoRefresh();
+        });
+
+        // Refresh when tab becomes active
+        document.addEventListener('visibilitychange', function () {
+            if (!document.hidden && currentCustomerId) {
+                console.log('=== TAB ACTIVE - Refreshing data ===');
+                loadRevenueStats(currentCustomerId, false);
+            }
+        });
+    </script>
+</body>
+</html>

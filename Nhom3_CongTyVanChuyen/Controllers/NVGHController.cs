@@ -169,7 +169,6 @@ namespace Nhom3_CongTyVanChuyen.Controllers
             }
         }
 
-        // GET: api/DonHang/{id}
         [HttpGet("{id}")]
         public ActionResult GetDonHang(string id)
         {
@@ -177,11 +176,31 @@ namespace Nhom3_CongTyVanChuyen.Controllers
             {
                 var donHang = _context.DonHangs
                     .Include(d => d.KhachHang)
+                    .Include(d => d.NguoiNhan)
                     .FirstOrDefault(d => d.MaDonHang == id);
 
                 if (donHang == null)
                 {
                     return NotFound("Không tìm thấy đơn hàng");
+                }
+
+                // Get customer address properly
+                string diaChiKhachHang = "Không có thông tin";
+                if (donHang.KhachHang != null)
+                {
+                    var khachHang = _context.KhachHangs
+                        .Include(k => k.SoNha)
+                        .ThenInclude(s => s.PhuongXa)
+                        .FirstOrDefault(k => k.MaKhachHang == donHang.MaKhachHang);
+
+                    if (khachHang?.SoNha != null)
+                    {
+                        diaChiKhachHang = khachHang.SoNha.DiaChiSoNha;
+                        if (khachHang.SoNha.PhuongXa != null)
+                        {
+                            diaChiKhachHang += ", " + khachHang.SoNha.PhuongXa.TenPhuongXa;
+                        }
+                    }
                 }
 
                 var result = new
@@ -190,12 +209,18 @@ namespace Nhom3_CongTyVanChuyen.Controllers
                     maVanDon = donHang.MaVanDon,
                     tenKhachHang = donHang.KhachHang?.TenKhachHang ?? "Không có thông tin",
                     sdtKhachHang = donHang.KhachHang?.SDT ?? "Không có thông tin",
+                    diaChiKhachHang = diaChiKhachHang, // Add this properly formatted address
+                    tenNguoiNhan = donHang.NguoiNhan?.HoTen ?? "Không có thông tin",
+                    sdtNguoiNhan = donHang.NguoiNhan?.SDT ?? "Không có thông tin",
+                    diaChiNguoiNhan = GetDiaChiNguoiNhan(donHang.MaNguoiNhan),
                     ngayGui = donHang.NgayGui,
                     ngayNhan = donHang.NgayNhan,
                     trangThaiDonHang = donHang.TrangThaiDonHang,
+                    tenDonHang = donHang.TenDonHang ?? "Gói hàng #" + donHang.MaDonHang, // Default value for order name
                     trangThaiThanhToan = donHang.TrangThaiThanhToan,
                     phuongThucThanhToan = donHang.PhuongThucThanhToan,
                     tienThuHo = donHang.TienThuHo,
+                    phiGiaoHang = donHang.PhiGiaoHang,
                     ghiChu = donHang.GhiChu
                 };
 
@@ -239,37 +264,78 @@ namespace Nhom3_CongTyVanChuyen.Controllers
             }
         }
 
+        // GET: api/NVGH/OrdersForStatusUpdate
+        [HttpGet("OrdersForStatusUpdate")]
+        public ActionResult GetOrdersForStatusUpdate(string MaNhanVien)
+        {
+            try
+            {
+                // Define allowed statuses - case insensitive
+                var allowedStatuses = new[] {
+            "đang giao",
+            "đã giao",
+            "đã duyệt",
+            "khách không nhận hàng",
+            "khách hẹn lại ngày giao"
+        };
+
+                // Filter orders by allowed statuses
+                var donHangs = _context.DonHangs
+                    .Include(d => d.KhachHang)
+                    .Where(d => d.MaNhanVien == MaNhanVien &&
+                           allowedStatuses.Contains(d.TrangThaiDonHang.ToLower()))
+                    .ToList();
+
+                // Transform to DTO for frontend
+                var result = donHangs.Select(d => new
+                {
+                    ma = d.MaDonHang,
+                    maVanDon = d.MaVanDon,
+                    tenKhachHang = d.KhachHang?.TenKhachHang ?? "Không có thông tin",
+                    sdtKhachHang = d.KhachHang?.SDT ?? "Không có thông tin",
+                    diaChiGiao = GetDiaChiGiaoHang(d.MaDonHang),
+                    ngayGui = d.NgayGui,
+                    trangThai = d.TrangThaiDonHang,
+                    daThanhToan = d.TrangThaiThanhToan == "Đã thanh toán",
+                    trangThaiThanhToan = d.TrangThaiThanhToan,
+                    phuongThucThanhToan = d.PhuongThucThanhToan,
+                    tienThuHo = d.TienThuHo,
+                    phiGiaoHang = d.PhiGiaoHang,
+                    tongTien = d.TienThuHo + (d.PhiGiaoHang > 0 ? d.PhiGiaoHang : 0) // Total amount to collect
+                }).ToList();
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error: {ex.Message}");
+                return StatusCode(500, "Lỗi khi lấy dữ liệu đơn hàng: " + ex.Message);
+            }
+        }
+
         // GET: api/NVGH/ThuNhap - Lấy thông tin thu nhập của nhân viên từ phí giao hàng
+        // GET: api/NVGH/ThuNhap - Chỉ tính thu nhập từ phí giao hàng
         [HttpGet("ThuNhap")]
         public ActionResult GetThuNhap(string MaNhanVien, DateTime? TuNgay = null, DateTime? DenNgay = null)
         {
             try
             {
-                // Log để debug
-                System.Diagnostics.Debug.WriteLine($"Getting income for employee: {MaNhanVien} from {TuNgay} to {DenNgay}");
+                System.Diagnostics.Debug.WriteLine($"Getting income for employee: {MaNhanVien}");
 
                 // Nếu không có ngày, lấy từ đầu tháng
-                if (!TuNgay.HasValue)
-                {
-                    TuNgay = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
-                }
-
-                if (!DenNgay.HasValue)
-                {
-                    DenNgay = DateTime.Now;
-                }
+                if (!TuNgay.HasValue) TuNgay = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+                if (!DenNgay.HasValue) DenNgay = DateTime.Now;
 
                 // Lấy tất cả đơn hàng của nhân viên
                 var allDonHangs = _context.DonHangs
                     .Where(d => d.MaNhanVien == MaNhanVien)
                     .ToList();
 
-                // Log số lượng đơn hàng để debug
                 System.Diagnostics.Debug.WriteLine($"Total orders found: {allDonHangs.Count}");
 
                 // Lọc đơn hàng đã giao
                 var daGiaoDonHangs = allDonHangs
-                    .Where(d => d.TrangThaiDonHang == "Đã giao")
+                    .Where(d => d.TrangThaiDonHang.ToLower() == "đã giao")
                     .ToList();
 
                 System.Diagnostics.Debug.WriteLine($"Delivered orders: {daGiaoDonHangs.Count}");
@@ -281,51 +347,24 @@ namespace Nhom3_CongTyVanChuyen.Controllers
 
                 System.Diagnostics.Debug.WriteLine($"Delivered and paid orders: {donHangs.Count}");
 
-                // Kiểm tra xem có đơn nào không
-                if (donHangs.Count == 0)
-                {
-                    // Log các trạng thái của đơn để debug
-                    var trangThaiDonHang = allDonHangs.Select(d => d.TrangThaiDonHang).Distinct().ToList();
-                    var trangThaiThanhToan = allDonHangs.Select(d => d.TrangThaiThanhToan).Distinct().ToList();
-
-                    System.Diagnostics.Debug.WriteLine($"Order statuses: {string.Join(", ", trangThaiDonHang)}");
-                    System.Diagnostics.Debug.WriteLine($"Payment statuses: {string.Join(", ", trangThaiThanhToan)}");
-
-                    // Lấy đơn đã giao nhưng chưa thanh toán để hiển thị
-                    var donChuaThanhToan = daGiaoDonHangs
-                        .Where(d => d.TrangThaiThanhToan != "Đã thanh toán")
-                        .Select(d => new
-                        {
-                            ma = d.MaDonHang,
-                            ngayGiao = d.NgayNhan,
-                            trangThai = d.TrangThaiDonHang,
-                            trangThaiThanhToan = d.TrangThaiThanhToan,
-                            phiGiaoHang = d.PhiGiaoHang
-                        })
-                        .ToList();
-
-                    return Ok(new
-                    {
-                        tongThuNhap = 0.0,
-                        soDonHangDaGiao = daGiaoDonHangs.Count,
-                        donHangGanDay = new List<object>(),
-                        thuNhapTheoNgay = new List<object>(),
-                        donChuaThanhToan, // Đơn chưa thanh toán
-                        thongBao = "Không có đơn hàng nào đã giao và đã thanh toán"
-                    });
-                }
-
-                // Tính tổng thu nhập và thông tin chi tiết
+                // Tính tổng thu nhập từ phí giao hàng
                 double tongThuNhap = donHangs.Sum(d => d.PhiGiaoHang);
                 int soDonHangDaGiao = donHangs.Count;
 
-                // Kiểm tra giá trị PhiGiaoHang
-                foreach (var donHang in donHangs.Take(5))
-                {
-                    System.Diagnostics.Debug.WriteLine($"Order {donHang.MaDonHang} fee: {donHang.PhiGiaoHang}");
-                }
+                // Lấy đơn đã giao nhưng chưa thanh toán để hiển thị
+                var donChuaThanhToan = daGiaoDonHangs
+                    .Where(d => d.TrangThaiThanhToan != "Đã thanh toán")
+                    .Select(d => new
+                    {
+                        ma = d.MaDonHang,
+                        ngayGiao = d.NgayNhan,
+                        trangThai = d.TrangThaiDonHang,
+                        trangThaiThanhToan = d.TrangThaiThanhToan,
+                        phiGiaoHang = d.PhiGiaoHang
+                    })
+                    .ToList();
 
-                // Lấy 10 đơn gần đây nhất để hiển thị
+                // Đơn hàng gần đây để hiển thị
                 var donHangGanDay = donHangs
                     .OrderByDescending(d => d.NgayNhan)
                     .Take(10)
@@ -350,15 +389,15 @@ namespace Nhom3_CongTyVanChuyen.Controllers
                     .OrderBy(d => d.ngay)
                     .ToList();
 
-                var result = new
+                return Ok(new
                 {
                     tongThuNhap,
                     soDonHangDaGiao,
                     donHangGanDay,
-                    thuNhapTheoNgay
-                };
-
-                return Ok(result);
+                    thuNhapTheoNgay,
+                    donChuaThanhToan,
+                    thongBao = donHangs.Count == 0 ? "Không có đơn hàng nào đã giao và đã thanh toán" : null
+                });
             }
             catch (Exception ex)
             {
@@ -366,7 +405,6 @@ namespace Nhom3_CongTyVanChuyen.Controllers
                 return StatusCode(500, "Lỗi khi lấy thông tin thu nhập: " + ex.Message);
             }
         }
-
         // GET: api/NVGH/KiemTraDuLieu - API để kiểm tra dữ liệu đơn hàng và debug
         [HttpGet("KiemTraDuLieu")]
         public ActionResult KiemTraDuLieu(string MaNhanVien)
@@ -551,6 +589,45 @@ namespace Nhom3_CongTyVanChuyen.Controllers
             }
         }
         // Method hỗ trợ để lấy địa chỉ giao hàng
+        private string GetDiaChiNguoiNhan(string maNguoiNhan)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(maNguoiNhan))
+                    return "Không có thông tin";
+
+                var nguoiNhan = _context.Set<NguoiNhan>()
+                    .Include(n => n.SoNha)
+                    .ThenInclude(s => s.PhuongXa)
+                    .ThenInclude(px => px.QuanHuyen)
+                    .ThenInclude(qh => qh.TinhThanhPho)
+                    .FirstOrDefault(n => n.MaNguoiNhan == maNguoiNhan);
+
+                if (nguoiNhan?.SoNha != null)
+                {
+                    var soNha = nguoiNhan.SoNha;
+                    string diaChi = soNha.DiaChiSoNha;
+
+                    if (soNha.PhuongXa != null)
+                        diaChi += ", " + soNha.PhuongXa.TenPhuongXa;
+
+                    if (soNha.PhuongXa?.QuanHuyen != null)
+                        diaChi += ", " + soNha.PhuongXa.QuanHuyen.TenQuanHuyen;
+
+                    if (soNha.PhuongXa?.QuanHuyen?.TinhThanhPho != null)
+                        diaChi += ", " + soNha.PhuongXa.QuanHuyen.TinhThanhPho.TenTinhTP;
+
+                    return diaChi;
+                }
+
+                return "Chưa có địa chỉ chi tiết";
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in GetDiaChiNguoiNhan: {ex.Message}");
+                return "Không tìm thấy địa chỉ";
+            }
+        }
         private string GetDiaChiGiaoHang(string maDonHang)
         {
             // Logic để lấy địa chỉ giao hàng, có thể từ bảng NguoiNhan hoặc trực tiếp từ KhachHang

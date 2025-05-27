@@ -775,9 +775,8 @@
                         <span>Quản lý</span>
                     </a>
                     <ul class="sub-menu">
-                        <li><a href="#">Quản lý vận đơn</a></li>
-                        <li><a href="#">Thống kê tiền hàng</a></li>
-                        <li><a href="#">Đơn hàng cần xử lý</a></li>
+                        <li><a href="QuanLyVanDon.html">Quản lý vận đơn</a></li>
+                        <li><a href="ThongKeTienHang.html">Thống kê tiền hàng</a></li>
                         <li><a href="DanhSachNguoiNhan.html">Danh sách người nhận</a></li>
                     </ul>
                 </li>
@@ -794,10 +793,14 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#">
-                        <i class="fas fa-question-circle"></i>
-                        <span>Hỏi đáp trợ giúp</span>
+                    <a href="#" class="menu-toggle">
+                        <i class="fas fa-file-contract"></i>
+                        <span>Điều khoản chính sách</span>
                     </a>
+                    <ul class="sub-menu">
+                        <li><a href="DieuKhoan.html">Điều khoản quy định</a></li>
+                        <li><a href="ChinhSach.html">Chính sách bảo mật thông tin</a></li>
+                    </ul>
                 </li>
                 <li>
                     <a href="#">
@@ -892,9 +895,6 @@
                         <h3 class="form-section-title">
                             <i class="fas fa-box"></i>
                             Thông tin hàng hóa
-                            <span style="margin-left: auto; color: var(--primary-color); font-size: 0.9rem; cursor: pointer;">
-                                Quản lý danh sách hàng hóa →
-                            </span>
                         </h3>
 
                         <!-- Package Type Select Dropdown -->
@@ -932,13 +932,6 @@
                                     <input type="number" id="weight" class="form-control" placeholder="g" style="padding-left: 35px;" required>
                                 </div>
                             </div>
-                        </div>
-
-                        <!-- Add Item Button -->
-                        <div class="form-row">
-                            <button type="button" class="btn" style="background-color: transparent; border: 2px dashed var(--danger-color); color: var(--danger-color); padding: 10px 20px;">
-                                <i class="fas fa-plus"></i> Thêm hàng hóa
-                            </button>
                         </div>
 
                         <!-- Totals -->
@@ -981,15 +974,7 @@
                         </div>
 
                         <!-- Package Rules -->
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="packageRules" class="form-label">Quy đổi</label>
-                                <input type="text" id="packageRules" class="form-control" placeholder="Khối lượng quy đổi từ kích thước hàng hóa" style="background-color: var(--bg-light);" readonly>
-                                <div style="display: flex; align-items: center; justify-content: flex-end; margin-top: 5px;">
-                                    <span style="font-size: 0.9rem; color: var(--text-light);">g</span>
-                                </div>
-                            </div>
-                        </div>
+                        
                     </div>
 
                     <!-- Cash on Delivery Section -->

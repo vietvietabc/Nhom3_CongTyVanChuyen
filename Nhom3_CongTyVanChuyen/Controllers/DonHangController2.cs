@@ -5,7 +5,6 @@ using Nhom3_CongTyVanChuyen.Data;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Nhom3_CongTyVanChuyen.Controllers
 {
@@ -80,7 +79,7 @@ namespace Nhom3_CongTyVanChuyen.Controllers
                         TienThuHo = donHangDTO.TienThuHo,
                         NguoiTraPhi = donHangDTO.NguoiTraPhi,
                         NgayGui = DateTime.Now,
-                        TrangThaiDonHang = "chờ duyệt",
+                        TrangThaiDonHang = "Chờ duyệt",
                         TrangThaiThanhToan = "Chưa thanh toán",
                         TrangThaiThuHo = donHangDTO.TienThuHo > 0 ? "Chưa thu" : "Không áp dụng",
                         GhiChu = donHangDTO.GhiChu
@@ -231,13 +230,99 @@ namespace Nhom3_CongTyVanChuyen.Controllers
             {
                 var donHangs = await _context.DonHangs
                     .Where(d => d.MaKhachHang == maKhachHang)
-                    .Include(d => d.NguoiNhan)
-                    .Include(d => d.ChiTietDonHangs)
-                        .ThenInclude(ct => ct.HangHoa)
                     .OrderByDescending(d => d.NgayGui)
+                    .Select(d => new
+                    {
+                        d.MaDonHang,
+                        d.MaVanDon,
+                        d.TenDonHang,
+                        d.PhiGiaoHang,
+                        d.TienThuHo,
+                        d.NguoiTraPhi,
+                        d.NgayGui,
+                        d.NgayNhan,
+                        d.NgayThanhToan,
+                        d.TrangThaiDonHang,
+                        d.TrangThaiThanhToan,
+                        d.TrangThaiThuHo,
+                        d.GhiChu,
+                        // Only include necessary fields from related entities
+                        NguoiNhan = d.NguoiNhan != null ? new
+                        {
+                            d.NguoiNhan.HoTen,
+                            d.NguoiNhan.SDT
+                        } : null,
+                        ChiTietDonHangs = d.ChiTietDonHangs.Select(ct => new
+                        {
+                            ct.MaChiTietDonHang,
+                            ct.SoLuong,
+                            ct.TrongLuong,
+                            ct.KichThuoc,
+                            HangHoa = ct.HangHoa != null ? new
+                            {
+                                ct.HangHoa.MaHangHoa,
+                                ct.HangHoa.TinhChatHangHoa,
+                                ct.HangHoa.DonGia // Include DonGia for calculation
+                            } : null
+                        }).ToList()
+                    })
                     .ToListAsync();
 
                 return Ok(donHangs);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Lỗi khi lấy danh sách đơn hàng: " + ex.Message });
+            }
+        }
+
+        // GET: api/DonHangController2/GetOrdersForManagement/{maKhachHang}
+        [HttpGet("GetOrdersForManagement/{maKhachHang}")]
+        public async Task<ActionResult> GetOrdersForManagement(string maKhachHang, string search = "", string status = "")
+        {
+            try
+            {
+                var query = _context.DonHangs
+                    .Where(d => d.MaKhachHang == maKhachHang)
+                    .Include(d => d.NguoiNhan)
+                    .Include(d => d.ChiTietDonHangs)
+                    .AsQueryable();
+
+                // Apply search filter
+                if (!string.IsNullOrEmpty(search))
+                {
+                    query = query.Where(d =>
+                        (d.MaVanDon != null && d.MaVanDon.Contains(search)) ||
+                        (d.NguoiNhan != null && d.NguoiNhan.HoTen.Contains(search))
+                    );
+                }
+
+                // Apply status filter
+                if (!string.IsNullOrEmpty(status) && status != "all")
+                {
+                    query = query.Where(d => d.TrangThaiDonHang == status);
+                }
+
+                var orders = await query
+                    .OrderByDescending(d => d.NgayGui)
+                    .Select(d => new
+                    {
+                        d.MaDonHang,
+                        d.MaVanDon,
+                        d.TenDonHang,
+                        SoLuong = d.ChiTietDonHangs.Sum(ct => ct.SoLuong),
+                        TrongLuong = d.ChiTietDonHangs.Sum(ct => ct.TrongLuong),
+                        KichThuoc = string.Join(", ", d.ChiTietDonHangs.Select(ct => ct.KichThuoc).Where(kt => !string.IsNullOrEmpty(kt))),
+                        d.PhiGiaoHang,
+                        d.TienThuHo,
+                        d.TrangThaiDonHang,
+                        d.NguoiTraPhi,
+                        TenNguoiNhan = d.NguoiNhan != null ? d.NguoiNhan.HoTen : "N/A",
+                        d.NgayGui
+                    })
+                    .ToListAsync();
+
+                return Ok(orders);
             }
             catch (Exception ex)
             {
@@ -294,7 +379,7 @@ namespace Nhom3_CongTyVanChuyen.Controllers
                     return NotFound(new { message = "Không tìm thấy đơn hàng" });
 
                 // Check if order can be deleted (only allow deletion of pending orders)
-                if (donHang.TrangThaiDonHang != "chờ duyệt")
+                if (donHang.TrangThaiDonHang != "Chờ duyệt")
                     return BadRequest(new { message = "Chỉ có thể xóa đơn hàng đang chờ xử lý" });
 
                 using var transaction = await _context.Database.BeginTransactionAsync();
@@ -322,6 +407,255 @@ namespace Nhom3_CongTyVanChuyen.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = "Lỗi khi xóa đơn hàng: " + ex.Message });
+            }
+        }
+
+        // GET: api/DonHangController2/GetDashboardStats/{maKhachHang}
+        [HttpGet("GetDashboardStats/{maKhachHang}")]
+        public async Task<ActionResult> GetDashboardStats(string maKhachHang)
+        {
+            try
+            {
+                var donHangs = await _context.DonHangs
+                    .Where(d => d.MaKhachHang == maKhachHang)
+                    .ToListAsync();
+
+                // Tổng đơn hàng (Đã giao, Đang giao, Khách hẹn lại ngày giao)
+                var tongDonHang = donHangs.Count(d =>
+                    d.TrangThaiDonHang == "Đã giao" ||
+                    d.TrangThaiDonHang == "Đang giao" ||
+                    d.TrangThaiDonHang == "Khách hẹn lại ngày giao");
+
+                // Giao thành công (Đã giao)
+                var giaoThanhCong = donHangs.Count(d => d.TrangThaiDonHang == "Đã giao");
+
+                // Đơn hoàn (Khách không nhận hàng)
+                var donHoan = donHangs.Count(d => d.TrangThaiDonHang == "Khách không nhận hàng");
+
+                // Doanh thu (Tổng tiền thu hộ của đơn đã giao)
+                var doanhThu = donHangs
+                    .Where(d => d.TrangThaiDonHang == "Đã giao")
+                    .Sum(d => d.TienThuHo);
+
+                // Thống kê theo tháng trước để tính phần trăm thay đổi
+                var thangTruoc = DateTime.Now.AddMonths(-1);
+                var donHangThangTruoc = await _context.DonHangs
+                    .Where(d => d.MaKhachHang == maKhachHang &&
+                       d.NgayGui.Month == thangTruoc.Month &&
+                       d.NgayGui.Year == thangTruoc.Year)
+                    .ToListAsync();
+
+                var tongDonHangThangTruoc = donHangThangTruoc.Count(d =>
+                    d.TrangThaiDonHang == "Đã giao" ||
+                    d.TrangThaiDonHang == "Đang giao" ||
+                    d.TrangThaiDonHang == "Khách hẹn lại ngày giao");
+
+                var giaoThanhCongThangTruoc = donHangThangTruoc.Count(d => d.TrangThaiDonHang == "Đã giao");
+                var donHoanThangTruoc = donHangThangTruoc.Count(d => d.TrangThaiDonHang == "Khách không nhận hàng");
+                var doanhThuThangTruoc = donHangThangTruoc
+                    .Where(d => d.TrangThaiDonHang == "Đã giao")
+                    .Sum(d => d.TienThuHo);
+
+                // Tính phần trăm thay đổi
+                var phanTramTongDon = tongDonHangThangTruoc > 0 ?
+                    Math.Round(((double)(tongDonHang - tongDonHangThangTruoc) / tongDonHangThangTruoc) * 100, 1) : 0;
+
+                var phanTramGiaoTC = giaoThanhCongThangTruoc > 0 ?
+                    Math.Round(((double)(giaoThanhCong - giaoThanhCongThangTruoc) / giaoThanhCongThangTruoc) * 100, 1) : 0;
+
+                var phanTramDonHoan = donHoanThangTruoc > 0 ?
+                    Math.Round(((double)(donHoan - donHoanThangTruoc) / donHoanThangTruoc) * 100, 1) : 0;
+
+                var phanTramDoanhThu = doanhThuThangTruoc > 0 ?
+                    Math.Round(((doanhThu - doanhThuThangTruoc) / doanhThuThangTruoc) * 100, 1) : 0;
+
+                var result = new
+                {
+                    tongDonHang = tongDonHang,
+                    giaoThanhCong = giaoThanhCong,
+                    donHoan = donHoan,
+                    doanhThu = doanhThu,
+                    phanTramThayDoi = new
+                    {
+                        tongDonHang = phanTramTongDon,
+                        giaoThanhCong = phanTramGiaoTC,
+                        donHoan = phanTramDonHoan,
+                        doanhThu = phanTramDoanhThu
+                    }
+                };
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Lỗi khi lấy thống kê dashboard: " + ex.Message });
+            }
+        }
+
+        // GET: api/DonHangController2/GetChartData/{maKhachHang}
+        [HttpGet("GetChartData/{maKhachHang}")]
+        public async Task<ActionResult> GetChartData(string maKhachHang, string period = "week")
+        {
+            try
+            {
+                var now = DateTime.Now;
+                DateTime startDate;
+                List<string> labels;
+                int periodCount;
+
+                if (period.ToLower() == "week")
+                {
+                    // Lấy dữ liệu 7 ngày gần nhất
+                    startDate = now.AddDays(-6).Date;
+                    periodCount = 7;
+                    labels = new List<string>();
+                    for (int i = 0; i < 7; i++)
+                    {
+                        var date = startDate.AddDays(i);
+                        labels.Add(date.ToString("dd/MM"));
+                    }
+                }
+                else // month
+                {
+                    // Lấy dữ liệu 4 tuần gần nhất
+                    startDate = now.AddDays(-27).Date;
+                    periodCount = 4;
+                    labels = new List<string> { "Tuần 1", "Tuần 2", "Tuần 3", "Tuần 4" };
+                }
+
+                var donHangs = await _context.DonHangs
+                    .Where(d => d.MaKhachHang == maKhachHang && d.NgayGui >= startDate)
+                    .ToListAsync();
+
+                var successData = new List<int>();
+                var returnData = new List<int>();
+
+                if (period.ToLower() == "week")
+                {
+                    // Thống kê theo ngày
+                    for (int i = 0; i < 7; i++)
+                    {
+                        var date = startDate.AddDays(i);
+                        var dayOrders = donHangs.Where(d => d.NgayGui.Date == date).ToList();
+
+                        successData.Add(dayOrders.Count(d => d.TrangThaiDonHang == "Đã giao"));
+                        returnData.Add(dayOrders.Count(d => d.TrangThaiDonHang == "Khách không nhận hàng"));
+                    }
+                }
+                else
+                {
+                    // Thống kê theo tuần
+                    for (int i = 0; i < 4; i++)
+                    {
+                        var weekStart = startDate.AddDays(i * 7);
+                        var weekEnd = weekStart.AddDays(6);
+                        var weekOrders = donHangs.Where(d => d.NgayGui.Date >= weekStart && d.NgayGui.Date <= weekEnd).ToList();
+
+                        successData.Add(weekOrders.Count(d => d.TrangThaiDonHang == "Đã giao"));
+                        returnData.Add(weekOrders.Count(d => d.TrangThaiDonHang == "Khách không nhận hàng"));
+                    }
+                }
+
+                var result = new
+                {
+                    labels = labels,
+                    successData = successData,
+                    returnData = returnData,
+                    period = period
+                };
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Lỗi khi lấy dữ liệu biểu đồ: " + ex.Message });
+            }
+        }
+
+        // GET: api/DonHangController2/GetRecentOrders/{maKhachHang}
+        [HttpGet("GetRecentOrders/{maKhachHang}")]
+        public async Task<ActionResult> GetRecentOrders(string maKhachHang)
+        {
+            try
+            {
+                // Lấy đơn hàng trong 1 tuần qua
+                var oneWeekAgo = DateTime.Now.AddDays(-7);
+
+                var recentOrders = await _context.DonHangs
+                    .Where(d => d.MaKhachHang == maKhachHang && d.NgayGui >= oneWeekAgo)
+                    .OrderByDescending(d => d.NgayGui)
+                    .Select(d => new
+                    {
+                        d.MaDonHang,
+                        d.MaVanDon,
+                        d.TenDonHang,
+                        d.TrangThaiDonHang,
+                        d.GhiChu,
+                        d.NgayGui
+                    })
+                    .ToListAsync();
+
+                return Ok(recentOrders);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Lỗi khi lấy đơn hàng gần đây: " + ex.Message });
+            }
+        }
+
+        // GET: api/DonHangController2/GetRevenueStats/{maKhachHang}
+        [HttpGet("GetRevenueStats/{maKhachHang}")]
+        public async Task<ActionResult> GetRevenueStats(string maKhachHang, DateTime? startDate = null, DateTime? endDate = null)
+        {
+            try
+            {
+                var query = _context.DonHangs
+                    .Where(d => d.MaKhachHang == maKhachHang);
+
+                // Apply date filter if provided
+                if (startDate.HasValue)
+                    query = query.Where(d => d.NgayGui >= startDate.Value);
+
+                if (endDate.HasValue)
+                    query = query.Where(d => d.NgayGui <= endDate.Value);
+
+                var donHangs = await query.ToListAsync();
+
+                // Calculate statistics by specific status requested
+                var statusStats = new List<object>();
+                var targetStatuses = new[]
+                {
+                    "Đã giao",
+                    "Khách hẹn lại ngày giao",
+                    "Khách không nhận hàng",
+                    "Đang giao"
+                };
+
+                foreach (var status in targetStatuses)
+                {
+                    var statusOrders = donHangs.Where(d => d.TrangThaiDonHang == status).ToList();
+                    statusStats.Add(new
+                    {
+                        trangThai = status,
+                        soDon = statusOrders.Count,
+                        tienThuHo = statusOrders.Sum(d => d.TienThuHo),
+                        tienCuoc = statusOrders.Sum(d => d.PhiGiaoHang)
+                    });
+                }
+
+                var result = new
+                {
+                    tongSoDon = donHangs.Count,
+                    tongTienThuHo = donHangs.Sum(d => d.TienThuHo),
+                    tongTienCuoc = donHangs.Sum(d => d.PhiGiaoHang),
+                    chiTietTheoTrangThai = statusStats
+                };
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Lỗi khi lấy thống kê doanh thu: " + ex.Message });
             }
         }
 
